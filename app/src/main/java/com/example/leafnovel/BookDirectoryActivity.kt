@@ -1,6 +1,6 @@
 package com.example.leafnovel
 
-import RequestChList
+import NovelApi
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -14,8 +14,10 @@ import kotlinx.coroutines.launch
 
 class BookDirectoryActivity : AppCompatActivity(),BookChAdapter.OnItemClickListener {
 
+//    val novelApi=NovelApi()
     val adapter = BookChAdapter()
     var bookId =""
+    var booktitle = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -23,7 +25,8 @@ class BookDirectoryActivity : AppCompatActivity(),BookChAdapter.OnItemClickListe
 
 //        recycler = findViewById<RecyclerView>(R.id.BookChRecycler)
         bookId =  intent.getStringExtra("BOOK_ID")
-        val booktitle =  intent.getStringExtra("BOOK_TITLE")
+
+        booktitle =  intent.getStringExtra("BOOK_TITLE")
 
         val book_titleView = findViewById<TextView>(R.id.BookTitleView).apply { text = booktitle }
 
@@ -34,7 +37,7 @@ class BookDirectoryActivity : AppCompatActivity(),BookChAdapter.OnItemClickListe
         }
 
         CoroutineScope(Dispatchers.IO).launch {
-            val bookChResults = RequestChList(bookId)
+            val bookChResults = NovelApi.RequestChList(bookId)
 //            Log.d(TAG,"onCreate:${bookResults.size}")
             launch(Dispatchers.Main) {
                 adapter.setItems(bookChResults, this@BookDirectoryActivity)
@@ -49,6 +52,7 @@ class BookDirectoryActivity : AppCompatActivity(),BookChAdapter.OnItemClickListe
             putExtra("BOOK_CH_ID",bookCh.chId)
             putExtra("BOOK_CH_URL",bookCh.chUrl)
             putExtra("BOOK_CH_TITLE",bookCh.chtitle)
+            putExtra("BOOK_TITLE",booktitle)
         }
         this.startActivity(intent)
 //        print(bookResults)

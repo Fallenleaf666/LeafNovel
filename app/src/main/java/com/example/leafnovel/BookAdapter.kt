@@ -16,9 +16,11 @@ class BookAdapter():RecyclerView.Adapter<BookViewHolder>() {
 //        items.addAll(books)
 //        notifyDataSetChanged()
 //    }
-fun setItems(books:ArrayList<Book>, itemClickListener: OnItemClickListener){
+fun setItems(books:List<Book>?, itemClickListener: OnItemClickListener){
     items.clear()
-    items.addAll(books)
+    if (books != null) {
+        items.addAll(books)
+    }
     listener = itemClickListener
     notifyDataSetChanged()
 }
@@ -26,9 +28,11 @@ fun setItems(books:ArrayList<Book>, itemClickListener: OnItemClickListener){
 
 
     inner class BookViewHolder(view: View):RecyclerView.ViewHolder(view),View.OnClickListener{
-    val author=view.Book_authorView
-    val booktitle=view.book_name
-    val bookUrl=view.other
+        val author=view.BookAuthor
+        val booktitle=view.BookName
+//        val updateTime=view.update_time
+//        val bookUrl=view.update_time
+        val bookDescripe=view.BookDescripe
         init {
             view.setOnClickListener(this)
         }
@@ -53,7 +57,9 @@ fun setItems(books:ArrayList<Book>, itemClickListener: OnItemClickListener){
     override fun onBindViewHolder(holder: BookViewHolder, position: Int) {
         holder.author.setText(items.get(position).author)
         holder.booktitle.setText(items.get(position).booktitle)
-        holder.bookUrl.setText(items.get(position).bookUrl)
+//        holder.bookUrl.setText(items.get(position).bookUrl)
+//        holder.updateTime.setText(items.get(position).updateTime)
+        holder.bookDescripe.setText(items.get(position).bookDescripe)
     }
 
     override fun getItemCount(): Int =items.size

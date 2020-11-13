@@ -23,14 +23,14 @@ var searchText = "斗羅"
         .readTimeout(130, TimeUnit.SECONDS)
         .build()
 
-    val novelService: NovelService by lazy {
-        Retrofit.Builder()
-            .baseUrl(url)
-            .addConverterFactory(GsonConverterFactory.create())
-            .addCallAdapterFactory(CoroutineCallAdapterFactory())
-            .client(okHttpClientvalor)
-            .build().create(NovelService::class.java)
-    }
+//    val novelService: NovelService by lazy {
+//        Retrofit.Builder()
+//            .baseUrl(url)
+//            .addConverterFactory(GsonConverterFactory.create())
+//            .addCallAdapterFactory(CoroutineCallAdapterFactory())
+//            .client(okHttpClientvalor)
+//            .build().create(NovelService::class.java)
+//    }
 //    CoroutineScope(Dispatchers.IO).launch {
 //        // Retrofit return Differed<Response<BookStore>>
 ////            val novelResult = novelService.getNovels(searchText)
@@ -44,10 +44,10 @@ var searchText = "斗羅"
 ////        val response = result.body();
 //    }
 
-interface NovelService {
-    //    @GET("v1?cx=partner-pub-7553981642580305:sba9ctxj5fy&q={searchText}&cse_tok=AJvRUv1knGZFUgYo-n41FhSbORqe:1604561078813&exp=csqr,cc&oq=%E5%9F%BA%E5%9B%A0&gs_l=partner-generic.3...65382.68532.0.69713.0.0.0.0.0.0.0.0..0.0.csems%2Cnrl%3D13...0.4184j6108804j16j3...1j4.34.partner-generic..0.0.0.&callback=google.search.cse.api10323")
-//    suspend fun getNovels(@Path("searchText") searchText: String): NovelResult?
-    @GET("v1")
-    suspend fun getNovels(@Query("cx")cx:String, @Query("q")q:String, @Query("cse_tok")cse_tok:String
-                          , @Query("exp")exp:String, @Query("oq")oq:String): NovelResult?
-}
+//interface NovelService {
+//    //    @GET("v1?cx=partner-pub-7553981642580305:sba9ctxj5fy&q={searchText}&cse_tok=AJvRUv1knGZFUgYo-n41FhSbORqe:1604561078813&exp=csqr,cc&oq=%E5%9F%BA%E5%9B%A0&gs_l=partner-generic.3...65382.68532.0.69713.0.0.0.0.0.0.0.0..0.0.csems%2Cnrl%3D13...0.4184j6108804j16j3...1j4.34.partner-generic..0.0.0.&callback=google.search.cse.api10323")
+////    suspend fun getNovels(@Path("searchText") searchText: String): NovelResult?
+//    @GET("v1")
+//    suspend fun getNovels(@Query("cx")cx:String, @Query("q")q:String, @Query("cse_tok")cse_tok:String
+//                          , @Query("exp")exp:String, @Query("oq")oq:String): NovelResult?
+//}

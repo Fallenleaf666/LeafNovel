@@ -1,14 +1,18 @@
 package com.example.leafnovel
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+
 class BooksResults:java.util.ArrayList<Book>()
+//class BooksResults:List<Book>
 data class Book(
-    val bookNum: String,
+    var bookNum: String,
     var booktitle: String,
-    val bookId: String,
+    var bookId: String,
     var bookUrl: String,
     var author: String,
-    val bookDescripe: String,
-    val updateTime: String
+    var bookDescripe: String,
+    var updateTime: String
 )
 class BookChsResults:java.util.ArrayList<BookChapter>()
 data class BookChapter(

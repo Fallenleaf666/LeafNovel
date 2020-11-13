@@ -8,4 +8,9 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="BookDetailTextView" parent="Widget.AppCompat.TextView">
+        <item name="android:textSize">10sp</item>
+    </style>
+
+
 </resources>
