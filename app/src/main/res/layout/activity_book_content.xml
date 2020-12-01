@@ -11,8 +11,39 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent" app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" android:visibility="invisible">
+            app:layout_constraintBottom_toBottomOf="parent" android:visibility="invisible"
+            android:background="#8D9A9797"
+            android:id="@+id/FunctionMenu">
 
+        <androidx.appcompat.widget.Toolbar
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/colorPrimary"
+                android:theme="?attr/actionBarTheme"
+                android:minHeight="?attr/actionBarSize" android:id="@+id/ToolBar"
+                app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
+        <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="0dp"
+                android:layout_height="0dp" app:layout_constraintTop_toBottomOf="@+id/ToolBar"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toTopOf="@+id/bottomNavigation">
+            <ImageButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent" app:srcCompat="@drawable/abc_vector_test"
+                    android:id="@+id/LastPageBT" android:layout_weight="1" android:background="#48636161"/>
+            <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:id="@+id/imageView"
+                    android:layout_weight="4"/>
+            <ImageButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent" app:srcCompat="@drawable/abc_vector_test"
+                    android:id="@+id/NextPageBT" android:layout_weight="1" android:background="#48636161"/>
+        </LinearLayout>
         <com.google.android.material.bottomnavigation.BottomNavigationView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -21,16 +52,9 @@
                 android:background="#6D7520"
                 android:visibility="visible" app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                android:id="@+id/bottomNavigationView" app:layout_constraintBottom_toBottomOf="parent"
+                android:id="@+id/bottomNavigation" app:layout_constraintBottom_toBottomOf="parent"
         >
         </com.google.android.material.bottomnavigation.BottomNavigationView>
-        <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:id="@+id/imageView"
-                tools:srcCompat="@color/cardview_shadow_start_color" app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintBottom_toTopOf="@+id/bottomNavigationView"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
     <ScrollView
             android:layout_width="match_parent"
