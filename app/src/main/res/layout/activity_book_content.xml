@@ -7,11 +7,37 @@
         android:layout_height="match_parent"
         tools:context=".BookContentActivity">
 
+    <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" android:visibility="invisible">
+
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:menu="@menu/novel_content_bottom_nav"
+                app:itemTextColor="#CED1AA" app:itemRippleColor="#FFFFFF" app:itemIconSize="20dp"
+                android:background="#6D7520"
+                android:visibility="visible" app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:id="@+id/bottomNavigationView" app:layout_constraintBottom_toBottomOf="parent"
+        >
+        </com.google.android.material.bottomnavigation.BottomNavigationView>
+        <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:id="@+id/imageView"
+                tools:srcCompat="@color/cardview_shadow_start_color" app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toTopOf="@+id/bottomNavigationView"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
     <ScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:layout_constraintTop_toTopOf="parent" app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" app:layout_constraintBottom_toBottomOf="parent">
+            app:layout_constraintStart_toStartOf="parent" app:layout_constraintBottom_toBottomOf="parent"
+            android:id="@+id/scrollView2">
         <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
