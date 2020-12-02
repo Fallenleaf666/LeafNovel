@@ -175,6 +175,7 @@ fun allToHelfText(text :String,bookTitle:String):String{
         .replace("UU看書","")
         .replace("www.uukanshu.com","")
         .replace("“"+bookTitle+" ()”查找最新章節！","")
+        .replace("“"+bookTitle+"()”查找最新章節！","")
         .replace(bookTitle+"新()”查找最新章節！","")
         .replace("。 ","。\n\n")
     return changeText

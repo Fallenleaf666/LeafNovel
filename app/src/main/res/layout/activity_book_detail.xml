@@ -7,17 +7,18 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".BookDetailActivity"
->
+        tools:visibility="visible">
 
     <ProgressBar
-            style="@android:style/Widget.DeviceDefault.Light.ProgressBar.Inverse"
+            style="@android:style/Widget.Holo.ProgressBar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/LoadProgressBar" app:layout_constraintStart_toStartOf="parent"
             android:layout_marginEnd="16dp"
             app:layout_constraintTop_toTopOf="parent" android:layout_marginBottom="9dp"
             app:layout_constraintEnd_toEndOf="parent" app:layout_constraintBottom_toBottomOf="parent"
-            android:background="#DDD8D8" android:animationResolution="@android:integer/config_mediumAnimTime"
+            android:background="@drawable/progress_bg"
+            android:animationResolution="@android:integer/config_mediumAnimTime"
             android:alpha="@dimen/material_emphasis_high_type" android:clickable="false"
             android:indeterminateBehavior="repeat" android:visibility="visible"/>
     <ImageView
@@ -76,10 +77,9 @@
         <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent"
                       android:orientation="vertical">
             <TextView
-                    android:text="這是一本書"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent" android:id="@+id/Book_DescripeView"
-            />
+                    android:lineSpacingExtra="6sp" tools:text="這是一本書"/>
         </LinearLayout>
     </ScrollView>
     <TextView

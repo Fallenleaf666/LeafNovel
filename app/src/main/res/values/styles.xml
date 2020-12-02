@@ -16,6 +16,12 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:textSize">10sp</item>
+        <item name="android:textColorPrimary">@color/colorp</item>
+        <item name="android:textColorSecondary">@color/colorp</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+
     </style>
 
 </resources>
