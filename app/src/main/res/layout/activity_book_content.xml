@@ -5,7 +5,7 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".BookContentActivity" android:background="#FFFFFF">
+        tools:context=".BookContentActivity" android:background="#FFFFFF" android:scaleX="1" android:scaleY="1">
 
     <ScrollView
             android:layout_width="match_parent"
@@ -38,7 +38,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent" app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="parent" android:visibility="visible"
             android:background="#8D9A9797"
             android:id="@+id/FunctionMenu">
 
@@ -77,21 +77,25 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@color/colorPrimary" android:id="@+id/StyleSettingView"
-                    android:visibility="gone">
+                    android:visibility="visible" android:animateLayoutChanges="true">
                 <LinearLayout
                         android:orientation="horizontal"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent" android:layout_marginTop="20dp"
-                        android:layout_marginStart="20dp" android:layout_marginEnd="20dp">
+                        android:layout_marginStart="20dp" android:layout_marginEnd="20dp"
+                        android:layout_marginBottom="10dp">
                     <ImageView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content" android:src="@drawable/ic_baseline_font_download_24"
                             android:id="@+id/imageView" android:scaleType="center"/>
                     <SeekBar
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content" android:id="@+id/seekBar3"
+                            android:layout_height="wrap_content" android:id="@+id/FontSizeSeekBar"
                             android:layout_gravity="center_vertical" android:layout_marginStart="10dp"
-                            android:layout_marginEnd="20dp"/>
+                            android:layout_marginEnd="20dp" android:max="15" android:progress="11"
+                            android:indeterminate="false"
+                            android:thumbOffset="8dip"
+                            style="@style/FontSeekBar"/>
                 </LinearLayout>
                 <LinearLayout
                         android:orientation="horizontal"
@@ -105,9 +109,31 @@
                             android:id="@+id/imageView2"/>
                     <SeekBar
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content" android:id="@+id/seekBar2"
+                            android:layout_height="wrap_content" android:id="@+id/LightSeekBar"
                             android:layout_gravity="center_vertical" android:layout_marginStart="10dp"
-                            android:layout_marginEnd="20dp"/>
+                            android:layout_marginEnd="20dp" style="@style/FontSeekBar" android:max="100"
+                    />
+                </LinearLayout>
+                <LinearLayout
+                        android:orientation="horizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:layout_marginBottom="20dp" android:layout_marginStart="20dp"
+                        android:layout_marginEnd="20dp">
+                    <ImageButton
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:id="@+id/imageButton3" android:background="#EEDFDFDF"
+                    />
+                    <ImageButton
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:id="@+id/imageButton" android:background="#D3F1D379"/>
+                    <ImageButton
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:id="@+id/imageButton2" android:background="#D8B8DD8C"/>
+
                 </LinearLayout>
             </LinearLayout>
             <com.google.android.material.bottomnavigation.BottomNavigationView

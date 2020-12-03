@@ -1,18 +1,22 @@
 package com.example.leafnovel
 
 import NovelApi
+import android.app.Activity
 import android.os.Bundle
+import android.provider.Settings
 import android.view.MenuItem
 import android.view.View
+import android.widget.SeekBar
+import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.ncapdevi.fragnav.FragNavController
 import kotlinx.android.synthetic.main.activity_book_content.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+
 
 class BookContentActivity : AppCompatActivity() {
 
@@ -76,6 +80,32 @@ class BookContentActivity : AppCompatActivity() {
             Toast.makeText(applicationContext, "下一節", Toast.LENGTH_SHORT).show()
         }
 
+        FontSizeSeekBar.setOnSeekBarChangeListener(object : OnSeekBarChangeListener{
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                //                max is 40 but min is 10
+                    ChContent.textSize = (progress+10).toFloat()
+                    ChTitle.textSize = progress.toFloat()
+            }
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+        })
+//  if windowBrightness not default it will in 0 ~ 1
+//        LightSeekBar.progress = if (windowBrightness > 0) (windowBrightness * 100).toInt() else 0
+        try{
+//  get system windowBrightness it usually in 0 ~ 255 , need adjust to 0 ~ 100 in seekbar
+        val nowWindowBrightness = Settings.System.getInt(applicationContext.contentResolver,Settings.System.SCREEN_BRIGHTNESS)
+            LightSeekBar.progress = nowWindowBrightness*100/256
+        }catch (e:Exception){
+            e.printStackTrace()
+        }
+        LightSeekBar.setOnSeekBarChangeListener(object : OnSeekBarChangeListener{
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                windowBrightness = progress.toFloat() / 100F
+        }
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+        })
+
     }
 
     private fun SetActbar() {
@@ -100,26 +130,25 @@ class BookContentActivity : AppCompatActivity() {
 
 
     private fun initBottomNavigationView() {
-        bottomNavigation.setOnNavigationItemSelectedListener (bottomNavigationViewListener)
+        bottomNavigation.setOnNavigationItemSelectedListener(bottomNavigationViewListener)
     }
 
-    private val bottomNavigationViewListener = BottomNavigationView.OnNavigationItemSelectedListener {
-            item ->
+    private val bottomNavigationViewListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         when(item.itemId){
             R.id.dayNightModeItem -> {
-                when(StyleSettingView.visibility){
+                when (StyleSettingView.visibility) {
                     View.VISIBLE -> StyleSettingView.visibility = View.GONE
                 }
                 return@OnNavigationItemSelectedListener true
             }
             R.id.directoryItem -> {
-                when(StyleSettingView.visibility){
+                when (StyleSettingView.visibility) {
                     View.VISIBLE -> StyleSettingView.visibility = View.GONE
                 }
                 return@OnNavigationItemSelectedListener true
             }
             R.id.fontSettingItem -> {
-                when(StyleSettingView.visibility){
+                when (StyleSettingView.visibility) {
                     View.GONE -> StyleSettingView.visibility = View.VISIBLE
                 }
                 return@OnNavigationItemSelectedListener true
@@ -128,8 +157,15 @@ class BookContentActivity : AppCompatActivity() {
         false
     }
 
-
-
+//screen brightness
+    var Activity.windowBrightness
+        get() = window.attributes.screenBrightness
+        set(brightness) {
+//            less than 0 or big then 1.0 see as sys default brightness (-1)
+            window.attributes = window.attributes.apply {
+                screenBrightness = if (brightness > 1.0 || brightness < 0) -1.0F else brightness
+            }
+        }
 
 
 }
