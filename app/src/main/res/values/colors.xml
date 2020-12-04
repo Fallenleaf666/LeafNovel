@@ -6,4 +6,6 @@
     <color name="green">#6D7520</color>
     <color name="colorp">#F6F6F0</color>
     <color name="pgGray">#B0B7B8B2</color>
+    <color name="selectChBg">#6D5A5A5A</color>
+    <color name="unselectChBg">#FFFFFFFF</color>
 </resources>

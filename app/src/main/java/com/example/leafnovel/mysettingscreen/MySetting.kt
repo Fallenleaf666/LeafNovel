@@ -44,9 +44,6 @@ class MySetting : Fragment() {
                     repository?.insert(storedbook)
                 }
             }
-        DeleteSharePref.setOnClickListener{
-            val preference = context?.getSharedPreferences("UiSetting", Context.MODE_PRIVATE)
-            preference?.edit()?.clear()
-            }
+
     }
 }
