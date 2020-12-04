@@ -2,7 +2,9 @@ package com.example.leafnovel
 
 import NovelApi
 import android.app.Activity
+import android.content.Context
 import android.os.Bundle
+import android.preference.PreferenceManager
 import android.provider.Settings
 import android.view.MenuItem
 import android.view.View
@@ -19,14 +21,15 @@ import kotlinx.coroutines.launch
 
 
 class BookContentActivity : AppCompatActivity() {
-
 //    lateinit var bottomNavigationView : BottomNavigationView
-
+//    companion object{}
+    val preference by lazy {getSharedPreferences("UiSetting",Context.MODE_PRIVATE)}
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_book_content)
 
         SetActbar()
+        SetUI()
         SetUiListener()
         initBottomNavigationView()
 //        initBottomNavigationView()
@@ -52,6 +55,16 @@ class BookContentActivity : AppCompatActivity() {
             }
         }
 //請求資源
+    }
+
+    private fun SetUI() {
+        val fontSize = preference.getFloat(getString(R.string.novel_fontsize),16F)
+        ChTitle.setTextSize(fontSize)
+        ChContent.setTextSize(fontSize + 4)
+        windowBrightness = preference.getFloat(getString(R.string.window_brightness),GetSysWindowBrightness())
+//        if windowBrightness not default it will in 0 ~ 1
+        LightSeekBar.progress = if (windowBrightness in 0.0..1.0) (windowBrightness * 100).toInt() else 0
+        FontSizeSeekBar.progress = (fontSize - 10).toInt()
     }
 
     private fun SetUiListener() {
@@ -81,33 +94,40 @@ class BookContentActivity : AppCompatActivity() {
         }
 
         FontSizeSeekBar.setOnSeekBarChangeListener(object : OnSeekBarChangeListener{
+            var tempFontSizeValue = 16F
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                //                max is 40 but min is 10
-                    ChContent.textSize = (progress+10).toFloat()
-                    ChTitle.textSize = progress.toFloat()
+                //                max is 25 but min is 10
+                tempFontSizeValue = progress.toFloat() +10
+                ChTitle.textSize = tempFontSizeValue
+                ChContent.textSize = (tempFontSizeValue + 4)
             }
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                with(preference.edit()){
+                    putFloat(getString(R.string.novel_fontsize),tempFontSizeValue).apply()
+                }
+            }
         })
-//  if windowBrightness not default it will in 0 ~ 1
-//        LightSeekBar.progress = if (windowBrightness > 0) (windowBrightness * 100).toInt() else 0
-        try{
-//  get system windowBrightness it usually in 0 ~ 255 , need adjust to 0 ~ 100 in seekbar
-        val nowWindowBrightness = Settings.System.getInt(applicationContext.contentResolver,Settings.System.SCREEN_BRIGHTNESS)
-            LightSeekBar.progress = nowWindowBrightness*100/256
-        }catch (e:Exception){
-            e.printStackTrace()
-        }
+
         LightSeekBar.setOnSeekBarChangeListener(object : OnSeekBarChangeListener{
+            var tempLightValue = preference.getFloat(getString(R.string.window_brightness),0F)
+//            var tempLightValue = 0F
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                windowBrightness = progress.toFloat() / 100F
+                tempLightValue = progress / 100F
+                windowBrightness = tempLightValue
         }
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                //                set app window_brightness , it also can put in onDestroy
+                with(preference.edit()){
+                    putFloat(getString(R.string.window_brightness),tempLightValue).apply()
+                }
+            }
         })
-
+        DeletePrefBT.setOnClickListener{
+            preference.edit().clear().apply()
+        }
     }
-
     private fun SetActbar() {
         setSupportActionBar(ToolBar)
         getSupportActionBar()?.apply {
@@ -126,8 +146,6 @@ class BookContentActivity : AppCompatActivity() {
             else -> super.onOptionsItemSelected(item)
         }
     }
-
-
 
     private fun initBottomNavigationView() {
         bottomNavigation.setOnNavigationItemSelectedListener(bottomNavigationViewListener)
@@ -167,5 +185,14 @@ class BookContentActivity : AppCompatActivity() {
             }
         }
 
-
+    fun GetSysWindowBrightness():Float{
+        var nowWindowBrightness = 0
+        try{
+//  get system windowBrightness it usually in 0 ~ 255 , need adjust to 0 ~ 100 in seekbar
+            nowWindowBrightness = Settings.System.getInt(applicationContext.contentResolver,Settings.System.SCREEN_BRIGHTNESS)
+        }catch (e:Exception){
+            e.printStackTrace()
+        }
+    return nowWindowBrightness/255F
+    }
 }

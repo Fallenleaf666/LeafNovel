@@ -1,5 +1,6 @@
 package com.example.leafnovel.mysettingscreen
 
+import android.content.Context
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -42,6 +43,10 @@ class MySetting : Fragment() {
                 "http://www", "120000")
                     repository?.insert(storedbook)
                 }
+            }
+        DeleteSharePref.setOnClickListener{
+            val preference = context?.getSharedPreferences("UiSetting", Context.MODE_PRIVATE)
+            preference?.edit()?.clear()
             }
     }
 }
