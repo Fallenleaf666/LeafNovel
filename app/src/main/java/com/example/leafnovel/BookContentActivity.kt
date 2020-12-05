@@ -5,22 +5,17 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.preference.PreferenceManager
 import android.provider.Settings
-import android.view.Gravity
 import android.view.MenuItem
 import android.view.View
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
-import android.widget.TextView
 import android.widget.Toast
-import androidx.annotation.Nullable
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.android.synthetic.main.activity_book_content.*
-import kotlinx.android.synthetic.main.activity_book_directory.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -31,6 +26,7 @@ class BookContentActivity : AppCompatActivity(),BookChAdapter.OnItemClickListene
 //    companion object{}
     val preference by lazy {getSharedPreferences("UiSetting",Context.MODE_PRIVATE)}
     val adapter = BookChAdapter()
+    var nowChNum = 0
 
     lateinit var bookChId :String
     lateinit var chTitle :String
@@ -44,21 +40,24 @@ class BookContentActivity : AppCompatActivity(),BookChAdapter.OnItemClickListene
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_book_content)
 
-        SetActbar()
-        SetUI()
-        SetUiListener()
-        initBottomNavigationView()
-        GetTransData()
-//        initBottomNavigationView()
         bookChId =  intent.getStringExtra("BOOK_CH_ID")
         chTitle =  intent.getStringExtra("BOOK_CH_TITLE")
         chUrl =  intent.getStringExtra("BOOK_CH_URL")
         bookId =  intent.getStringExtra("BOOK_ID")
         bookTitle =  intent.getStringExtra("BOOK_TITLE")
 
+        setActbar()
+        setUI()
+        setUiListener()
+        initBottomNavigationView()
+        getTransData()
+//        initBottomNavigationView()
 
-        val book_chTitleView = findViewById<TextView>(R.id.ChTitle).apply { text = chTitle }
-        val book_chContentView = findViewById<TextView>(R.id.ChContent).apply { text = "" }
+
+//        val book_chTitleView = findViewById<TextView>(R.id.ChTitle).apply { text = chTitle }
+//        val book_chContentView = findViewById<TextView>(R.id.ChContent).apply { text = "" }
+        ChTitle.text = chTitle
+        ChContent.text = ""
         CoroutineScope(Dispatchers.IO).launch {
 //            val chapterContents = NovelApi.RequestChText(chUrl)
             val chapterContents = NovelApi.RequestChTextBETA(chUrl, bookTitle)
@@ -66,14 +65,14 @@ class BookContentActivity : AppCompatActivity(),BookChAdapter.OnItemClickListene
             launch(Dispatchers.Main) {
 //                for(line in chapterContents){
 //                    book_chContentView.setText(book_chContentView.text.toString() + line.chapterLineContent +"\n\n")
-                    book_chContentView.setText(chapterContents)
+                ChContent.text = chapterContents
 //                }
             }
         }
 //請求資源
     }
 
-    private fun GetTransData() {
+    private fun getTransData() {
         allChapters = intent.getParcelableArrayListExtra<BookChapter>("NOVEL_CHAPTERS")
         allChapters?.let {
             adapter.setItems(it, this@BookContentActivity)
@@ -82,6 +81,14 @@ class BookContentActivity : AppCompatActivity(),BookChAdapter.OnItemClickListene
 //            Log.d(TAG,"onCreate:${bookResults.size}")
             launch(Dispatchers.Main) {
                 adapter.setItems(bookChResults, this@BookContentActivity)
+            }
+        }
+        allChapters?.let {
+            for(i in it.indices){
+                if(it[i].chUrl == chUrl){
+                    nowChNum = i
+                    break
+                }
             }
         }
     }
@@ -95,11 +102,11 @@ class BookContentActivity : AppCompatActivity(),BookChAdapter.OnItemClickListene
         }
     }
 
-    private fun SetUI() {
+    private fun setUI() {
         val fontSize = preference.getFloat(getString(R.string.novel_fontsize),16F)
-        ChTitle.setTextSize(fontSize)
-        ChContent.setTextSize(fontSize + 4)
-        windowBrightness = preference.getFloat(getString(R.string.window_brightness),GetSysWindowBrightness())
+        ChTitle.textSize = fontSize
+        ChContent.textSize = fontSize + 4
+        windowBrightness = preference.getFloat(getString(R.string.window_brightness),getSysWindowBrightness())
 //        if windowBrightness not default it will in 0 ~ 1
         LightSeekBar.progress = if (windowBrightness in 0.0..1.0) (windowBrightness * 100).toInt() else 0
         FontSizeSeekBar.progress = (fontSize - 10).toInt()
@@ -113,7 +120,7 @@ class BookContentActivity : AppCompatActivity(),BookChAdapter.OnItemClickListene
         }
     }
 
-    private fun SetUiListener() {
+    private fun setUiListener() {
         ControlView.setOnClickListener{
             FunctionMenu.visibility = View.VISIBLE
         }
@@ -124,19 +131,62 @@ class BookContentActivity : AppCompatActivity(),BookChAdapter.OnItemClickListene
             FunctionMenu.visibility = View.INVISIBLE
         }
         LastPageBT.setOnClickListener {
-//            CoroutineScope(Dispatchers.IO).launch {
-//                val tempChUrl =  intent.getStringExtra("BOOK_CH_URL")
-//                val tempBookTitle =  intent.getStringExtra("BOOK_TITLE")
-//                val tempChapterContents = NovelApi.RequestChTextBETA(tempChUrl, tempBookTitle)
-//                launch(Dispatchers.Main) {
-//                    ChTitle.setText(tempBookTitle)
-//                    ChContent.setText(tempChapterContents)
-//                }
-//            }
-            Toast.makeText(applicationContext, "上一章", Toast.LENGTH_SHORT).show()
+            var tempChUrl =""
+            var tempBookTitle = ""
+            var tempChapterContents = ""
+            var hasLast = false
+//            之後新增檢查正序倒序
+            CoroutineScope(Dispatchers.IO).launch {
+                allChapters?.let {
+                if(nowChNum != it.size){
+                    tempChUrl =  it[nowChNum+1].chUrl
+                    tempBookTitle =  it[nowChNum+1].chtitle
+                    tempChapterContents = NovelApi.RequestChTextBETA(tempChUrl, tempBookTitle)
+                    nowChNum++
+                    hasLast = true
+                }else{
+                    hasLast = false
+                }
+                }
+                launch(Dispatchers.Main) {
+                    if(hasLast){
+                        ChTitle.text = tempBookTitle
+                        ChContent.text = tempChapterContents
+                        Toast.makeText(applicationContext, "上一章", Toast.LENGTH_SHORT).show()
+                    }else{
+                        Toast.makeText(applicationContext, "已經沒有上一章囉", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
         }
         NextPageBT.setOnClickListener{
-            Toast.makeText(applicationContext, "下一節", Toast.LENGTH_SHORT).show()
+            var tempChUrl =""
+            var tempBookTitle = ""
+            var tempChapterContents = ""
+            var hasNext = false
+//            之後新增檢查正序倒序
+            CoroutineScope(Dispatchers.IO).launch {
+                allChapters?.let {
+                    if(nowChNum != 0){
+                        tempChUrl =  it[nowChNum - 1].chUrl
+                        tempBookTitle =  it[nowChNum - 1].chtitle
+                        tempChapterContents = NovelApi.RequestChTextBETA(tempChUrl, tempBookTitle)
+                        nowChNum--
+                        hasNext = true
+                    }else{
+                        hasNext = false
+                    }
+                }
+                launch(Dispatchers.Main) {
+                    if(hasNext){
+                        Toast.makeText(applicationContext, "下一章", Toast.LENGTH_SHORT).show()
+                        ChTitle.text = tempBookTitle
+                        ChContent.text = tempChapterContents
+                    }else{
+                        Toast.makeText(applicationContext, "已經沒有下一章囉", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
         }
 
         FontSizeSeekBar.setOnSeekBarChangeListener(object : OnSeekBarChangeListener{
@@ -174,12 +224,12 @@ class BookContentActivity : AppCompatActivity(),BookChAdapter.OnItemClickListene
             preference.edit().clear().apply()
         }
     }
-    private fun SetActbar() {
+    private fun setActbar() {
         setSupportActionBar(ToolBar)
-        getSupportActionBar()?.apply {
+        supportActionBar?.apply {
 //            setTitle("")
-            setDisplayHomeAsUpEnabled(true);
-            setHomeButtonEnabled(true);
+            setDisplayHomeAsUpEnabled(true)
+            setHomeButtonEnabled(true)
         }
     }
 
@@ -232,7 +282,7 @@ class BookContentActivity : AppCompatActivity(),BookChAdapter.OnItemClickListene
             }
         }
 
-    fun GetSysWindowBrightness():Float{
+    private fun getSysWindowBrightness():Float{
         var nowWindowBrightness = 0
         try{
 //  get system windowBrightness it usually in 0 ~ 255 , need adjust to 0 ~ 100 in seekbar

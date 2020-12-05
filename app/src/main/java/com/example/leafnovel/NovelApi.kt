@@ -151,6 +151,7 @@ fun RequestChList(id:String):BookChsResults{
         tempBookCh.chtitle = title
         val partHref : String = i.attr("href")
         tempBookCh.chUrl = partHref
+//        chId尚未實作
         println(title+partHref)
         bookChsResults.add(tempBookCh)
     }
