@@ -3,6 +3,7 @@ package com.example.leafnovel
 import NovelApi
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.provider.Settings
@@ -13,19 +14,32 @@ import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.TextView
 import android.widget.Toast
+import androidx.annotation.Nullable
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.android.synthetic.main.activity_book_content.*
+import kotlinx.android.synthetic.main.activity_book_directory.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 
-class BookContentActivity : AppCompatActivity() {
+class BookContentActivity : AppCompatActivity(),BookChAdapter.OnItemClickListener {
 //    lateinit var bottomNavigationView : BottomNavigationView
 //    companion object{}
     val preference by lazy {getSharedPreferences("UiSetting",Context.MODE_PRIVATE)}
+    val adapter = BookChAdapter()
+
+    lateinit var bookChId :String
+    lateinit var chTitle :String
+    lateinit var chUrl :String
+    lateinit var bookId :String
+    lateinit var bookTitle :String
+
+    var allChapters : ArrayList<BookChapter>? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_book_content)
@@ -34,13 +48,13 @@ class BookContentActivity : AppCompatActivity() {
         SetUI()
         SetUiListener()
         initBottomNavigationView()
+        GetTransData()
 //        initBottomNavigationView()
-
-        val bookChId =  intent.getStringExtra("BOOK_CH_ID")
-        val chTitle =  intent.getStringExtra("BOOK_CH_TITLE")
-        val chUrl =  intent.getStringExtra("BOOK_CH_URL")
-        val bookId =  intent.getStringExtra("BOOK_ID")
-        val bookTitle =  intent.getStringExtra("BOOK_TITLE")
+        bookChId =  intent.getStringExtra("BOOK_CH_ID")
+        chTitle =  intent.getStringExtra("BOOK_CH_TITLE")
+        chUrl =  intent.getStringExtra("BOOK_CH_URL")
+        bookId =  intent.getStringExtra("BOOK_ID")
+        bookTitle =  intent.getStringExtra("BOOK_TITLE")
 
 
         val book_chTitleView = findViewById<TextView>(R.id.ChTitle).apply { text = chTitle }
@@ -59,6 +73,28 @@ class BookContentActivity : AppCompatActivity() {
 //請求資源
     }
 
+    private fun GetTransData() {
+        allChapters = intent.getParcelableArrayListExtra<BookChapter>("NOVEL_CHAPTERS")
+        allChapters?.let {
+            adapter.setItems(it, this@BookContentActivity)
+        }?: CoroutineScope(Dispatchers.IO).launch {
+            val bookChResults = NovelApi.RequestChList(bookId)
+//            Log.d(TAG,"onCreate:${bookResults.size}")
+            launch(Dispatchers.Main) {
+                adapter.setItems(bookChResults, this@BookContentActivity)
+            }
+        }
+    }
+
+    override fun onItemClick(bookCh: BookChapter) {
+        Toast.makeText(this, "Item ${bookCh.chtitle} clicked", Toast.LENGTH_SHORT).show()
+        val intent = Intent(this,BookContentActivity::class.java).apply {
+            putExtra("BOOK_CH_ID",bookCh.chId)
+            putExtra("BOOK_CH_URL",bookCh.chUrl)
+            putExtra("BOOK_CH_TITLE",bookCh.chtitle)
+        }
+    }
+
     private fun SetUI() {
         val fontSize = preference.getFloat(getString(R.string.novel_fontsize),16F)
         ChTitle.setTextSize(fontSize)
@@ -69,6 +105,12 @@ class BookContentActivity : AppCompatActivity() {
         FontSizeSeekBar.progress = (fontSize - 10).toInt()
 //lock navigationView avoid hand slide
         DrawerLayout.setDrawerLockMode(androidx.drawerlayout.widget.DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+//BookDirectory UI
+        BookChRecyclerView.apply {
+            setHasFixedSize(true)
+            layoutManager = LinearLayoutManager(this@BookContentActivity)
+            adapter = this@BookContentActivity.adapter
+        }
     }
 
     private fun SetUiListener() {

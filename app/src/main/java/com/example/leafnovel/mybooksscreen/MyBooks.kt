@@ -14,6 +14,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.leafnovel.*
 import com.example.leafnovel.adapter.StoredBookAdapter
@@ -29,6 +30,13 @@ class MyBooks : Fragment() ,StoredBookAdapter.OnItemClickListener{
             MyBooks()
         }
     }
+
+    lateinit var mLinearLayoutManager :LinearLayoutManager
+    val hasMore = false
+    var currentChapter = 0
+    var isLoading = false
+    var lastVisibleItem = 0
+
     private lateinit var viewModel : MyBooksViewModel
     val storedBookAdapter = StoredBookAdapter()
 
@@ -44,10 +52,30 @@ class MyBooks : Fragment() ,StoredBookAdapter.OnItemClickListener{
         super.onViewCreated(view, savedInstanceState)
         initUI()
         initUIlister()
+        loadingMore()
+//        currentChapter = 1
+    }
+
+
+    private fun loadingMore() {
+        SB_recycler.addOnScrollListener(object:RecyclerView.OnScrollListener(){
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+                    if(newState == RecyclerView.SCROLL_STATE_IDLE){
+                        updateNewChapter()
+                    }
+            }
+        })
+    }
+
+    private fun updateNewChapter() {
+//        Handler().postDelayed({MyBookRefreshLayout.isRefreshing = false},2000)
     }
 
     private fun initUIlister() {
         MyBookRefreshLayout.setOnRefreshListener(refreshListener)
+
+
     }
 
     val refreshListener = SwipeRefreshLayout.OnRefreshListener {
@@ -58,7 +86,7 @@ class MyBooks : Fragment() ,StoredBookAdapter.OnItemClickListener{
 
 
     override fun onItemClick(sbBook: StoredBook) {
-        Toast.makeText(context, "Item ${sbBook.bookid} clicked", Toast.LENGTH_SHORT).show()
+//        Toast.makeText(context, "Item ${sbBook.bookid} clicked", Toast.LENGTH_SHORT).show()
         val intent = Intent(context, BookDetailActivity::class.java).apply {
             putExtra("BOOK_ID",sbBook.bookid)
             putExtra("BOOK_TITLE",sbBook.bookname)
@@ -88,6 +116,7 @@ class MyBooks : Fragment() ,StoredBookAdapter.OnItemClickListener{
 //            storedBooks ->
 //            bookAdapter.setItems(storedBooks)
 //        })
+
     }
 
 
