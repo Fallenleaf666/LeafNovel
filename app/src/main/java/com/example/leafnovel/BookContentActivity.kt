@@ -6,6 +6,7 @@ import android.content.Context
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.provider.Settings
+import android.view.Gravity
 import android.view.MenuItem
 import android.view.View
 import android.widget.SeekBar
@@ -13,6 +14,7 @@ import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.GravityCompat
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.android.synthetic.main.activity_book_content.*
 import kotlinx.coroutines.CoroutineScope
@@ -65,6 +67,8 @@ class BookContentActivity : AppCompatActivity() {
 //        if windowBrightness not default it will in 0 ~ 1
         LightSeekBar.progress = if (windowBrightness in 0.0..1.0) (windowBrightness * 100).toInt() else 0
         FontSizeSeekBar.progress = (fontSize - 10).toInt()
+//lock navigationView avoid hand slide
+        DrawerLayout.setDrawerLockMode(androidx.drawerlayout.widget.DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
     }
 
     private fun SetUiListener() {
@@ -163,6 +167,7 @@ class BookContentActivity : AppCompatActivity() {
                 when (StyleSettingView.visibility) {
                     View.VISIBLE -> StyleSettingView.visibility = View.GONE
                 }
+                DrawerLayout.openDrawer(GravityCompat.START)
                 return@OnNavigationItemSelectedListener true
             }
             R.id.fontSettingItem -> {
