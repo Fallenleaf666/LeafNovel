@@ -55,4 +55,5 @@ class BookDirectoryActivity : AppCompatActivity(), BookChAdapter.OnItemClickList
         }
         this.startActivity(intent)
     }
+
 }

@@ -27,6 +27,14 @@ class BookChAdapter : RecyclerView.Adapter<BookChAdapter.BookChViewHolder>() {
         notifyDataSetChanged()
     }
 
+    fun lastPositionChange(selectPosition : Int){
+        if (selectPosition != RecyclerView.NO_POSITION) {
+            thisPosition?.let { notifyItemChanged(it) }
+            thisPosition = selectPosition
+            notifyItemChanged(selectPosition)
+        }
+
+    }
 //    fun reverseItems(){
 //        items.reverse()
 //        notifyDataSetChanged()

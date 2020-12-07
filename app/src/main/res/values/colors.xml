@@ -8,4 +8,6 @@
     <color name="pgGray">#B0B7B8B2</color>
     <color name="selectChBg">#6D5A5A5A</color>
     <color name="unselectChBg">#FFFFFFFF</color>
+    <color name="bgcolor1">#FFD7C4BB</color>
+    <color name="bgcolor2">#EEDFDFDF</color>
 </resources>

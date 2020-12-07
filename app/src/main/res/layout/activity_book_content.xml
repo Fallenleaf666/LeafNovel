@@ -12,7 +12,8 @@
     <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            tools:context=".BookContentActivity" android:background="#FFFFFF" android:scaleX="1" android:scaleY="1">
+            tools:context=".BookContentActivity" android:background="#FFFFFF" android:scaleX="1" android:scaleY="1"
+            android:id="@+id/BackgroundView">
 
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
                 android:layout_width="match_parent"
@@ -39,7 +40,7 @@
                                 android:layout_height="wrap_content" android:id="@+id/ChTitle"
                                 app:layout_constraintStart_toStartOf="parent"
                                 app:layout_constraintEnd_toEndOf="parent" app:layout_constraintTop_toTopOf="parent"
-                                android:layout_marginTop="20dp" tools:text="章節名稱" android:textSize="16sp"/>
+                                android:layout_marginTop="25dp" tools:text="章節名稱" android:textSize="16sp"/>
                         <TextView
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content" android:id="@+id/ChContent"
@@ -48,7 +49,7 @@
                                 android:layout_marginStart="20dp" android:layout_marginEnd="20dp"
                                 app:layout_constraintEnd_toEndOf="parent"
                                 app:layout_constraintBottom_toBottomOf="parent"
-                                android:layout_marginBottom="15dp" android:layout_marginTop="10dp"
+                                android:layout_marginBottom="15dp" android:layout_marginTop="15dp"
                                 android:textSize="20sp"
                                 android:lineSpacingExtra="10sp"
                                 tools:text="內文內文內文內文內文內文內文內文內文內文內文內文內文內文內文內文內文內文內文內文"/>
@@ -99,7 +100,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:background="@color/colorPrimary" android:id="@+id/StyleSettingView"
-                        android:visibility="visible" android:animateLayoutChanges="true">
+                        android:visibility="gone" android:animateLayoutChanges="true">
                     <LinearLayout
                             android:orientation="horizontal"
                             android:layout_width="match_parent"
@@ -125,7 +126,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="match_parent" android:layout_marginTop="10dp"
                             android:layout_marginBottom="20dp" android:layout_marginStart="20dp"
-                            android:layout_marginEnd="20dp">
+                            android:layout_marginEnd="20dp" android:onClick="bgColorSelected">
                         <ImageView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content" android:src="@drawable/ic_baseline_wb_sunny_24"
@@ -140,23 +141,70 @@
                     <LinearLayout
                             android:orientation="horizontal"
                             android:layout_width="match_parent"
-                            android:layout_height="40dp"
-                            android:layout_marginBottom="20dp" android:layout_marginStart="20dp"
-                            android:layout_marginEnd="20dp">
-                        <ImageButton
-                                android:layout_width="30dp"
-                                android:layout_height="30dp"
-                                android:id="@+id/imageButton3" android:background="#EEDFDFDF"
-                        />
-                        <ImageButton
-                                android:layout_width="30dp"
-                                android:layout_height="30dp"
-                                android:id="@+id/imageButton" android:background="#D3F1D379"/>
-                        <ImageButton
-                                android:layout_width="30dp"
-                                android:layout_height="30dp"
-                                android:id="@+id/imageButton2" android:background="#D8B8DD8C"/>
+                            android:layout_height="30dp" android:layout_marginStart="16dp"
+                            android:layout_marginBottom="15dp">
+                        <TextView
+                                android:text="主 題"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="@color/colorp"
+                                android:gravity="center_vertical" android:layout_gravity="center_vertical"/>
+                        <ScrollView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="16dp" android:layout_marginEnd="25dp">
+                            <LinearLayout
+                                    android:orientation="horizontal"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                            >
+                                <com.rishabhharit.roundedimageview.RoundedImageView
+                                        android:layout_width="30dp"
+                                        android:layout_height="30dp"
+                                        app:cornerRadius="7dp"
+                                        android:id="@+id/Bg_ColorBT1"
+                                        app:srcCompat="@drawable/bg_paper5" android:onClick="bgColorSelected"/>
+                                <com.rishabhharit.roundedimageview.RoundedImageView
+                                        android:layout_width="30dp"
+                                        android:layout_height="30dp"
+                                        android:layout_marginStart="15dp"
+                                        app:cornerRadius="7dp"
+                                        android:id="@+id/Bg_ColorBT3" app:srcCompat="@drawable/bg_paper2"
+                                        android:scaleType="fitXY" android:onClick="bgColorSelected"/>
+                                <com.rishabhharit.roundedimageview.RoundedImageView
+                                        android:layout_width="30dp"
+                                        android:layout_height="30dp"
+                                        android:layout_marginStart="15dp"
+                                        app:cornerRadius="7dp"
+                                        android:id="@+id/Bg_ColorBT4" app:srcCompat="@color/bgcolor1"
+                                        android:onClick="bgColorSelected"/>
+                                <com.rishabhharit.roundedimageview.RoundedImageView
+                                        android:layout_width="30dp"
+                                        android:layout_height="30dp"
+                                        android:layout_marginStart="15dp"
+                                        app:cornerRadius="7dp"
+                                        android:id="@+id/Bg_ColorBT5"
+                                        android:scaleType="centerCrop" app:srcCompat="@color/bgcolor2"
+                                        android:onClick="bgColorSelected"/>
+                                <com.rishabhharit.roundedimageview.RoundedImageView
+                                        android:layout_width="30dp"
+                                        android:layout_height="30dp"
+                                        android:layout_marginStart="15dp"
+                                        app:cornerRadius="7dp"
+                                        android:id="@+id/Bg_ColorBT6"
+                                        app:srcCompat="@drawable/bg_paper1" android:scaleType="fitXY"
+                                        android:onClick="bgColorSelected"/>
+                                <com.rishabhharit.roundedimageview.RoundedImageView
+                                        android:layout_width="30dp"
+                                        android:layout_height="30dp"
+                                        app:cornerRadius="7dp"
+                                        android:id="@+id/Bg_ColorBT7"
+                                        android:layout_marginStart="15dp" app:srcCompat="@drawable/bg_paper3"
+                                        android:scaleType="fitXY"/>
 
+
+                            </LinearLayout>
+                        </ScrollView>
                     </LinearLayout>
                 </LinearLayout>
                 <com.google.android.material.bottomnavigation.BottomNavigationView
@@ -166,7 +214,7 @@
                         app:itemTextColor="#CED1AA" app:itemRippleColor="#FFFFFF" app:itemIconSize="20dp"
                         android:visibility="visible"
                         android:id="@+id/bottomNavigation"
-                        app:itemIconTint="@android:color/tab_indicator_text">
+                        app:itemIconTint="@android:color/tab_indicator_text" app:labelVisibilityMode="labeled">
                 </com.google.android.material.bottomnavigation.BottomNavigationView>
             </LinearLayout>
             <androidx.appcompat.widget.Toolbar

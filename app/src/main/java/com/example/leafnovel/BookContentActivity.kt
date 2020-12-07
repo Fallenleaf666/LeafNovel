@@ -85,6 +85,7 @@ class BookContentActivity : AppCompatActivity(), BookChAdapter.OnItemClickListen
                 }
             }
         }
+        adapter.lastPositionChange(nowChNum)
     }
 
     override fun onItemClick(bookCh: BookChapter) {
@@ -126,6 +127,8 @@ class BookContentActivity : AppCompatActivity(), BookChAdapter.OnItemClickListen
             layoutManager = LinearLayoutManager(this@BookContentActivity)
             adapter = this@BookContentActivity.adapter
         }
+        val bgResId = preference.getInt(getString(R.string.novel_background), R.color.bgcolor2)
+        BackgroundView.setBackgroundResource(bgResId)
     }
 
     private fun setUiListener() {
@@ -163,6 +166,7 @@ class BookContentActivity : AppCompatActivity(), BookChAdapter.OnItemClickListen
                         ChContent.text = tempChapterContents
                         scrollView2.fullScroll(NestedScrollView.FOCUS_UP)
                         Toast.makeText(applicationContext, "上一章", Toast.LENGTH_SHORT).show()
+                        adapter.lastPositionChange(nowChNum)
                     } else {
                         Toast.makeText(applicationContext, "已經沒有上一章囉", Toast.LENGTH_SHORT).show()
                     }
@@ -193,6 +197,7 @@ class BookContentActivity : AppCompatActivity(), BookChAdapter.OnItemClickListen
                         ChTitle.text = tempBookTitle
                         ChContent.text = tempChapterContents
                         scrollView2.fullScroll(NestedScrollView.FOCUS_UP)
+                        adapter.lastPositionChange(nowChNum)
                     } else {
                         Toast.makeText(applicationContext, "已經沒有下一章囉", Toast.LENGTH_SHORT).show()
                     }
@@ -262,6 +267,27 @@ class BookContentActivity : AppCompatActivity(), BookChAdapter.OnItemClickListen
             }
         })
 
+
+    }
+
+    fun bgColorSelected(view:View){
+    view.let {
+        when(it.id){
+            R.id.Bg_ColorBT1 -> setBackgroundRes(R.drawable.bg_paper5)
+            R.id.Bg_ColorBT3 -> setBackgroundRes(R.drawable.bg_paper2)
+            R.id.Bg_ColorBT4 -> setBackgroundRes(R.color.bgcolor1)
+            R.id.Bg_ColorBT5 -> setBackgroundRes(R.color.bgcolor2)
+            R.id.Bg_ColorBT6 -> setBackgroundRes(R.drawable.bg_paper1)
+            R.id.Bg_ColorBT7 -> setBackgroundRes(R.drawable.bg_paper3)
+            else -> setBackgroundRes(R.color.bgcolor1)
+        }
+    }
+}
+    private fun setBackgroundRes(resId :Int){
+        BackgroundView.setBackgroundResource(resId)
+        with(preference.edit()) {
+            putInt(getString(R.string.novel_background),resId).apply()
+        }
     }
 
     private fun loadNextChapter() {
@@ -296,6 +322,7 @@ class BookContentActivity : AppCompatActivity(), BookChAdapter.OnItemClickListen
                     mTitle.text = tempBookTitle
                     mContent.text = tempChapterContents
                     ChapterListView.addView(mConstraintLayout)
+                    adapter.lastPositionChange(nowChNum)
                 } else {
                     Toast.makeText(applicationContext, "已經沒有下一章囉", Toast.LENGTH_SHORT).show()
                 }

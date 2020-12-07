@@ -3,11 +3,11 @@
     <item
             android:id="@+id/dayNightModeItem"
             android:contentDescription="日間模式"
-            android:title="日間模式" android:icon="@drawable/ic_baseline_home_24"/>
+            android:title="日間模式" android:icon="@drawable/ic_baseline_brightness_4_24"/>
     <item
             android:id="@+id/directoryItem"
             android:contentDescription="目錄"
-            android:title="目錄" android:icon="@drawable/ic_baseline_search_24"/>
+            android:title="目錄" android:icon="@drawable/ic_baseline_list_24"/>
     <item
             android:id="@+id/fontSettingItem"
             android:contentDescription="設定"
