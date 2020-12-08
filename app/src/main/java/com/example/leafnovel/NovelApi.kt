@@ -12,23 +12,23 @@ import javax.net.ssl.SSLSocketFactory
 class NovelApi() {
 
     companion object{
-fun RequestChText(url:String):ChapterContents{
-    val doc : Document = Jsoup.connect("https://tw.uukanshu.com"+url).get();
-//    val doc : Document = Jsoup.connect("https://tw.uukanshu.com/b/"+url+"/").get();
-//    println(doc.text())
-    val contentbox : Element? = doc.getElementById("contentbox");
-    val contents : Elements = contentbox!!.getElementsByTag("p")
-    var chapterContents = ChapterContents()
-    for(i in contents){
-        val chapterContent = ChapterContent(0,"")
-        chapterContent.chapterLine = i.elementSiblingIndex()+1
-        chapterContent.chapterLineContent=i.text()
-        chapterContents.add(chapterContent)
-        println(i.text())
-        println()
-    }
-    return chapterContents
-}
+//fun RequestChText(url:String):ChapterContents{
+//    val doc : Document = Jsoup.connect("https://tw.uukanshu.com"+url).get();
+////    val doc : Document = Jsoup.connect("https://tw.uukanshu.com/b/"+url+"/").get();
+////    println(doc.text())
+//    val contentbox : Element? = doc.getElementById("contentbox");
+//    val contents : Elements = contentbox!!.getElementsByTag("p")
+//    var chapterContents = ChapterContents()
+//    for(i in contents){
+//        val chapterContent = ChapterContent(0,"")
+//        chapterContent.chapterLine = i.elementSiblingIndex()+1
+//        chapterContent.chapterLineContent=i.text()
+//        chapterContents.add(chapterContent)
+//        println(i.text())
+//        println()
+//    }
+//    return chapterContents
+//}
 
 fun RequestChTextBETA(url:String,bookTitle:String):String{
     val doc : Document = Jsoup.connect("https://tw.uukanshu.com"+url).get();
@@ -175,6 +175,10 @@ fun allToHelfText(text :String,bookTitle:String):String{
         .replace("ｍ","m")
         .replace("UU看書","")
         .replace("www.uukanshu.com","")
+        .replace("您可以在百度里搜索“"+bookTitle+"小說酷筆記()”查找最新章節！","")
+        .replace("您可以在百度里搜索“"+bookTitle+"小說酷筆記()”查找最新章節!","")
+        .replace("您可以在百度里搜索\""+bookTitle+"小說酷筆記()\"查找最新章節！","")
+        .replace("您可以在百度里搜索\""+bookTitle+"小說酷筆記()\"查找最新章節!","")
         .replace("“"+bookTitle+" ()”查找最新章節！","")
         .replace("“"+bookTitle+"()”查找最新章節！","")
         .replace(bookTitle+"新()”查找最新章節！","")

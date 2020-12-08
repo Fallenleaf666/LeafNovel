@@ -12,7 +12,8 @@
     <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            tools:context=".BookContentActivity" android:background="#FFFFFF" android:scaleX="1" android:scaleY="1"
+            tools:context=".BookContentActivity" android:background="@drawable/bg_paper2" android:scaleX="1"
+            android:scaleY="1"
             android:id="@+id/BackgroundView">
 
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -40,7 +41,8 @@
                                 android:layout_height="wrap_content" android:id="@+id/ChTitle"
                                 app:layout_constraintStart_toStartOf="parent"
                                 app:layout_constraintEnd_toEndOf="parent" app:layout_constraintTop_toTopOf="parent"
-                                android:layout_marginTop="25dp" tools:text="章節名稱" android:textSize="16sp"/>
+                                android:layout_marginTop="25dp" tools:text="章節名稱" android:textSize="16sp"
+                                android:textColor="@color/fontMorning"/>
                         <TextView
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content" android:id="@+id/ChContent"
@@ -52,7 +54,9 @@
                                 android:layout_marginBottom="15dp" android:layout_marginTop="15dp"
                                 android:textSize="20sp"
                                 android:lineSpacingExtra="10sp"
-                                tools:text="內文內文內文內文內文內文內文內文內文內文內文內文內文內文內文內文內文內文內文內文"/>
+                                tools:text="內文內文內文內文內文內文內文內文內文內文內文內文內文內文內文內文內文內文內文內文"
+                                android:textColor="@color/fontMorning"
+                                android:textColorHint="#FFFFFF"/>
                     </androidx.constraintlayout.widget.ConstraintLayout>
                 </LinearLayout>
             </androidx.core.widget.NestedScrollView>
@@ -61,7 +65,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent" android:visibility="visible"
+                app:layout_constraintBottom_toBottomOf="parent" android:visibility="invisible"
                 android:background="#8D9A9797"
                 android:id="@+id/FunctionMenu">
 

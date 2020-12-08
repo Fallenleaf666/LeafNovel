@@ -10,4 +10,8 @@
     <color name="unselectChBg">#FFFFFFFF</color>
     <color name="bgcolor1">#FFD7C4BB</color>
     <color name="bgcolor2">#EEDFDFDF</color>
+    <color name="bgMorning">#E4E3E3</color>
+    <color name="bgNight">#FC2E2E2D</color>
+    <color name="fontMorning">#B5373535</color>
+    <color name="fontNight">#C1E9EAF3</color>
 </resources>

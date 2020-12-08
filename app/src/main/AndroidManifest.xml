@@ -14,7 +14,9 @@
             tools:ignore="GoogleAppIndexingWaring"
 
     >
-        <activity android:name=".BookContentActivity" android:theme="@style/NovelCotentTheme">
+        <activity android:name=".BookContentActivity" android:theme="@style/NovelCotentTheme"
+        android:configChanges="uiMode"
+        >
         </activity>
         <activity android:name=".BookDirectoryActivity">
         </activity>

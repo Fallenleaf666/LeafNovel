@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+            android:id="@+id/menuBookDelete"
+            android:contentDescription="刪除"
+            android:title="刪除" />
+
+</menu>

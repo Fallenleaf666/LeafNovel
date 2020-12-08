@@ -8,6 +8,13 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="NightAppTheme" parent="Theme.AppCompat.DayNight">
+        <item name="android:textSize">10sp</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+    </style>
+
     <style name="BookDetailTextView" parent="Widget.AppCompat.TextView">
         <item name="android:textSize">10sp</item>
     </style>

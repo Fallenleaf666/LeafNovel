@@ -31,6 +31,10 @@ class MyBooksViewModel(context: Context) : ViewModel() {
         repository.insert(sbBook)
     }
 
+    fun delete(sbBook:StoredBook) = scope.launch(Dispatchers.IO){
+        repository.delete(sbBook)
+    }
+
     override fun onCleared() {
         super.onCleared()
         parentJob.cancel()

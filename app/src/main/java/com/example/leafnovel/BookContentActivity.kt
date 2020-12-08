@@ -3,7 +3,7 @@ package com.example.leafnovel
 import NovelApi
 import android.app.Activity
 import android.content.Context
-import android.content.Intent
+import android.content.res.Configuration
 import android.os.Bundle
 import android.provider.Settings
 import android.view.MenuItem
@@ -13,10 +13,18 @@ import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO
+import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.core.widget.NestedScrollView
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
+
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.leafnovel.viewmodel.BookContentViewModel
+import com.example.leafnovel.viewmodel.BookContentViewModelFactory
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.android.synthetic.main.activity_book_content.*
 import kotlinx.coroutines.CoroutineScope
@@ -25,11 +33,12 @@ import kotlinx.coroutines.launch
 
 
 class BookContentActivity : AppCompatActivity(), BookChAdapter.OnItemClickListener {
-    //    lateinit var bottomNavigationView : BottomNavigationView
 //    companion object{}
     val preference by lazy { getSharedPreferences("UiSetting", Context.MODE_PRIVATE) }
     val adapter = BookChAdapter()
     var nowChNum = 0
+
+    private lateinit var viewModel: BookContentViewModel
 
     lateinit var bookChId: String
     lateinit var chTitle: String
@@ -43,71 +52,75 @@ class BookContentActivity : AppCompatActivity(), BookChAdapter.OnItemClickListen
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_book_content)
 
-        bookChId = intent.getStringExtra("BOOK_CH_ID")
-        chTitle = intent.getStringExtra("BOOK_CH_TITLE")
-        chUrl = intent.getStringExtra("BOOK_CH_URL")
-        bookId = intent.getStringExtra("BOOK_ID")
-        bookTitle = intent.getStringExtra("BOOK_TITLE")
-
+        setData()
         setActbar()
         setUI()
+        setObserver()
         setUiListener()
         initBottomNavigationView()
-        getTransData()
-
-
-        ChTitle.text = chTitle
-        ChContent.text = ""
-        CoroutineScope(Dispatchers.IO).launch {
-            val chapterContents = NovelApi.RequestChTextBETA(chUrl, bookTitle)
-            launch(Dispatchers.Main) {
-                ChContent.text = chapterContents
-            }
-        }
     }
 
-    private fun getTransData() {
+    private fun setData() {
+        bookChId = intent.getStringExtra("BOOK_CH_ID") ?: ""
+        chTitle = intent.getStringExtra("BOOK_CH_TITLE") ?: ""
+        chUrl = intent.getStringExtra("BOOK_CH_URL") ?: ""
+        bookId = intent.getStringExtra("BOOK_ID") ?: ""
+        bookTitle = intent.getStringExtra("BOOK_TITLE") ?: ""
+
         allChapters = intent.getParcelableArrayListExtra<BookChapter>("NOVEL_CHAPTERS")
         allChapters?.let {
             adapter.setItems(it, this@BookContentActivity)
         } ?: CoroutineScope(Dispatchers.IO).launch {
             val bookChResults = NovelApi.RequestChList(bookId)
-//            Log.d(TAG,"onCreate:${bookResults.size}")
             launch(Dispatchers.Main) {
                 adapter.setItems(bookChResults, this@BookContentActivity)
             }
         }
-        allChapters?.let {
-            for (i in it.indices) {
-                if (it[i].chUrl == chUrl) {
-                    nowChNum = i
-                    break
-                }
-            }
-        }
+        val tempBookChapter = BookChapter(chTitle, bookChId, chUrl)
+        viewModel = ViewModelProvider(
+            this,
+            BookContentViewModelFactory(applicationContext, tempBookChapter, allChapters!!)
+        ).get(BookContentViewModel::class.java)
+
+        nowChNum = viewModel.tempChapterIndex.value ?: 0
         adapter.lastPositionChange(nowChNum)
     }
 
+    private fun setObserver() {
+        viewModel.tempChapterIndex.observe(this, Observer { tempChapterIndex ->
+            nowChNum = tempChapterIndex
+            adapter.lastPositionChange(nowChNum)
+        })
+
+        viewModel.chapterContent.observe(this, Observer { chapterContent ->
+            ChTitle.text = chapterContent.chTitle
+            ChContent.text = chapterContent.chContent
+            scrollView2.fullScroll(NestedScrollView.FOCUS_UP)
+        })
+
+    }
+
+
     override fun onItemClick(bookCh: BookChapter) {
         Toast.makeText(this, "Item ${bookCh.chtitle} clicked", Toast.LENGTH_SHORT).show()
-            CoroutineScope(Dispatchers.IO).launch {
-                val chapterContents = NovelApi.RequestChTextBETA(bookCh.chUrl, bookCh.chtitle)
-                allChapters?.let {
-                    for (i in it.indices) {
-                        if (it[i].chUrl == bookCh.chUrl) {
-                            nowChNum = i
-                            break
-                        }
+        CoroutineScope(Dispatchers.IO).launch {
+            val chapterContents = NovelApi.RequestChTextBETA(bookCh.chUrl, bookCh.chtitle)
+            allChapters?.let {
+                for (i in it.indices) {
+                    if (it[i].chUrl == bookCh.chUrl) {
+                        nowChNum = i
+                        break
                     }
                 }
-                launch(Dispatchers.Main) {
-                    ChTitle.text = bookCh.chtitle
-                    ChContent.text = chapterContents
-                    scrollView2.fullScroll(NestedScrollView.FOCUS_UP)
-                    DrawerLayout.closeDrawer(GravityCompat.START)
-                    FunctionMenu.visibility = View.INVISIBLE
-                }
             }
+            launch(Dispatchers.Main) {
+                ChTitle.text = bookCh.chtitle
+                ChContent.text = chapterContents
+                scrollView2.fullScroll(NestedScrollView.FOCUS_UP)
+                DrawerLayout.closeDrawer(GravityCompat.START)
+                FunctionMenu.visibility = View.INVISIBLE
+            }
+        }
 
     }
 
@@ -127,12 +140,20 @@ class BookContentActivity : AppCompatActivity(), BookChAdapter.OnItemClickListen
             layoutManager = LinearLayoutManager(this@BookContentActivity)
             adapter = this@BookContentActivity.adapter
         }
-        val bgResId = preference.getInt(getString(R.string.novel_background), R.color.bgcolor2)
-        BackgroundView.setBackgroundResource(bgResId)
+        if(checkUiModeNight()){
+            BackgroundView.setBackgroundResource(R.color.bgNight)
+            ChTitle.setTextColor(ContextCompat.getColor(this,R.color.fontNight))
+            ChContent.setTextColor(ContextCompat.getColor(this,R.color.fontNight))
+        }else{
+            val bgResId = preference.getInt(getString(R.string.novel_background), R.color.bgMorning)
+            BackgroundView.setBackgroundResource(bgResId)
+            ChTitle.setTextColor(ContextCompat.getColor(this,R.color.fontMorning))
+            ChContent.setTextColor(ContextCompat.getColor(this,R.color.fontMorning))
+        }
+
     }
 
     private fun setUiListener() {
-
         ChapterListView.setOnClickListener {
             FunctionMenu.visibility = View.VISIBLE
         }
@@ -142,68 +163,9 @@ class BookContentActivity : AppCompatActivity(), BookChAdapter.OnItemClickListen
             }
             FunctionMenu.visibility = View.INVISIBLE
         }
-        LastPageBT.setOnClickListener {
-            var tempChUrl = ""
-            var tempBookTitle = ""
-            var tempChapterContents = ""
-            var hasLast = false
-//            之後新增檢查正序倒序
-            CoroutineScope(Dispatchers.IO).launch {
-                allChapters?.let {
-                    if (nowChNum != it.size) {
-                        tempChUrl = it[nowChNum + 1].chUrl
-                        tempBookTitle = it[nowChNum + 1].chtitle
-                        tempChapterContents = NovelApi.RequestChTextBETA(tempChUrl, tempBookTitle)
-                        nowChNum++
-                        hasLast = true
-                    } else {
-                        hasLast = false
-                    }
-                }
-                launch(Dispatchers.Main) {
-                    if (hasLast) {
-                        ChTitle.text = tempBookTitle
-                        ChContent.text = tempChapterContents
-                        scrollView2.fullScroll(NestedScrollView.FOCUS_UP)
-                        Toast.makeText(applicationContext, "上一章", Toast.LENGTH_SHORT).show()
-                        adapter.lastPositionChange(nowChNum)
-                    } else {
-                        Toast.makeText(applicationContext, "已經沒有上一章囉", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            }
-        }
-        NextPageBT.setOnClickListener {
-            var tempChUrl = ""
-            var tempBookTitle = ""
-            var tempChapterContents = ""
-            var hasNext = false
-//            之後新增檢查正序倒序
-            CoroutineScope(Dispatchers.IO).launch {
-                allChapters?.let {
-                    if (nowChNum != 0) {
-                        tempChUrl = it[nowChNum - 1].chUrl
-                        tempBookTitle = it[nowChNum - 1].chtitle
-                        tempChapterContents = NovelApi.RequestChTextBETA(tempChUrl, tempBookTitle)
-                        nowChNum--
-                        hasNext = true
-                    } else {
-                        hasNext = false
-                    }
-                }
-                launch(Dispatchers.Main) {
-                    if (hasNext) {
-                        Toast.makeText(applicationContext, "下一章", Toast.LENGTH_SHORT).show()
-                        ChTitle.text = tempBookTitle
-                        ChContent.text = tempChapterContents
-                        scrollView2.fullScroll(NestedScrollView.FOCUS_UP)
-                        adapter.lastPositionChange(nowChNum)
-                    } else {
-                        Toast.makeText(applicationContext, "已經沒有下一章囉", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            }
-        }
+
+        LastPageBT.setOnClickListener { viewModel.goLastChapter() }
+        NextPageBT.setOnClickListener { viewModel.goNextChapter() }
 
         FontSizeSeekBar.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
             var tempFontSizeValue = 16F
@@ -239,9 +201,7 @@ class BookContentActivity : AppCompatActivity(), BookChAdapter.OnItemClickListen
                 }
             }
         })
-        DeletePrefBT.setOnClickListener {
-            preference.edit().clear().apply()
-        }
+        DeletePrefBT.setOnClickListener { preference.edit().clear().apply() }
 
         scrollView2.setOnScrollChangeListener(object : NestedScrollView.OnScrollChangeListener {
             override fun onScrollChange(
@@ -251,89 +211,56 @@ class BookContentActivity : AppCompatActivity(), BookChAdapter.OnItemClickListen
                 oldScrollX: Int,
                 oldScrollY: Int
             ) {
-//                下滑
-//                if(scrollY > oldScrollY){ }
-//                上滑
-//                if(oldScrollY > scrollY){}
-//                頂部
-//                if(scrollY == 0){}
-
 //                滑到底部
                 v?.let {
                     if (scrollY == it.getChildAt(0).measuredHeight - it.measuredHeight) {
-                        loadNextChapter()
+//                        loadNextChapter()
+                        viewModel.loadNextChapter().observe(this@BookContentActivity, Observer { chapterContent ->
+
+                            val mConstraintLayout =
+                                layoutInflater.inflate(R.layout.row_chapter_content, ChapterListView, false) as ConstraintLayout
+                            val mTitle = mConstraintLayout.getViewById(R.id.row_chapter_title) as TextView
+                            val mContent = mConstraintLayout.getViewById(R.id.row_chapter_content) as TextView
+                            val fontSize = preference.getFloat(getString(R.string.novel_fontsize), 16F)
+
+                            mTitle.textSize = fontSize
+                            mContent.textSize = fontSize + 4
+                            mTitle.text = chapterContent.chTitle
+                            mContent.text = chapterContent.chContent
+                            ChapterListView.addView(mConstraintLayout)
+                            adapter.lastPositionChange(nowChNum)
+                        })
                     }
                 }
             }
         })
-
-
     }
 
-    fun bgColorSelected(view:View){
-    view.let {
-        when(it.id){
-            R.id.Bg_ColorBT1 -> setBackgroundRes(R.drawable.bg_paper5)
-            R.id.Bg_ColorBT3 -> setBackgroundRes(R.drawable.bg_paper2)
-            R.id.Bg_ColorBT4 -> setBackgroundRes(R.color.bgcolor1)
-            R.id.Bg_ColorBT5 -> setBackgroundRes(R.color.bgcolor2)
-            R.id.Bg_ColorBT6 -> setBackgroundRes(R.drawable.bg_paper1)
-            R.id.Bg_ColorBT7 -> setBackgroundRes(R.drawable.bg_paper3)
-            else -> setBackgroundRes(R.color.bgcolor1)
+    fun bgColorSelected(view: View) {
+        view.let {
+            when (it.id) {
+                R.id.Bg_ColorBT1 -> setBackgroundRes(R.drawable.bg_paper5)
+                R.id.Bg_ColorBT3 -> setBackgroundRes(R.drawable.bg_paper2)
+                R.id.Bg_ColorBT4 -> setBackgroundRes(R.color.bgcolor1)
+                R.id.Bg_ColorBT5 -> setBackgroundRes(R.color.bgcolor2)
+                R.id.Bg_ColorBT6 -> setBackgroundRes(R.drawable.bg_paper1)
+                R.id.Bg_ColorBT7 -> setBackgroundRes(R.drawable.bg_paper3)
+                else -> setBackgroundRes(R.color.bgcolor1)
+            }
         }
     }
-}
-    private fun setBackgroundRes(resId :Int){
+
+    private fun setBackgroundRes(resId: Int) {
         BackgroundView.setBackgroundResource(resId)
         with(preference.edit()) {
-            putInt(getString(R.string.novel_background),resId).apply()
-        }
-    }
-
-    private fun loadNextChapter() {
-        var tempChUrl = ""
-        var tempBookTitle = ""
-        var tempChapterContents = ""
-        var hasNext = false
-//            之後新增檢查正序倒序
-        CoroutineScope(Dispatchers.IO).launch {
-            allChapters?.let {
-                if (nowChNum != 0) {
-                    tempChUrl = it[nowChNum - 1].chUrl
-                    tempBookTitle = it[nowChNum - 1].chtitle
-                    tempChapterContents = NovelApi.RequestChTextBETA(tempChUrl, tempBookTitle)
-                    nowChNum--
-                    hasNext = true
-                } else {
-                    hasNext = false
-                }
-            }
-            launch(Dispatchers.Main) {
-                if (hasNext) {
-                    Toast.makeText(applicationContext, "下一章", Toast.LENGTH_SHORT).show()
-                    val mConstraintLayout =
-                        layoutInflater.inflate(R.layout.row_chapter_content, ChapterListView, false) as ConstraintLayout
-                    val mTitle = mConstraintLayout.getViewById(R.id.row_chapter_title) as TextView
-                    val mContent = mConstraintLayout.getViewById(R.id.row_chapter_content) as TextView
-                    val fontSize = preference.getFloat(getString(R.string.novel_fontsize), 16F)
-
-                    mTitle.textSize = fontSize
-                    mContent.textSize = fontSize + 4
-                    mTitle.text = tempBookTitle
-                    mContent.text = tempChapterContents
-                    ChapterListView.addView(mConstraintLayout)
-                    adapter.lastPositionChange(nowChNum)
-                } else {
-                    Toast.makeText(applicationContext, "已經沒有下一章囉", Toast.LENGTH_SHORT).show()
-                }
-            }
+            putInt(getString(R.string.novel_background), resId).apply()
         }
     }
 
     private fun setActbar() {
         setSupportActionBar(ToolBar)
         supportActionBar?.apply {
-//            setTitle("")
+            title = bookTitle
             setDisplayHomeAsUpEnabled(true)
             setHomeButtonEnabled(true)
         }
@@ -351,14 +278,52 @@ class BookContentActivity : AppCompatActivity(), BookChAdapter.OnItemClickListen
 
     private fun initBottomNavigationView() {
         bottomNavigation.setOnNavigationItemSelectedListener(bottomNavigationViewListener)
+        bottomNavigation.menu.getItem(0).title =
+            if(checkUiModeNight()){"夜間模式"} else{"日間模式"}
     }
 
     private val bottomNavigationViewListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         when (item.itemId) {
             R.id.dayNightModeItem -> {
-                when (StyleSettingView.visibility) {
-                    View.VISIBLE -> StyleSettingView.visibility = View.GONE
+//                return true -> night , false -> morning
+                if(checkUiModeNight()){
+                    val bgResId = preference.getInt(getString(R.string.novel_background), R.color.bgMorning)
+                    BackgroundView.setBackgroundResource(bgResId)
+                    ChTitle.setTextColor(ContextCompat.getColor(this,R.color.fontMorning))
+                    ChContent.setTextColor(ContextCompat.getColor(this,R.color.fontMorning))
+                    item.title = "日間模式"
+                    with(preference.edit()) {
+                        putBoolean(getString(R.string.novel_uimode), false).apply()
+                    }
+                }else{
+                    BackgroundView.setBackgroundResource(R.color.bgNight)
+                    ChTitle.setTextColor(ContextCompat.getColor(this,R.color.fontNight))
+                    ChContent.setTextColor(ContextCompat.getColor(this,R.color.fontNight))
+                    item.title = "夜間模式"
+                    with(preference.edit()) {
+                        putBoolean(getString(R.string.novel_uimode), true).apply()
+                    }
                 }
+//                val currentNightMode = checkUiMode()
+//                when (currentNightMode) {
+//                    Configuration.UI_MODE_NIGHT_NO -> {
+//                        delegate.localNightMode = MODE_NIGHT_YES
+//                        recreate()
+//                    }
+//                    Configuration.UI_MODE_NIGHT_YES -> {
+//                        delegate.localNightMode = MODE_NIGHT_NO
+//                        recreate()
+//                    }
+//                }
+//                when (StyleSettingView.visibility) {
+//                    View.VISIBLE -> StyleSettingView.visibility = View.GONE
+//                }
+//
+//                item.title = when (checkUiMode()) {
+//                    1 -> "日間模式"
+//                    2 -> "夜間模式"
+//                    else -> "系統模式"
+//                }
                 return@OnNavigationItemSelectedListener true
             }
             R.id.directoryItem -> {
@@ -399,4 +364,33 @@ class BookContentActivity : AppCompatActivity(), BookChAdapter.OnItemClickListen
         }
         return nowWindowBrightness / 255F
     }
+
+//    override fun onConfigurationChanged(newConfig: Configuration) {
+//        super.onConfigurationChanged(newConfig)
+//        when (newConfig.uiMode) {
+//            Configuration.UI_MODE_NIGHT_NO -> {
+//                Toast.makeText(applicationContext, "切換日間", Toast.LENGTH_SHORT).show()
+//            }
+//            Configuration.UI_MODE_NIGHT_YES -> {
+//                Toast.makeText(applicationContext, "切換夜間", Toast.LENGTH_SHORT).show()
+//            }
+//        }
+//    }
+
+//    fun checkUiMode(): Int {
+//        var currentNightMode = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+//        when (currentNightMode) {
+//            Configuration.UI_MODE_NIGHT_NO -> {
+//                Configuration.UI_MODE_NIGHT_NO
+//                currentNightMode = Configuration.UI_MODE_NIGHT_NO
+//            }
+//            Configuration.UI_MODE_NIGHT_YES -> {
+//                currentNightMode = Configuration.UI_MODE_NIGHT_YES
+//            }
+//        }
+//        return currentNightMode
+//    }
+fun checkUiModeNight(): Boolean {
+    return preference.getBoolean(getString(R.string.novel_uimode),false)
+}
 }

@@ -7,8 +7,11 @@ import android.os.Handler
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
+import android.widget.PopupMenu
 import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
@@ -38,7 +41,8 @@ class MyBooks : Fragment() ,StoredBookAdapter.OnItemClickListener{
     var lastVisibleItem = 0
 
     private lateinit var viewModel : MyBooksViewModel
-    val storedBookAdapter = StoredBookAdapter()
+    private lateinit var storedBookAdapter :StoredBookAdapter
+//    val storedBookAdapter = context?.let { StoredBookAdapter(it) }?:StoredBookAdapter()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -50,6 +54,7 @@ class MyBooks : Fragment() ,StoredBookAdapter.OnItemClickListener{
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        storedBookAdapter =  activity?.applicationContext?.let { StoredBookAdapter(it) } ?:StoredBookAdapter()
         initUI()
         initUIlister()
         loadingMore()
@@ -85,16 +90,30 @@ class MyBooks : Fragment() ,StoredBookAdapter.OnItemClickListener{
     }
 
 
-    override fun onItemClick(sbBook: StoredBook) {
+    override fun onItemClick(sbBook: StoredBook,view: View) {
 //        Toast.makeText(context, "Item ${sbBook.bookid} clicked", Toast.LENGTH_SHORT).show()
-        val intent = Intent(context, BookDetailActivity::class.java).apply {
-            putExtra("BOOK_ID",sbBook.bookid)
-            putExtra("BOOK_TITLE",sbBook.bookname)
-            putExtra("BOOK_AUTHOR",sbBook.bookauthor)
-            putExtra("BOOK_URL",sbBook.bookid)
-        }
-        this.startActivity(intent)
+//        Toast.makeText(context, "Id =  ${view.id} clicked", Toast.LENGTH_SHORT).show()
+                val intent = Intent(context, BookDetailActivity::class.java).apply {
+                    putExtra("BOOK_ID",sbBook.bookid)
+                    putExtra("BOOK_TITLE",sbBook.bookname)
+                    putExtra("BOOK_AUTHOR",sbBook.bookauthor)
+                    putExtra("BOOK_URL",sbBook.bookid)
+                }
+                this.startActivity(intent)
     }
+
+    override fun onMoreClick(sbBook: StoredBook, view: View) {
+        val popupMenu = PopupMenu(context,view)
+        popupMenu.inflate(R.menu.mybook_more_menu)
+        popupMenu.setOnMenuItemClickListener { item: MenuItem ->
+            when(item.itemId){
+                R.id.menuBookDelete-> viewModel.delete(sbBook)
+            }
+            true
+        }
+        popupMenu.show()
+    }
+
 
     private fun initUI() {
         SB_recycler.apply {
@@ -105,6 +124,7 @@ class MyBooks : Fragment() ,StoredBookAdapter.OnItemClickListener{
 
         Log.d("Viewmodel","BEFORE")
         viewModel = ViewModelProvider(this,MyBooksViewModelFactory(context!!)).get(MyBooksViewModel::class.java)
+        storedBookAdapter.setViewModel(viewModel)
         context?.let { Log.d("Viewmodel","has context") }
         Log.d("Viewmodel","AFTER")
         viewModel.allsbBooks.observe(viewLifecycleOwner, Observer {
@@ -118,6 +138,5 @@ class MyBooks : Fragment() ,StoredBookAdapter.OnItemClickListener{
 //        })
 
     }
-
 
 }

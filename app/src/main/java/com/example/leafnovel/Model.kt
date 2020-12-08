@@ -24,8 +24,16 @@ data class BookChapter(
     var chUrl: String
 ):Parcelable
 
-class ChapterContents:java.util.ArrayList<ChapterContent>()
+@Parcelize
 data class ChapterContent(
-    var chapterLine: Int,
-    var chapterLineContent: String
-)
+    var chTitle: String,
+    val chContent: String,
+    var chUrl: String
+):Parcelable
+
+
+class ChapterContents:java.util.ArrayList<ChapterContent>()
+//data class ChapterContent(
+//    var chapterLine: Int,
+//    var chapterLineContent: String
+//)
