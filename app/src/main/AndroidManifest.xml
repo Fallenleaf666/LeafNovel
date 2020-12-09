@@ -14,15 +14,15 @@
             tools:ignore="GoogleAppIndexingWaring"
 
     >
-        <activity android:name=".BookContentActivity" android:theme="@style/NovelCotentTheme"
-        android:configChanges="uiMode"
+        <activity android:name=".ui.main.view.BookContentActivity" android:theme="@style/NovelCotentTheme"
+                  android:configChanges="uiMode"
         >
         </activity>
-        <activity android:name=".BookDirectoryActivity">
+        <activity android:name=".ui.main.view.BookDirectoryActivity">
         </activity>
-        <activity android:name=".BookDetailActivity">
+        <activity android:name=".ui.main.view.BookDetailActivity">
         </activity>
-        <activity android:name=".MainActivity">
+        <activity android:name=".ui.main.view.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
