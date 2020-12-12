@@ -44,6 +44,7 @@ class BookChAdapter : RecyclerView.Adapter<BookChAdapter.BookChViewHolder>() {
 
     inner class BookChViewHolder(view: View) : RecyclerView.ViewHolder(view), View.OnClickListener {
         val title: TextView = view.ChapterTitle
+        val index: TextView = view.IndexView
         val chapterRow: LinearLayout = view.ChapterRow
 
         //        val booktitle=view.book_name
@@ -59,7 +60,7 @@ class BookChAdapter : RecyclerView.Adapter<BookChAdapter.BookChViewHolder>() {
 //            which you click will change color
                 thisPosition = position
                 val tempBookCh = items[position]
-                listener?.onItemClick(tempBookCh)
+                listener?.onItemClick(tempBookCh,position)
                 oldPosition?.let { notifyItemChanged(it) }
                 notifyItemChanged(position)
             }
@@ -67,7 +68,7 @@ class BookChAdapter : RecyclerView.Adapter<BookChAdapter.BookChViewHolder>() {
     }
 
     interface OnItemClickListener {
-        fun onItemClick(bookCh: BookChapter)
+        fun onItemClick(bookCh: BookChapter,position:Int)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BookChViewHolder {
@@ -77,6 +78,7 @@ class BookChAdapter : RecyclerView.Adapter<BookChAdapter.BookChViewHolder>() {
     override fun onBindViewHolder(holder: BookChViewHolder, position: Int) {
 //        holder.title.setText(items[position].chtitle)
         holder.title.text = items[position].chtitle
+        holder.index.text = position.toString()
 
         if (position == getThisPosition()) {
 //            holder.chapterRow.setBackgroundColor(R.color.selectChBg)

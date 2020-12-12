@@ -46,9 +46,10 @@ class BookDirectoryActivity : AppCompatActivity(), BookChAdapter.OnItemClickList
         }
     }
 
-    override fun onItemClick(bookCh: BookChapter) {
+    override fun onItemClick(bookCh: BookChapter,position:Int) {
 //        Toast.makeText(this, "Item ${bookCh.chtitle} clicked", Toast.LENGTH_SHORT).show()
         val intent = Intent(this, BookContentActivity::class.java).apply {
+            putExtra("BOOK_INDEX", position)
             putExtra("BOOK_ID", bookId)
             putExtra("BOOK_CH_ID", bookCh.chId)
             putExtra("BOOK_CH_URL", bookCh.chUrl)

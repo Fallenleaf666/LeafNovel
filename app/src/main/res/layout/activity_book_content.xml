@@ -21,43 +21,79 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-        >
-            <androidx.core.widget.NestedScrollView
+                android:id="@+id/SwipToRefreshView">
+            <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:id="@+id/scrollView2" android:visibility="visible">
-                <LinearLayout
-                        android:orientation="vertical"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent" android:id="@+id/ChapterListView">
-                    <androidx.constraintlayout.widget.ConstraintLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content" android:id="@+id/ChapterView">
+                    android:layout_height="match_parent">
 
-                        <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content" android:id="@+id/ChTitle"
-                                app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintEnd_toEndOf="parent" app:layout_constraintTop_toTopOf="parent"
-                                android:layout_marginTop="25dp" tools:text="章節名稱" android:textSize="16sp"
-                                android:textColor="@color/fontMorning"/>
-                        <TextView
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content" android:id="@+id/ChContent"
-                                app:layout_constraintTop_toBottomOf="@+id/ChTitle"
-                                app:layout_constraintStart_toStartOf="parent"
-                                android:layout_marginStart="20dp" android:layout_marginEnd="20dp"
-                                app:layout_constraintEnd_toEndOf="parent"
-                                app:layout_constraintBottom_toBottomOf="parent"
-                                android:layout_marginBottom="15dp" android:layout_marginTop="24dp"
-                                android:textSize="20sp"
-                                android:lineSpacingExtra="10sp"
-                                tools:text="內文內文內文內文內文內文內文內文內文內文內文內文內文內文內文內文內文內文內文內文"
-                                android:textColor="@color/fontMorning"
-                                android:textColorHint="#FFFFFF"/>
-                    </androidx.constraintlayout.widget.ConstraintLayout>
-                </LinearLayout>
-            </androidx.core.widget.NestedScrollView>
+                <androidx.core.widget.NestedScrollView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:id="@+id/scrollView2" android:visibility="visible"
+                >
+                    <LinearLayout
+                            android:orientation="vertical"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent" android:id="@+id/ChapterListView">
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content" android:id="@+id/ChapterView">
+
+                            <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content" android:id="@+id/ChTitle"
+                                    app:layout_constraintStart_toStartOf="parent"
+                                    app:layout_constraintEnd_toEndOf="parent" app:layout_constraintTop_toTopOf="parent"
+                                    android:layout_marginTop="25dp" tools:text="章節名稱" android:textSize="16sp"
+                                    android:textColor="@color/fontMorning"/>
+                            <TextView
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content" android:id="@+id/ChContent"
+                                    app:layout_constraintTop_toBottomOf="@+id/ChTitle"
+                                    app:layout_constraintStart_toStartOf="parent"
+                                    android:layout_marginStart="20dp" android:layout_marginEnd="20dp"
+                                    app:layout_constraintEnd_toEndOf="parent"
+                                    app:layout_constraintBottom_toBottomOf="parent"
+                                    android:layout_marginBottom="15dp" android:layout_marginTop="24dp"
+                                    android:textSize="20sp"
+                                    android:lineSpacingExtra="10sp"
+                                    tools:text="內文內文內文內文內文內文內文內文內文內文內文內文內文內文內文內文內文內文內文內文"
+                                    android:textColor="@color/fontMorning"
+                                    android:textColorHint="#FFFFFF"/>
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+                    </LinearLayout>
+                </androidx.core.widget.NestedScrollView>
+                <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="20dp" android:id="@+id/NovelStatbar"
+                        app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent" android:background="#C9686868">
+
+                    <TextView
+                            android:text="章節"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" android:id="@+id/NowLookChapter"
+                            app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            android:layout_marginStart="7dp" android:textColor="#E4E3F0F6" android:textSize="10sp"
+                            android:maxLength="12"/>
+                    <TextView
+                            android:text="進度"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" android:id="@+id/NowLookProgressiew"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent" android:textColor="#E4E3F0F6"/>
+                    <TextView
+                            android:text="00:00"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" android:id="@+id/textView9"
+                            app:layout_constraintEnd_toEndOf="parent" app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            android:textColor="#E4E3F0F6" android:layout_marginEnd="8dp"/>
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
         <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
@@ -67,6 +103,12 @@
                 android:background="#8D9A9797"
                 android:id="@+id/FunctionMenu">
 
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:id="@+id/lookatText"
+                    app:layout_constraintEnd_toEndOf="parent" app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintBottom_toBottomOf="@+id/linearLayout3"/>
             <LinearLayout
                     android:orientation="horizontal"
                     android:layout_width="0dp"
@@ -233,7 +275,8 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/LoadMoreProgressBar"
                 app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent" android:layout_marginBottom="16dp"/>
+                app:layout_constraintBottom_toBottomOf="parent" android:layout_marginBottom="16dp"
+                android:visibility="invisible"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
     <com.google.android.material.navigation.NavigationView
             android:layout_width="wrap_content"
