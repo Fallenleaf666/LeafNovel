@@ -1,16 +1,28 @@
 package com.example.leafnovel.ui.main.viewmodel
 
+import android.app.Application
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.os.BatteryManager
 import android.util.Log
 import android.widget.Toast
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.leafnovel.`interface`.BatteryChangeHelper
+import com.example.leafnovel.`interface`.SystemTimeHelper
+
 import com.example.leafnovel.data.model.BookChapter
 import com.example.leafnovel.data.model.ChapterContent
 import com.example.leafnovel.data.database.StoredBookDB
 import com.example.leafnovel.data.api.NovelApi
 import com.example.leafnovel.data.repository.Repository
+import com.example.leafnovel.receiver.BatteryChangeReceiver
+import com.example.leafnovel.receiver.TimeChangeReceiver
 import kotlinx.coroutines.*
+import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.coroutines.CoroutineContext
 
 class BookContentViewModel(
@@ -35,6 +47,13 @@ class BookContentViewModel(
     private val repository: Repository
     private val isLoadMore: MutableLiveData<Boolean> = MutableLiveData(false)
     private val isRefresh: MutableLiveData<Boolean> = MutableLiveData(false)
+
+    private lateinit var mBatteryChangeReceiver: BatteryChangeReceiver
+    private lateinit var mTimeChangeReceiver: TimeChangeReceiver
+
+    val systemTime: MutableLiveData<String> = MutableLiveData()
+    val batteryIsCharging: MutableLiveData<Boolean> = MutableLiveData(false)
+    val batteryLevel: MutableLiveData<Int> = MutableLiveData()
 
     //    val allChapterList: MutableLiveData<BookChsResults> = MutableLiveData()
 //    小說的所有章節data，包含url和title...
@@ -247,14 +266,74 @@ class BookContentViewModel(
 
     override fun onCleared() {
         super.onCleared()
+        mContext.unregisterReceiver(mTimeChangeReceiver)
+        mContext.unregisterReceiver(mBatteryChangeReceiver)
         parentJob.cancel()
     }
 
-//    fun getAllChapters(bookId:String):MutableLiveData<BookChsResults>{
+    fun initBatteryLevel() {
+        val batteryStat: Intent? = IntentFilter(Intent.ACTION_BATTERY_CHANGED).let { ifilter ->
+            mContext.registerReceiver(null, ifilter)
+        }
+        val batteryPct: Int? = batteryStat?.let { intent ->
+            val level: Int = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1)
+            val scale: Int = intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1)
+            level * 100 / scale
+        }
+
+        val status = batteryStat?.getIntExtra(BatteryManager.EXTRA_STATUS, -1) ?: -1
+        val IsCharging: Boolean = status == BatteryManager.BATTERY_STATUS_CHARGING
+                || status == BatteryManager.BATTERY_STATUS_FULL
+
+
+        val mBatteryChangeHelper = object : BatteryChangeHelper {
+            override fun updateBatteryStat(level: Int, isCharging: Boolean) {
+                scope.launch(Dispatchers.IO) {
+
+                    batteryIsCharging.postValue(isCharging)
+                    batteryLevel.postValue(level)
+                }
+            }
+        }
+        mBatteryChangeHelper.updateBatteryStat(batteryPct ?: 100, IsCharging)
+        mBatteryChangeReceiver = BatteryChangeReceiver(mBatteryChangeHelper)
+        mContext.registerReceiver(mBatteryChangeReceiver, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+    }
+
+    //        fun getAllChapters(bookId:String):MutableLiveData<BookChsResults>{
 //        scope.launch(Dispatchers.IO){
 //            allChapterList.postValue(repository.getSearchBookChaptersList(bookId))
 //        }
 //        return allChapterList
 //}
+    fun initSystemTime() {
+        val mSystemTimeHelper = object : SystemTimeHelper {
+            override fun updateTime() {
+                scope.launch(Dispatchers.IO) {
+                    val calendar = Calendar.getInstance()
+                    var hour = calendar.get(Calendar.HOUR_OF_DAY)
+                    val minute = calendar.get(Calendar.MINUTE)
+
+                    val is24hFormat = true
+                    if (is24hFormat && hour > 12) {
+                        hour -= 12
+                    }
+
+                    var time = ""
+
+                    time += if (hour >= 10) hour.toString()
+                    else "0$hour:"
+
+                    time += if (minute >= 10) minute.toString()
+                    else "0$minute"
+
+                    systemTime.postValue(time)
+                }
+            }
+        }
+        mTimeChangeReceiver = TimeChangeReceiver(mSystemTimeHelper)
+        mContext.registerReceiver(mTimeChangeReceiver, IntentFilter(Intent.ACTION_TIME_TICK))
+        mSystemTimeHelper.updateTime()
+    }
 
 }

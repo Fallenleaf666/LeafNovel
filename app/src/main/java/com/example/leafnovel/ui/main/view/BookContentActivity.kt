@@ -20,6 +20,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.core.widget.NestedScrollView
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -75,11 +76,16 @@ class BookContentActivity : AppCompatActivity(), BookChAdapter.OnItemClickListen
         setContentView(R.layout.activity_book_content)
 
         setData()
+        setReceiver()
         setActbar()
         setUI()
         setObserver()
         setUiListener()
         initBottomNavigationView()
+    }
+
+    private fun setReceiver() {
+        viewModel.initSystemTime()
     }
 
     private fun setData() {
@@ -140,6 +146,18 @@ class BookContentActivity : AppCompatActivity(), BookChAdapter.OnItemClickListen
 
 //        viewModel.loadNextChapter().observe(this@BookContentActivity,loadChapterObserver)
         viewModel.loadChapterContent.observe(this@BookContentActivity, loadChapterObserver)
+
+        viewModel.systemTime.observe(this, { systemTime ->
+            SystemTimeView.text = systemTime
+        })
+        viewModel.batteryIsCharging.observe(this, { isCharging ->
+            novelBatteryView.isCharging = isCharging
+        })
+        viewModel.batteryLevel.observe(this, { batteryLevel ->
+            novelBatteryView.batteryLevel = batteryLevel
+        })
+
+
 
     }
 
@@ -248,6 +266,7 @@ class BookContentActivity : AppCompatActivity(), BookChAdapter.OnItemClickListen
             ChContent.setTextColor(ContextCompat.getColor(this, R.color.fontMorning))
         }
 
+        viewModel.initBatteryLevel()
     }
 
     private fun setUiListener() {
@@ -573,4 +592,6 @@ class BookContentActivity : AppCompatActivity(), BookChAdapter.OnItemClickListen
         super.onDestroy()
         ChapterListView.viewTreeObserver.removeOnGlobalLayoutListener(onGlobalLayoutListener)
     }
+
+
 }
