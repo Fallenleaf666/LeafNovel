@@ -29,6 +29,15 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+
+<!--        <receiver android:name=".receiver.BatteryLevelReceiver">-->
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.BATTERY_LOW"/>-->
+<!--                <action android:name="android.intent.action.BATTERY_OKAY"/>-->
+<!--            </intent-filter>-->
+<!--        </receiver>-->
     </application>
+
+
 
 </manifest>
