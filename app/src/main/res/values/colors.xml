@@ -14,4 +14,5 @@
     <color name="bgNight">#FC2E2E2D</color>
     <color name="fontMorning">#B5373535</color>
     <color name="fontNight">#C1E9EAF3</color>
+    <color name="battery_warning_color">#D3F4879D</color>
 </resources>
