@@ -9,6 +9,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.leafnovel.data.model.BookChapter
 import com.example.leafnovel.R
+import com.example.leafnovel.data.model.BookChsResults
 import kotlinx.android.synthetic.main.row_bookchapter.view.*
 
 class BookChAdapter : RecyclerView.Adapter<BookChAdapter.BookChViewHolder>() {
@@ -26,6 +27,14 @@ class BookChAdapter : RecyclerView.Adapter<BookChAdapter.BookChViewHolder>() {
         items.clear()
         items.addAll(bookChs)
         listener = itemClickListener
+        notifyDataSetChanged()
+    }
+
+    fun reversedItems() {
+        val reversedNovelChs = items.reversed()
+        items.clear()
+        items.addAll(reversedNovelChs)
+        thisPosition?.let { lastPositionChange(items.size - 1 - it) }
         notifyDataSetChanged()
     }
 

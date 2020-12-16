@@ -40,5 +40,10 @@ class Repository constructor(private val sbBooksDao: StoredBookDao) {
     fun getSearchBookChaptersContextBeta(chapterUrl:String,bookChTitle:String,bookTitle:String):String{
         return NovelApi.RequestChTextBETA(chapterUrl,bookChTitle,bookTitle)
     }
+
+    @WorkerThread
+    fun requestNovelDetail(bookId:String,bookTitle:String):MutableMap<String, String>{
+        return NovelApi.RequestNovelDetail(bookId,bookTitle)
+    }
 }
 

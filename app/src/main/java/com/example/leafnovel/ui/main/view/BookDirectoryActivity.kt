@@ -4,6 +4,7 @@ import com.example.leafnovel.data.api.NovelApi
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.leafnovel.R
 import com.example.leafnovel.ui.main.adapter.BookChAdapter
@@ -36,6 +37,8 @@ class BookDirectoryActivity : AppCompatActivity(), BookChAdapter.OnItemClickList
             adapter = this@BookDirectoryActivity.adapter
         }
 
+        initUi()
+
         CoroutineScope(Dispatchers.IO).launch {
             val bookChResults = NovelApi.RequestChList(bookId)
             transBookChResults = bookChResults
@@ -44,6 +47,13 @@ class BookDirectoryActivity : AppCompatActivity(), BookChAdapter.OnItemClickList
                 adapter.setItems(bookChResults, this@BookDirectoryActivity)
             }
         }
+    }
+    fun initUi(){
+    }
+
+    fun reversedItems(view: View) {
+            Chapters_order_TextView.text = if(Chapters_order_TextView.text == "倒序")"正序" else "倒序"
+        adapter.reversedItems()
     }
 
     override fun onItemClick(bookCh: BookChapter,position:Int) {

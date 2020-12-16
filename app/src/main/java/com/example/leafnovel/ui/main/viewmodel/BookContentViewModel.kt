@@ -105,8 +105,8 @@ class BookContentViewModel(
         val chapterNum = tempChapterReadIndex.value
         chapterNum?.let {
             if (chapterNum != 0) {
-                tempChUrl = allChapter[chapterNum - 1].chUrl
-                tempBookChTitle = allChapter[chapterNum - 1].chtitle
+                tempChUrl = allChapter[chapterNum + 1].chUrl
+                tempBookChTitle = allChapter[chapterNum + 1].chtitle
                 tempChapterContents = NovelApi.RequestChTextBETA(tempChUrl, tempBookChTitle, bookTitle)
                 hasNext = true
             } else {
@@ -120,8 +120,8 @@ class BookContentViewModel(
                 chapterContent.postValue(tempChapter)
                 allChapterContent.postValue(arrayListOf(tempChapter))
                 chapterNum?.let {
-                    tempChapterIndex.value = it - 1
-                    tempChapterReadIndex.value = it - 1
+                    tempChapterIndex.value = it + 1
+                    tempChapterReadIndex.value = it + 1
 //                    tempChapterReadEndIndex.value = it - 1
                 }
             } else {
@@ -141,8 +141,8 @@ class BookContentViewModel(
         val chapterNum = tempChapterReadIndex.value
         chapterNum?.let {
             if (chapterNum != 0) {
-                tempChUrl = allChapter[chapterNum + 1].chUrl
-                tempBookChTitle = allChapter[chapterNum + 1].chtitle
+                tempChUrl = allChapter[chapterNum - 1].chUrl
+                tempBookChTitle = allChapter[chapterNum - 1].chtitle
                 tempChapterContents = NovelApi.RequestChTextBETA(tempChUrl, tempBookChTitle, bookTitle)
                 hasNext = true
             } else {
@@ -156,8 +156,8 @@ class BookContentViewModel(
                 chapterContent.postValue(tempChapter)
                 allChapterContent.postValue(arrayListOf(tempChapter))
                 chapterNum?.let {
-                    tempChapterIndex.value = it + 1
-                    tempChapterReadIndex.value = it + 1
+                    tempChapterIndex.value = it - 1
+                    tempChapterReadIndex.value = it - 1
 //                    tempChapterReadEndIndex.value = it + 1
                 }
             } else {
@@ -183,8 +183,8 @@ class BookContentViewModel(
 
             if (chapterNum != null && chapterReadNum != null) {
                 if (chapterReadNum != 0) {
-                    tempChUrl = allChapter[chapterReadNum - 1].chUrl
-                    tempBookChTitle = allChapter[chapterReadNum - 1].chtitle
+                    tempChUrl = allChapter[chapterReadNum + 1].chUrl
+                    tempBookChTitle = allChapter[chapterReadNum + 1].chtitle
                     tempChapterContentText = NovelApi.RequestChTextBETA(tempChUrl, tempBookChTitle, bookTitle)
 
                     val tempChapterContent = ChapterContent(tempBookChTitle, tempChapterContentText, tempChUrl)

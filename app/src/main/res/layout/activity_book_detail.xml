@@ -8,109 +8,15 @@
         tools:context=".ui.main.view.BookDetailActivity"
         tools:visibility="visible">
 
-    <ProgressBar
-            style="@android:style/Widget.Holo.ProgressBar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/LoadProgressBar" app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginEnd="16dp"
-            app:layout_constraintTop_toTopOf="parent" android:layout_marginBottom="9dp"
-            app:layout_constraintEnd_toEndOf="parent" app:layout_constraintBottom_toBottomOf="parent"
-            android:background="@drawable/progress_bg"
-            android:animationResolution="@android:integer/config_mediumAnimTime"
-            android:alpha="@dimen/material_emphasis_high_type" android:clickable="false"
-            android:indeterminateBehavior="repeat" android:visibility="visible"/>
-    <ImageView
-            android:layout_width="110dp"
-            android:layout_height="136dp" tools:srcCompat="@android:drawable/ic_menu_report_image"
-            android:id="@+id/Book_imgView"
-            android:src="@android:drawable/ic_menu_report_image" app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent" android:layout_marginTop="24dp"
-            android:layout_marginStart="16dp"/>
-    <TextView
-            android:text="書名"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:id="@+id/Book_titleView"
-            app:layout_constraintStart_toEndOf="@+id/Book_imgView" android:layout_marginStart="8dp"
-            android:textSize="20dp" app:layout_constraintTop_toTopOf="parent" android:layout_marginTop="24dp"/>
-    <TextView
-            android:text="作者"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:id="@+id/Book_authorView"
-            app:layout_constraintTop_toBottomOf="@+id/Book_titleView"
-            android:layout_marginTop="4dp" app:layout_constraintStart_toStartOf="@+id/Book_titleView"
-            style="@style/BookDetailTextView"
-            android:layout_marginStart="4dp"/>
-    <TextView
-            android:text="連載狀態："
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:id="@+id/Book_stateText"
-            app:layout_constraintTop_toBottomOf="@+id/textView5"
-            app:layout_constraintStart_toStartOf="@+id/textView5"
-            android:layout_marginTop="4dp"
-            style="@style/BookDetailTextView"
-    />
-    <TextView
-            android:text="最新章節："
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:id="@+id/textView4"
-            app:layout_constraintTop_toBottomOf="@+id/Book_authorView"
-            app:layout_constraintStart_toStartOf="@+id/Book_authorView" android:layout_marginTop="8dp"
-            style="@style/BookDetailTextView"
-    />
-    <TextView
-            android:text="更新時間："
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:id="@+id/textView5"
-            app:layout_constraintTop_toBottomOf="@+id/textView4" app:layout_constraintStart_toStartOf="@+id/textView4"
-            android:layout_marginTop="6dp"
-            style="@style/BookDetailTextView"
-    />
-    <ScrollView
-            android:layout_width="match_parent"
-            android:layout_height="0dp" app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintTop_toBottomOf="@+id/linearLayout2"
-            android:layout_marginBottom="16dp" android:layout_marginStart="20dp" android:layout_marginEnd="20dp"
-            android:layout_marginTop="8dp">
-        <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent"
-                      android:orientation="vertical">
-            <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" android:id="@+id/Book_DescripeView"
-                    android:lineSpacingExtra="6sp" tools:text="這是一本書"/>
-        </LinearLayout>
-    </ScrollView>
-    <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:id="@+id/NewChapterText"
-            app:layout_constraintStart_toEndOf="@+id/textView4" app:layout_constraintTop_toTopOf="@+id/textView4"
-            style="@style/BookDetailTextView"/>
-    <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:id="@+id/UpdateTimeText"
-            app:layout_constraintTop_toTopOf="@+id/textView5" app:layout_constraintStart_toEndOf="@+id/textView5"
-            style="@style/BookDetailTextView"/>
-    <LinearLayout
-            android:orientation="horizontal"
+    <androidx.viewpager2.widget.ViewPager2
             android:layout_width="0dp"
-            android:layout_height="50dp" app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintHorizontal_bias="1.0" app:layout_constraintTop_toBottomOf="@+id/Book_imgView"
-            app:layout_constraintEnd_toEndOf="parent" android:layout_marginTop="17dp" android:id="@+id/linearLayout2">
-        <Button
-                android:text="收藏"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" android:id="@+id/StoreBT"
-                android:layout_weight="1" android:layout_marginStart="16dp"/>
-        <Button
-                android:text="上次閱讀"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" android:id="@+id/LastReadText"
-                android:layout_marginStart="10dp" android:layout_weight="1" android:layout_marginEnd="10dp"/>
-        <Button
-                android:text="目錄"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" android:id="@+id/bookDitectoryBT"
-                android:layout_weight="1" android:layout_marginEnd="16dp"/>
-    </LinearLayout>
+            android:layout_height="0dp" app:layout_constraintTop_toBottomOf="@+id/bookDetailTabLayout"
+            app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" android:id="@+id/bookDetailViewPager2"/>
+    <com.google.android.material.tabs.TabLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"
+            android:id="@+id/bookDetailTabLayout"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -89,6 +89,7 @@ class MyBooks : Fragment(), StoredBookAdapter.OnItemClickListener {
 //        Toast.makeText(context, "Item ${sbBook.bookid} clicked", Toast.LENGTH_SHORT).show()
 //        Toast.makeText(context, "Id =  ${view.id} clicked", Toast.LENGTH_SHORT).show()
         val intent = Intent(context, BookDetailActivity::class.java).apply {
+            putExtra("BOOK_Detail", sbBook)
             putExtra("BOOK_ID", sbBook.bookid)
             putExtra("BOOK_TITLE", sbBook.bookname)
             putExtra("BOOK_AUTHOR", sbBook.bookauthor)

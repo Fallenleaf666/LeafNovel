@@ -1,10 +1,13 @@
 package com.example.leafnovel.data.model
 
+import android.os.Parcelable
 import androidx.annotation.NonNull
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import kotlinx.android.parcel.Parcelize
 
+@Parcelize
 @Entity
 data class StoredBook(
     @NonNull
@@ -19,7 +22,7 @@ data class StoredBook(
     var bookUrl:String,
     @PrimaryKey
     @NonNull
-    var bookid:String){
+    var bookid:String) : Parcelable {
 //    @PrimaryKey(autoGenerate = true)
 //    var id:Long=0
 }

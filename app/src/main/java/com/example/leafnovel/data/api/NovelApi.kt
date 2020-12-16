@@ -135,9 +135,9 @@ fun RequestChList(id:String): BookChsResults {
     val chapters :Elements = chapterList!!.getElementsByTag("li")
 
 //    get chapters
-    var chList:MutableList<Elements> = mutableListOf()
+    val chList:MutableList<Elements> = mutableListOf()
     for(i in chapters){
-        var c=i.getElementsByTag("a")
+        val c=i.getElementsByTag("a")
         if(c.toString()!="")
             chList.add(c)
     }
@@ -146,19 +146,22 @@ fun RequestChList(id:String): BookChsResults {
 //    get ch title
 
     val bookChsResults = BookChsResults()
-    for(i in chList){
-        var tempBookCh = BookChapter("預設","0000","")
-        val title : String = i.text()
+//    for(i in chList){
+//    從網站上讀取的是倒序
+    for(i in chList.size -1 downTo 0){
+        val tempBookCh = BookChapter("預設","0000","")
+        val title : String = chList[i].text()
         tempBookCh.chtitle = title
-        val partHref : String = i.attr("href")
+        val partHref : String = chList[i].attr("href")
         tempBookCh.chUrl = partHref
 //        chId尚未實作
         println(title+partHref)
         bookChsResults.add(tempBookCh)
     }
+//
+//    bookChsResults = ArrayList(bookChsResults.reversed()) as BookChsResults
     return bookChsResults
 //    RequestChText(chList.shuffled().first().attr("href"));
-
 }
 
 fun allToHelfText(text :String,bookChTitle:String,bookTitle:String):String{
