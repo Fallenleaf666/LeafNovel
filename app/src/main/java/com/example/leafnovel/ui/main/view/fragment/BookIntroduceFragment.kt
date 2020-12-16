@@ -1,11 +1,12 @@
 package com.example.leafnovel.ui.main.view.fragment
 
+import android.app.Activity
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.activityViewModels
+//import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 //import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
@@ -22,7 +23,8 @@ import kotlinx.coroutines.launch
 
 class BookIntroduceFragment : Fragment() {
 //    private val viewModel :BookDetailViewModel
-    private val viewModel :BookDetailViewModel by activityViewModels()
+    private var viewModel :BookDetailViewModel? = null
+    var parentActivity : BookDetailActivity? = null
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
@@ -33,10 +35,11 @@ class BookIntroduceFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val storedBookInfo = viewModel.storedBookInformation.value
+        viewModel = parentActivity?.getActivityViewModel()
+        val storedBookInfo = viewModel?.storedBookInformation?.value
         Book_titleView.text = storedBookInfo?.bookname
         Book_authorView.text = storedBookInfo?.bookauthor
-        viewModel.bookInformation.observe(viewLifecycleOwner,{bookInfo->
+        viewModel?.bookInformation?.observe(viewLifecycleOwner,{bookInfo->
             NewChapterText.text = bookInfo["newChapter"]
             UpdateTimeText.text = bookInfo["updateTime"]
             Book_DescripeView.text = bookInfo["bookDescripe"]
@@ -54,9 +57,14 @@ class BookIntroduceFragment : Fragment() {
         })
     }
 
+    override fun onAttach(activity: Activity) {
+        super.onAttach(activity)
+        parentActivity = activity as BookDetailActivity
+    }
+
     private fun setUiListener() {
-        StoreBT.setOnClickListener{
-            viewModel.storedBook()
+//        StoreBT.setOnClickListener{
+//            viewModel.storedBook()
 //            if(booktitle!=null && author!=null && bookId!=null){
 //                val storedbook = StoredBook(
 //                booktitle!!,author!!,
@@ -68,5 +76,6 @@ class BookIntroduceFragment : Fragment() {
 //                repository?.insert(storedbook)
 //            }
 //            }
-        }}
+//        }
+}
 }

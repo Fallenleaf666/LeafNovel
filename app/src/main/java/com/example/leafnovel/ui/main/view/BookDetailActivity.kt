@@ -36,6 +36,8 @@ class BookDetailActivity : AppCompatActivity() {
     private var isNetConnected = false
     private var repository: Repository? = null
 
+    var viewModel :BookDetailViewModel? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_book_detail)
@@ -70,11 +72,10 @@ class BookDetailActivity : AppCompatActivity() {
     }
 
     private fun getIntentString() {
-
         val bookDetail = intent.getParcelableExtra<StoredBook>("BOOK_Detail")
         if (bookDetail != null) {
             repository?.let {
-                val viewModel = ViewModelProvider(
+                viewModel = ViewModelProvider(
                     this,
                     BookDetailViewModelFactory(applicationContext, bookDetail!!, it)
                 ).get(BookDetailViewModel::class.java)
@@ -85,11 +86,16 @@ class BookDetailActivity : AppCompatActivity() {
             val author = intent.getStringExtra("BOOK_AUTHOR") ?: ""
             val bookUrl = intent.getStringExtra("BOOK_URL") ?: ""
             val bookDetail = StoredBook(booktitle,author,"","",bookUrl,bookId)
-            val viewModel = ViewModelProvider(
+            viewModel = ViewModelProvider(
                 this,
                 BookDetailViewModelFactory(applicationContext, bookDetail, repository!!)
             ).get(BookDetailViewModel::class.java)
         }
+    }
+
+
+    fun getActivityViewModel(): BookDetailViewModel?{
+        return viewModel
     }
 
     private fun setUiListener() {
