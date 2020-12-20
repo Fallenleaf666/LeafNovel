@@ -36,6 +36,7 @@ class StoredBookAdapter() : RecyclerView.Adapter<StoredBookAdapter.StoredBookVie
         val author = view.MyBookAuthor
         val booktitle = view.MyBookName
         val bookLastRead = view.LastReadChapter
+        val bookNewChpater = view.NewChapter
         val bookImg = view.MyBookImgView
         val moreBT = view.MoreBT
         init {
@@ -67,10 +68,12 @@ class StoredBookAdapter() : RecyclerView.Adapter<StoredBookAdapter.StoredBookVie
         holder.booktitle.setText(items[position].bookname)
         holder.author.setText(items[position].bookauthor)
         holder.bookLastRead.setText(items[position].lastread)
+        holder.bookNewChpater.setText(items[position].newchapter)
         Glide.with(holder.itemView).load("http:" + items[position].bookUrl)
             .placeholder(R.drawable.ic_outline_image_search_24)
             .error(R.drawable.ic_baseline_broken_image_24)
             .fallback(R.drawable.ic_baseline_image_24)
+            .centerInside()
             .into(holder.bookImg)
         holder.moreBT.setOnClickListener{
             listener?.onMoreClick(items[position], it )

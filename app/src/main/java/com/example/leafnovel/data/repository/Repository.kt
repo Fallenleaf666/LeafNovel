@@ -3,10 +3,8 @@ package com.example.leafnovel.data.repository
 import com.example.leafnovel.data.api.NovelApi
 import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
-import com.example.leafnovel.data.model.BookChsResults
-import com.example.leafnovel.data.model.BooksResults
-import com.example.leafnovel.data.model.StoredBook
 import com.example.leafnovel.data.database.StoredBookDao
+import com.example.leafnovel.data.model.*
 
 //  for room crud operation
 class Repository constructor(private val sbBooksDao: StoredBookDao) {
@@ -17,6 +15,20 @@ class Repository constructor(private val sbBooksDao: StoredBookDao) {
         sbBooksDao.insert(storedbook)
     }
     @WorkerThread
+    fun saveChapter(storedChapter: StoredChapter){
+        sbBooksDao.saveChapter(storedChapter)
+    }
+
+    @WorkerThread
+    fun getDownloadChapter(bookId:String,index:Int):StoredChapter{
+        return sbBooksDao.getChapterWithBookIdAndIndex(bookId,index)
+    }
+
+    @WorkerThread
+    fun queryBookChpapterIndexes(bookId:String):LiveData<List<ChapterIndex>>{
+        return sbBooksDao.queryBookChpapterIndexes(bookId)
+    }
+    @WorkerThread
     fun deletdAll(){
         sbBooksDao.deleteAll()
     }
@@ -24,6 +36,14 @@ class Repository constructor(private val sbBooksDao: StoredBookDao) {
     fun delete(storedbook: StoredBook){
         sbBooksDao.delete(storedbook)
     }
+
+    @WorkerThread
+    fun downloadBookChapter(bookIdDownloadInfo:BookDownloadInfo){
+        for(i in NovelApi.downloadBookChapter(bookIdDownloadInfo)){
+            sbBooksDao.saveChapter(i)
+        }
+    }
+
     @WorkerThread
     fun getSearchBooks(searchKey:String): BooksResults {
         return NovelApi.RequestSearchNovelBeta(searchKey)

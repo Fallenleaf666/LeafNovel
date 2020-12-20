@@ -5,8 +5,9 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.leafnovel.data.model.StoredBook
+import com.example.leafnovel.data.model.StoredChapter
 
-@Database(entities = arrayOf(StoredBook::class),version = 1)
+@Database(entities = [StoredBook::class, StoredChapter::class],version = 1)
 abstract class StoredBookDB : RoomDatabase(){
     abstract fun storedbookDao() : StoredBookDao
     companion object{

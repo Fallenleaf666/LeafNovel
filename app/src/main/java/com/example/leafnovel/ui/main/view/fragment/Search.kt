@@ -21,14 +21,14 @@ import com.example.leafnovel.ui.main.view.BookDetailActivity
 import kotlinx.android.synthetic.main.fragment_search.*
 
 class Search : Fragment(), BookAdapter.OnItemClickListener {
-    companion object{
-        val newiInstance : Search by lazy{
+    companion object {
+        val newInstance: Search by lazy {
             Search()
         }
     }
-//    private lateinit var viewModel : MyBooksViewModel
+
     val bookAdapter = BookAdapter()
-    private lateinit var viewModel : SearchBookViewModel
+    private lateinit var viewModel: SearchBookViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -50,51 +50,31 @@ class Search : Fragment(), BookAdapter.OnItemClickListener {
             adapter = bookAdapter
         }
 
-        Log.d("Viewmodel","BEFORE")
         viewModel = ViewModelProvider(this, SearchBookViewModelFactory(context!!)).get(SearchBookViewModel::class.java)
-        Log.d("Viewmodel","AFTER")
-        viewModel.searchBooksResults.observe(viewLifecycleOwner, Observer {
-                searchBooks ->
-            bookAdapter.setItems(searchBooks,this)
+        viewModel.searchBooksResults.observe(viewLifecycleOwner, Observer { searchBooks ->
+            bookAdapter.setItems(searchBooks, this)
         })
 
-
-
-
         SF_searchView.apply {
-            setOnQueryTextListener(object :SearchView.OnQueryTextListener{
+            setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                 override fun onQueryTextSubmit(query: String): Boolean {
                     viewModel.SearchBooks(query)
-//                    CoroutineScope(Dispatchers.IO).launch {
-//                        Log.d("TAG","BeforeRequest String: $query")
-//                        val bookResults : BooksResults = com.example.leafnovel.data.api.NovelApi.RequestSearchNovel(query)
-//                        Log.d("TAG","AfterRequest String : $query")
-//                        launch(Dispatchers.Main) {
-//                            Log.d("TAG","onCreate:${bookResults.size}")
-//                            bookAdapter.setItems(bookResults, this@Search)
-//                        }
-//                    }
+                    SF_searchView.clearFocus()
                     return false
                 }
+
                 override fun onQueryTextChange(p0: String?): Boolean {
                     return false
                 }
             })
         }
-//        viewModel = ViewModelProvider(this).get(MyBooksViewModel::class.java)
-//        viewModel.getStoredBooks().observe(this, Observer {
-//            storedBooks ->
-//            bookAdapter.setItems(storedBooks)
-//        })
     }
 
     override fun onItemClick(book: Book) {
-        Toast.makeText(context, "Item ${book.bookUrl} clicked", Toast.LENGTH_SHORT).show()
+//        Toast.makeText(context, "Item ${book.bookUrl} clicked", Toast.LENGTH_SHORT).show()
         val intent = Intent(context, BookDetailActivity::class.java).apply {
-            putExtra("BOOK_ID",book.bookId)
-            putExtra("BOOK_TITLE",book.booktitle)
-            putExtra("BOOK_AUTHOR",book.author)
-            putExtra("BOOK_URL",book.bookUrl)
+            putExtra("BOOK_IS_STORED", false)
+            putExtra("BOOK_INFO",book)
         }
         this.startActivity(intent)
     }

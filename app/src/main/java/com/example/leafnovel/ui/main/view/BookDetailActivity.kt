@@ -4,6 +4,7 @@ package com.example.leafnovel.ui.main.view
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
@@ -15,6 +16,7 @@ import com.example.leafnovel.R
 import com.example.leafnovel.data.model.StoredBook
 import com.example.leafnovel.data.database.StoredBookDB
 import com.example.leafnovel.data.api.NovelApi
+import com.example.leafnovel.data.model.Book
 import com.example.leafnovel.data.repository.Repository
 import com.example.leafnovel.ui.base.BookContentViewModelFactory
 import com.example.leafnovel.ui.base.BookDetailViewModelFactory
@@ -22,17 +24,13 @@ import com.example.leafnovel.ui.main.adapter.BookDetailPageAdapter
 import com.example.leafnovel.ui.main.viewmodel.BookContentViewModel
 import com.example.leafnovel.ui.main.viewmodel.BookDetailViewModel
 import com.google.android.material.tabs.TabLayoutMediator
+import kotlinx.android.synthetic.main.activity_book_content.*
 import kotlinx.android.synthetic.main.activity_book_detail.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class BookDetailActivity : AppCompatActivity() {
-    //    var bookId :String? = null
-//    var booktitle :String? = null
-//    var author  :String? = null
-//    var bookUrl :String? = null
-//    var bookDetail :StoredBook? = null
     private var isNetConnected = false
     private var repository: Repository? = null
 
@@ -50,6 +48,7 @@ class BookDetailActivity : AppCompatActivity() {
             getIntentString()
             getBookDetail()
             initUi()
+            setActbar()
             setUiListener()
         } else {
 //            no netView
@@ -72,8 +71,10 @@ class BookDetailActivity : AppCompatActivity() {
     }
 
     private fun getIntentString() {
-        val bookDetail = intent.getParcelableExtra<StoredBook>("BOOK_Detail")
-        if (bookDetail != null) {
+        val bookIsStored = intent.getBooleanExtra("BOOK_IS_STORED",false)
+        var bookDetail : StoredBook? = null
+        if(bookIsStored) {
+            bookDetail = intent.getParcelableExtra<StoredBook>("BOOK_Detail")?:null
             repository?.let {
                 viewModel = ViewModelProvider(
                     this,
@@ -81,16 +82,16 @@ class BookDetailActivity : AppCompatActivity() {
                 ).get(BookDetailViewModel::class.java)
             }
         } else {
-            val bookId = intent.getStringExtra("BOOK_ID") ?: ""
-            val booktitle = intent.getStringExtra("BOOK_TITLE") ?: ""
-            val author = intent.getStringExtra("BOOK_AUTHOR") ?: ""
-            val bookUrl = intent.getStringExtra("BOOK_URL") ?: ""
-            val bookDetail = StoredBook(booktitle,author,"","",bookUrl,bookId)
-            viewModel = ViewModelProvider(
-                this,
-                BookDetailViewModelFactory(applicationContext, bookDetail, repository!!)
-            ).get(BookDetailViewModel::class.java)
+            val bookInfo : Book? = intent.getParcelableExtra("BOOK_INFO")
+            bookInfo?.let {
+            bookDetail = StoredBook(it.booktitle,it.author,"UU看書","","",it.bookUrl,false,it.bookId)?:null
+            }
         }
+            bookDetail?.let {
+            viewModel = ViewModelProvider(
+                this, BookDetailViewModelFactory(applicationContext, it, repository!!)
+            ).get(BookDetailViewModel::class.java)
+            }
     }
 
 
@@ -98,58 +99,34 @@ class BookDetailActivity : AppCompatActivity() {
         return viewModel
     }
 
-    private fun setUiListener() {
-//        StoreBT.setOnClickListener{
-//            if(booktitle!=null && author!=null && bookId!=null){
-//                val storedbook = StoredBook(
-//                booktitle!!,author!!,
-//                "UU看書",
-//                NewChapterText.text.toString(),
-//                bookDetailMap["imgUrl"].toString(),
-//                bookId!!)
-//                CoroutineScope(Dispatchers.IO).launch {
-//                repository?.insert(storedbook)
-//            }
-//            }
-//        }
-//
-//        bookDitectoryBT.setOnClickListener{
-//            if(bookId!=null){val intent = Intent(this@BookDetailActivity, BookDirectoryActivity::class.java).apply {
-//                putExtra("BOOK_ID",bookId)
-//                putExtra("BOOK_TITLE",booktitle)
-//            }
-//                startActivity(intent)}
-//        }
-    }
+    private fun setUiListener() {}
+    private fun getBookDetail() {}
 
-    private fun getBookDetail() {
-//        CoroutineScope(Dispatchers.IO).launch {
-////            bookDetailMap.putAll(com.example.leafnovel.data.api.NovelApi.RequestNovelDetail(bookId))
-//            bookId?.let { bookDetailMap.putAll(NovelApi.RequestNovelDetail(it, booktitle!!)) }
-//            println(bookDetailMap)
-//            CoroutineScope(Dispatchers.Main).launch {
-//                Book_titleView.text = booktitle
-//                Book_authorView.text = author
-//                NewChapterText.text = bookDetailMap["newChapter"]
-//                UpdateTimeText.text = bookDetailMap["updateTime"]
-//                Book_DescripeView.text = bookDetailMap["bookDescripe"]
-//                val novelState = bookDetailMap["novelState"]
-//                novelState?.let {
-//                    Book_stateText.text =
-//                        if(it.contains("載中")){"連載中"} else{"已完結"}
-//                }
-////                if (novelState != null) {
-////                    Book_stateText.text =
-////                        if(novelState.contains("載中")){"連載中"} else{"已完結"}
-////                }
-//
-//                Glide.with(applicationContext).load("http:"+ bookDetailMap["imgUrl"])
-//                    .placeholder(R.drawable.ic_outline_image_search_24)
-//                    .error(R.drawable.ic_baseline_broken_image_24)
-//                    .fallback(R.drawable.ic_baseline_image_24)
-//                    .into(Book_imgView)
-//                LoadProgressBar.visibility = View.INVISIBLE
-//            }
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            android.R.id.home -> {
+                onBackPressed()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+    private fun setActbar() {
+//        setSupportActionBar(ToolBar)
+        supportActionBar?.apply {
+            title = viewModel?.bookInformation?.value?.bookname
+            setDisplayHomeAsUpEnabled(true)
+            setHomeButtonEnabled(true)
+        }
+//        actionBar?.apply {
+//            title = viewModel?.bookInformation?.value?.bookname
+//            setDisplayHomeAsUpEnabled(true)
+//            setHomeButtonEnabled(true)
+//        }
+//        supportActionBar?.apply {
+//            title = bookTitle
+//            setDisplayHomeAsUpEnabled(true)
+//            setHomeButtonEnabled(true)
 //        }
     }
 }

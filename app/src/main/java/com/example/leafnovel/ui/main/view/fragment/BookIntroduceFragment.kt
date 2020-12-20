@@ -7,12 +7,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 //import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.ViewModelProvider
 //import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.example.leafnovel.R
 import com.example.leafnovel.data.model.StoredBook
-import com.example.leafnovel.ui.base.BookDetailViewModelFactory
 import com.example.leafnovel.ui.main.view.BookDetailActivity
 import com.example.leafnovel.ui.main.viewmodel.BookDetailViewModel
 import kotlinx.android.synthetic.main.fragment_book_introduce.*
@@ -36,10 +34,20 @@ class BookIntroduceFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         viewModel = parentActivity?.getActivityViewModel()
-        val storedBookInfo = viewModel?.storedBookInformation?.value
+
+        setUi()
+        setObserver()
+        setUiListener()
+    }
+
+    private fun setUi() {
+        val storedBookInfo = viewModel?.bookInformation?.value
         Book_titleView.text = storedBookInfo?.bookname
         Book_authorView.text = storedBookInfo?.bookauthor
-        viewModel?.bookInformation?.observe(viewLifecycleOwner,{bookInfo->
+    }
+
+    private fun setObserver() {
+        viewModel?.bookOtherInformation?.observe(viewLifecycleOwner,{bookInfo->
             NewChapterText.text = bookInfo["newChapter"]
             UpdateTimeText.text = bookInfo["updateTime"]
             Book_DescripeView.text = bookInfo["bookDescripe"]
@@ -63,19 +71,13 @@ class BookIntroduceFragment : Fragment() {
     }
 
     private fun setUiListener() {
-//        StoreBT.setOnClickListener{
-//            viewModel.storedBook()
-//            if(booktitle!=null && author!=null && bookId!=null){
-//                val storedbook = StoredBook(
-//                booktitle!!,author!!,
-//                "UU看書",
-//                NewChapterText.text.toString(),
-//                bookDetailMap["imgUrl"].toString(),
-//                bookId!!)
-//                CoroutineScope(Dispatchers.IO).launch {
-//                repository?.insert(storedbook)
-//            }
-//            }
-//        }
+        StoreBT.setOnClickListener{
+            viewModel?.storedBook()
+        }
 }
+
+    override fun onDetach() {
+        super.onDetach()
+        parentActivity = null
+    }
 }

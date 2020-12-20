@@ -4,12 +4,14 @@ import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.leafnovel.data.model.BookChapter
 import com.example.leafnovel.R
 import com.example.leafnovel.data.model.BookChsResults
+import com.example.leafnovel.data.model.ChapterIndex
 import kotlinx.android.synthetic.main.row_bookchapter.view.*
 
 class BookChAdapter : RecyclerView.Adapter<BookChAdapter.BookChViewHolder>() {
@@ -17,6 +19,7 @@ class BookChAdapter : RecyclerView.Adapter<BookChAdapter.BookChViewHolder>() {
     private var listener: OnItemClickListener? = null
 
     private var thisPosition: Int? = null
+    private var savedChapterIndexes: List<ChapterIndex>? = null
     fun getThisPosition(): Int? {
         return thisPosition
     }
@@ -28,6 +31,14 @@ class BookChAdapter : RecyclerView.Adapter<BookChAdapter.BookChViewHolder>() {
         items.addAll(bookChs)
         listener = itemClickListener
         notifyDataSetChanged()
+    }
+
+    fun setSavedIndex(indexes:List<ChapterIndex>) {
+        savedChapterIndexes = indexes
+        for(i in indexes){
+            i.index?.let { notifyItemChanged(it) }
+        }
+//        notifyDataSetChanged()
     }
 
     fun reversedItems() {
@@ -44,8 +55,13 @@ class BookChAdapter : RecyclerView.Adapter<BookChAdapter.BookChViewHolder>() {
             thisPosition = selectPosition
             notifyItemChanged(selectPosition)
         }
-
     }
+
+//    fun downloadChange(index : Int){
+//        if (index != RecyclerView.NO_POSITION) {
+//            notifyItemChanged(index)
+//        }
+//    }
 //    fun reverseItems(){
 //        items.reverse()
 //        notifyDataSetChanged()
@@ -55,6 +71,8 @@ class BookChAdapter : RecyclerView.Adapter<BookChAdapter.BookChViewHolder>() {
         val title: TextView = view.ChapterTitle
         val index: TextView = view.IndexView
         val chapterRow: LinearLayout = view.ChapterRow
+        val doenloadChapter: ImageView = view.DownloadBT
+        val savedStat: ImageView = view.Saved_StatView
 
         //        val booktitle=view.book_name
 //        val bookUrl=view.other
@@ -78,6 +96,7 @@ class BookChAdapter : RecyclerView.Adapter<BookChAdapter.BookChViewHolder>() {
 
     interface OnItemClickListener {
         fun onItemClick(bookCh: BookChapter,position:Int)
+        fun onMoreClick(bookCh: BookChapter,position:Int,view:View)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BookChViewHolder {
@@ -89,6 +108,7 @@ class BookChAdapter : RecyclerView.Adapter<BookChAdapter.BookChViewHolder>() {
         holder.title.text = items[position].chtitle
         holder.index.text = position.toString()
 
+
         if (position == getThisPosition()) {
 //            holder.chapterRow.setBackgroundColor(R.color.selectChBg)
             holder.chapterRow.setBackgroundResource(R.color.selectChBg)
@@ -96,6 +116,21 @@ class BookChAdapter : RecyclerView.Adapter<BookChAdapter.BookChViewHolder>() {
 //            holder.chapterRow.setBackgroundResource(R.color.unselectChBg)
             holder.chapterRow.setBackgroundColor(Color.TRANSPARENT)
         }
+        holder.doenloadChapter.setOnClickListener{
+            listener?.onMoreClick(items[position],position,it)
+        }
+
+        savedChapterIndexes?.let {
+                if(it.contains(ChapterIndex(position))){
+                    holder.savedStat.setImageResource(R.drawable.chapter_saved_stat)
+                }else{
+                    holder.savedStat.setImageResource(R.drawable.chapter_saved_stat_unsaved)
+                }
+        }
+
+
+
+
 //        holder.booktitle.setText(items.get(position).booktitle)
 //        holder.bookUrl.setText(items.get(position).bookUrl)
     }

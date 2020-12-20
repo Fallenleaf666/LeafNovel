@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
 
 class MySetting : Fragment() {
     companion object{
-        val newiInstance : MySetting by lazy{
+        val newInstance : MySetting by lazy{
             MySetting()
         }
     }
@@ -37,8 +37,8 @@ class MySetting : Fragment() {
         }
             AddBT.setOnClickListener{
                 CoroutineScope(Dispatchers.IO).launch {
-            val storedbook = StoredBook("易筋經","達摩","葉子書城","第一章 洒家不吃素啦",
-                "http://www", "120000")
+            val storedbook = StoredBook("易筋經","達摩","葉子書城","第一章 洒家不吃素啦","",
+                "http://www",false,"120000")
                     repository?.insert(storedbook)
                 }
             }

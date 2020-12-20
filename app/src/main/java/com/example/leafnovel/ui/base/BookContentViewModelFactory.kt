@@ -8,10 +8,10 @@ import com.example.leafnovel.ui.main.viewmodel.BookContentViewModel
 
 //afterday can change trans map
 class BookContentViewModelFactory (private val context : Context, val firstBookChapter : BookChapter,
-                                   val chapterList : ArrayList<BookChapter>,val _bookTitle : String) : ViewModelProvider.Factory{
+                                   val chapterList : ArrayList<BookChapter>,val _bookTitle : String,val _bookId : String) : ViewModelProvider.Factory{
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if(modelClass.isAssignableFrom(BookContentViewModel::class.java)){
-            return BookContentViewModel(context,firstBookChapter,chapterList,_bookTitle) as T }
+            return BookContentViewModel(context,firstBookChapter,chapterList,_bookTitle,_bookId) as T }
         throw IllegalArgumentException("Unknow ViewModel class")
     }
 }

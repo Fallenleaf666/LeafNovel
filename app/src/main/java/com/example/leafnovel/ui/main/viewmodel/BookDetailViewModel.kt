@@ -1,10 +1,14 @@
 package com.example.leafnovel.ui.main.viewmodel
 
 import android.content.Context
+import android.content.Intent
+import android.widget.Toast
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.leafnovel.data.model.BookChapter
-import com.example.leafnovel.data.model.StoredBook
+import com.example.leafnovel.data.DownloadNovelService
+import com.example.leafnovel.data.api.NovelApi
+import com.example.leafnovel.data.model.*
 import com.example.leafnovel.data.repository.Repository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -13,8 +17,7 @@ import kotlinx.coroutines.launch
 
 import kotlin.coroutines.CoroutineContext
 
-class BookDetailViewModel(context : Context,storedBook : StoredBook,repository:Repository)
-    : ViewModel() {
+class BookDetailViewModel(context: Context, storedBook: StoredBook, repository: Repository) : ViewModel() {
     private val mContext = context
     private val mRepository = repository
     private val mStoredBook = storedBook
@@ -23,42 +26,57 @@ class BookDetailViewModel(context : Context,storedBook : StoredBook,repository:R
     private val coroutineContext: CoroutineContext
         get() = parentJob + Dispatchers.Main
     private val scope = CoroutineScope(coroutineContext)
-    val bookInformation : MutableLiveData<Map<String,String>> = MutableLiveData()
-    val storedBookInformation : MutableLiveData<StoredBook> = MutableLiveData(storedBook)
+    val bookOtherInformation: MutableLiveData<Map<String, String>> = MutableLiveData()
+    val bookInformation: MutableLiveData<StoredBook> = MutableLiveData(storedBook)
+    val bookChapterList: MutableLiveData<BookChsResults> = MutableLiveData()
+    lateinit var chaptersIndexSaved: LiveData<List<ChapterIndex>>
+
     init {
-        scope.launch(Dispatchers.IO){
-            bookInformation.postValue(mRepository.requestNovelDetail(mStoredBook.bookid,mStoredBook.bookname))
+        scope.launch(Dispatchers.IO) {
+            bookOtherInformation.postValue(mRepository.requestNovelDetail(mStoredBook.bookid, mStoredBook.bookname))
+            val bookChResults = NovelApi.RequestChList(mStoredBook.bookid)
+            bookChapterList.postValue(bookChResults)
+            chaptersIndexSaved = repository.queryBookChpapterIndexes(mStoredBook.bookid)
         }
     }
 
     private fun getBookDetail() {
-        scope.launch(Dispatchers.IO){
-            bookInformation.postValue(mRepository.requestNovelDetail(mStoredBook.bookid,mStoredBook.bookname))
+        scope.launch(Dispatchers.IO) {
+            bookOtherInformation.postValue(mRepository.requestNovelDetail(mStoredBook.bookid, mStoredBook.bookname))
         }
     }
 
-    fun storedBook(){
-        scope.launch(Dispatchers.IO){
-//            val bookMap = mutableMapOf("novelState" to novelState,
-//                "newChapter" to newChapter,
-//                "bookDescripe" to bookDescripe,
-//                "updateTime" to updateTime,
-//                "imgUrl" to imgUrl)
-//            bookInformation.value[]
-//
-
+    fun storedBook() {
+        scope.launch(Dispatchers.IO) {
+            val bI = bookInformation.value
+            val bOI = bookOtherInformation.value
+            if (bI != null && bOI != null) {
+                val storedbook = StoredBook(
+                    bI.bookname, bI.bookauthor, bI.booksource,
+                    bOI["newChapter"] ?: "", "", bOI["imgUrl"] ?: "", false, bI.bookid
+                )
+                mRepository.insert(storedbook)
+            }
         }
-//                    if(booktitle!=null && author!=null && bookId!=null){
-//                val storedbook = StoredBook(
-//                booktitle!!,author!!,
-//                "UU看書",
-//                NewChapterText.text.toString(),
-//                bookDetailMap["imgUrl"].toString(),
-//                bookId!!)
-//                CoroutineScope(Dispatchers.IO).launch {
-//                repository?.insert(storedbook)
-//            }
-//            }
     }
 
+    fun downLoadChapter(bookInfo: BookDownloadInfo?) {
+//        Toast.makeText(mContext, "開始下載", Toast.LENGTH_SHORT).show()
+        scope.launch(Dispatchers.IO) {
+            bookInfo?.let {
+                val intent = Intent().apply {
+                    setClass(mContext, DownloadNovelService()::class.java)
+                    putExtra("bookDownloadInfo", bookInfo)
+                    action = DownloadNovelService.DOWNLOAD_SINGLE_ACTION
+//                    putExtra
+                }
+                mContext.startService(intent)
+            }
+            launch(Dispatchers.Main) {
+                Toast.makeText(mContext, "下載完成", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+//    inner class MessengerHandler()
 }

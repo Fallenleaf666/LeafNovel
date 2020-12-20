@@ -61,7 +61,7 @@ class MainActivity : AppCompatActivity(),FragNavController.RootFragmentListener 
     }
 
     private fun initFragNavController(savedInstanceState: Bundle?) {
-        val fragments = listOf<Fragment>(MyBooks.newInstance, Search.newiInstance, MySetting.newiInstance)
+        val fragments = listOf<Fragment>(MyBooks.newInstance, Search.newInstance, MySetting.newInstance)
         fragNavController.apply {
             rootFragments = fragments
             initialize(FragNavController.TAB1,savedInstanceState)
@@ -74,8 +74,8 @@ class MainActivity : AppCompatActivity(),FragNavController.RootFragmentListener 
     override fun getRootFragment(index: Int): Fragment {
         when(index){
             FragNavController.TAB1 -> return MyBooks.newInstance
-            FragNavController.TAB2 -> return Search.newiInstance
-            FragNavController.TAB3 -> return MySetting.newiInstance
+            FragNavController.TAB2 -> return Search.newInstance
+            FragNavController.TAB3 -> return MySetting.newInstance
         }
         throw IllegalStateException("index unknow")
     }

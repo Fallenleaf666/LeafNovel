@@ -70,4 +70,8 @@ class BookDirectoryActivity : AppCompatActivity(), BookChAdapter.OnItemClickList
         this.startActivity(intent)
     }
 
+    override fun onMoreClick(bookCh: BookChapter, position: Int,view:View) {
+//        TODO("Not yet implemented")
+    }
+
 }

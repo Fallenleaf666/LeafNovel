@@ -89,11 +89,12 @@ class MyBooks : Fragment(), StoredBookAdapter.OnItemClickListener {
 //        Toast.makeText(context, "Item ${sbBook.bookid} clicked", Toast.LENGTH_SHORT).show()
 //        Toast.makeText(context, "Id =  ${view.id} clicked", Toast.LENGTH_SHORT).show()
         val intent = Intent(context, BookDetailActivity::class.java).apply {
+            putExtra("BOOK_IS_STORED", true)
             putExtra("BOOK_Detail", sbBook)
-            putExtra("BOOK_ID", sbBook.bookid)
-            putExtra("BOOK_TITLE", sbBook.bookname)
-            putExtra("BOOK_AUTHOR", sbBook.bookauthor)
-            putExtra("BOOK_URL", sbBook.bookid)
+//            putExtra("BOOK_ID", sbBook.bookid)
+//            putExtra("BOOK_TITLE", sbBook.bookname)
+//            putExtra("BOOK_AUTHOR", sbBook.bookauthor)
+//            putExtra("BOOK_URL", sbBook.bookid)
         }
         this.startActivity(intent)
     }
@@ -127,11 +128,6 @@ class MyBooks : Fragment(), StoredBookAdapter.OnItemClickListener {
             storedBookAdapter.setItems(storedBooks, this)
         })
 //        viewModel = ViewModelProvider(this).get(MyBooksViewModel::class.java)
-//        viewModel.getStoredBooks().observe(this, Observer {
-//            storedBooks ->
-//            bookAdapter.setItems(storedBooks)
-//        })
-
     }
 
     override fun onDestroy() {

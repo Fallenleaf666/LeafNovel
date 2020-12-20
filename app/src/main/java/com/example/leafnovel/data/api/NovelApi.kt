@@ -1,9 +1,6 @@
 package com.example.leafnovel.data.api
 
-import com.example.leafnovel.data.model.Book
-import com.example.leafnovel.data.model.BookChapter
-import com.example.leafnovel.data.model.BookChsResults
-import com.example.leafnovel.data.model.BooksResults
+import com.example.leafnovel.data.model.*
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
@@ -65,7 +62,7 @@ fun RequestSearchNovel(searchContent:String): BooksResults {
         val bookDescripe =i.getElementsByTag("p").first().getElementsByTag("a").first().text()
         val updateTime =i.getElementsByTag("p").first().getElementsByTag("span").first().text()
 
-        var tempBook = Book("0","預設","000000",
+        var tempBook = Book("預設","000000",
         "","匿名","這是一本書","2000/01/01/19:36)")
         tempBook.bookUrl = bookUrl
         tempBook.author = author
@@ -105,7 +102,7 @@ fun RequestSearchNovel(searchContent:String): BooksResults {
                 val updateTime =i.getElementsByTag("p").first().getElementsByTag("span").first().text()
 //                val updateTime =i.getElementsByClass("")
 
-                var tempBook = Book("0","預設","000000",
+                var tempBook = Book("預設","000000",
                     "","匿名","這是一本書","2000/01/01/19:36)")
                 tempBook.apply {
                     this.bookUrl = bookUrl
@@ -114,12 +111,7 @@ fun RequestSearchNovel(searchContent:String): BooksResults {
                     this.author = author
                     this.booktitle = booktitle
                     this.updateTime = updateTime
-                    this.bookNum = bookNum
                 }
-//                tempBook.bookUrl = bookUrl
-//                tempBook.author = author
-//                tempBook.booktitle = booktitle
-
                 println("book : "+tempBook)
                 booksResults.add(tempBook)
             }
@@ -154,6 +146,7 @@ fun RequestChList(id:String): BookChsResults {
         tempBookCh.chtitle = title
         val partHref : String = chList[i].attr("href")
         tempBookCh.chUrl = partHref
+        tempBookCh.chId = (chList.size - 1 - i).toString()
 //        chId尚未實作
         println(title+partHref)
         bookChsResults.add(tempBookCh)
@@ -213,6 +206,20 @@ fun allToHelfText(text :String,bookChTitle:String,bookTitle:String):String{
             return bookMap
         }
 
+        fun downloadBookChapter(bookDownloadInfo: BookDownloadInfo):ArrayList<StoredChapter> {
+            val chapters = bookDownloadInfo.download
+            val bookName = bookDownloadInfo.bookName
+            val bookId = bookDownloadInfo.bookId
+            val chapterContents = arrayListOf<StoredChapter>()
+            for(i in chapters){
+            val doc : Document = Jsoup.connect("https://tw.uukanshu.com"+i.chUrl).get();
+            val contentBox : Element = doc.getElementById("contentbox")
+            contentBox.children().select("div.ad_content").remove()
+            val rawtext = contentBox.text()
+            val datatext = allToHelfText(rawtext,i.chtitle,bookName)
+                chapterContents.add(StoredChapter(bookId,i.chtitle,datatext,i.index,0,false))
+            }
+            return chapterContents
+        }
     }
-
 }

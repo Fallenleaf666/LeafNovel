@@ -17,6 +17,7 @@ import com.example.leafnovel.data.model.BookChapter
 import com.example.leafnovel.data.model.ChapterContent
 import com.example.leafnovel.data.database.StoredBookDB
 import com.example.leafnovel.data.api.NovelApi
+import com.example.leafnovel.data.model.StoredChapter
 import com.example.leafnovel.data.repository.Repository
 import com.example.leafnovel.receiver.BatteryChangeReceiver
 import com.example.leafnovel.receiver.TimeChangeReceiver
@@ -29,7 +30,8 @@ class BookContentViewModel(
     context: Context,
     firstBookChapter: BookChapter,
     chapterList: ArrayList<BookChapter>,
-    _bookTitle: String
+    _bookTitle: String,
+    _bookId: String
 ) :
     ViewModel() {
     companion object {
@@ -37,6 +39,7 @@ class BookContentViewModel(
     }
 
     val bookTitle = _bookTitle
+    val bookId = _bookId
     private var allChapter = chapterList
     private val mContext = context
     private var parentJob = Job()
@@ -81,8 +84,14 @@ class BookContentViewModel(
         repository = sbBooksDao?.let { Repository(it) }!!
         var tempContent: String
         scope.launch(Dispatchers.IO) {
-            tempContent =
+//            repository.getDownloadChapter()
+            val dbChapter : StoredChapter? = repository.getDownloadChapter(bookId,firstBookChapter.chId.toInt())
+            tempContent = if(dbChapter!= null){
+                Log.d(TAG, "----------------------使用db資料----------------------------")
+                dbChapter.chapterContent
+            }else{
                 repository.getSearchBookChaptersContextBeta(firstBookChapter.chUrl, firstBookChapter.chtitle, bookTitle)
+            }
             val tempChapterContent = ChapterContent(firstBookChapter.chtitle, tempContent, firstBookChapter.chUrl)
             chapterContent.postValue(tempChapterContent)
             allChapterContent.postValue(arrayListOf(tempChapterContent))

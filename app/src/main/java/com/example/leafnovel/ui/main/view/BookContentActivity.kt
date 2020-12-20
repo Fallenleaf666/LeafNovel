@@ -29,6 +29,7 @@ import com.example.leafnovel.R
 import com.example.leafnovel.data.api.NovelApi
 import com.example.leafnovel.data.model.BookChapter
 import com.example.leafnovel.data.model.ChapterContent
+import com.example.leafnovel.data.model.StoredChapter
 import com.example.leafnovel.ui.base.BookContentViewModelFactory
 import com.example.leafnovel.ui.main.adapter.BookChAdapter
 import com.example.leafnovel.ui.main.viewmodel.BookContentViewModel
@@ -108,7 +109,7 @@ class BookContentActivity : AppCompatActivity(), BookChAdapter.OnItemClickListen
         val tempBookChapter = BookChapter(chTitle, bookChId, chUrl)
         viewModel = ViewModelProvider(
             this,
-            BookContentViewModelFactory(applicationContext, tempBookChapter, allChapters!!, bookTitle)
+            BookContentViewModelFactory(applicationContext, tempBookChapter, allChapters!!, bookTitle,bookId)
         ).get(BookContentViewModel::class.java)
 
 //        nowChNum = viewModel.tempChapterIndex.value ?: 0
@@ -237,6 +238,10 @@ class BookContentActivity : AppCompatActivity(), BookChAdapter.OnItemClickListen
             }
         }
 
+    }
+
+    override fun onMoreClick(bookCh: BookChapter, position: Int,view: View) {
+//        TODO("Not yet implemented")
     }
 
     private fun setUI() {
@@ -590,6 +595,7 @@ class BookContentActivity : AppCompatActivity(), BookChAdapter.OnItemClickListen
 
     override fun onDestroy() {
         super.onDestroy()
+        StoredChapter("","","",0,5,false)
         ChapterListView.viewTreeObserver.removeOnGlobalLayoutListener(onGlobalLayoutListener)
     }
 
