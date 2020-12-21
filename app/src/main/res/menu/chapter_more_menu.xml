@@ -4,5 +4,8 @@
             android:id="@+id/chapterDownload"
             android:contentDescription="下載此章節"
             android:title="下載此章節" />
-
+    <item
+            android:id="@+id/chapterMoreDownload"
+            android:contentDescription="下載從此往上...回章節"
+            android:title="下載從此往上...回章節" />
 </menu>

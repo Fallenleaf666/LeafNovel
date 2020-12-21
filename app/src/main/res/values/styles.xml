@@ -18,6 +18,18 @@
     <style name="BookDetailTextView" parent="Widget.AppCompat.TextView">
         <item name="android:textSize">10sp</item>
     </style>
+
+    <style name="NovelDetailTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:textColorPrimary">@color/colorp</item>
+        <item name="android:textColorSecondary">@color/colorp</item>
+        <item name="actionModeBackground">@android:color/black</item>
+        <item name="actionModeCloseDrawable">@drawable/ic_baseline_close_24</item>
+        <item name="windowActionModeOverlay">true</item>
+    </style>
+
     <style name="NovelCotentTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
@@ -28,7 +40,6 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:windowFullscreen">true</item>
-
     </style>
 
     <style name="FontSeekBar" parent="Widget.AppCompat.SeekBar">

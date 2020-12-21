@@ -1,18 +1,25 @@
 package com.example.leafnovel.ui.main.view.fragment
 
 import android.app.Activity
+import android.opengl.Visibility
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
+import androidx.recyclerview.selection.SelectionTracker
 //import androidx.fragment.app.activityViewModels
 //import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.example.leafnovel.R
+import com.example.leafnovel.data.model.BookChapter
 import com.example.leafnovel.data.model.StoredBook
 import com.example.leafnovel.ui.main.view.BookDetailActivity
 import com.example.leafnovel.ui.main.viewmodel.BookDetailViewModel
+import kotlinx.android.synthetic.main.activity_book_detail.*
 import kotlinx.android.synthetic.main.fragment_book_introduce.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -23,6 +30,7 @@ class BookIntroduceFragment : Fragment() {
 //    private val viewModel :BookDetailViewModel
     private var viewModel :BookDetailViewModel? = null
     var parentActivity : BookDetailActivity? = null
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {

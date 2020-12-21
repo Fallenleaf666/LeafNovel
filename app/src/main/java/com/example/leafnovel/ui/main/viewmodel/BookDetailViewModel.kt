@@ -72,9 +72,9 @@ class BookDetailViewModel(context: Context, storedBook: StoredBook, repository: 
                 }
                 mContext.startService(intent)
             }
-            launch(Dispatchers.Main) {
-                Toast.makeText(mContext, "下載完成", Toast.LENGTH_SHORT).show()
-            }
+//            launch(Dispatchers.Main) {
+//                Toast.makeText(mContext, "下載完成", Toast.LENGTH_SHORT).show()
+//            }
         }
     }
 

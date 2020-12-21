@@ -8,6 +8,22 @@
         tools:context=".ui.main.view.BookDetailActivity"
         tools:visibility="visible">
 
+    <androidx.appcompat.widget.Toolbar
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?attr/colorPrimary"
+            android:theme="?attr/actionBarTheme"
+            android:minHeight="?attr/actionBarSize" android:id="@+id/NovelDetailToolbar"
+            app:layout_constraintTop_toTopOf="parent" app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" app:titleTextColor="@color/colorp"/>
+    <Button
+            android:text="多選下載"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp" android:id="@+id/MutiSelectBT"
+            android:background="@android:color/transparent" app:layout_constraintEnd_toEndOf="@+id/NovelDetailToolbar"
+            app:layout_constraintBottom_toBottomOf="@+id/NovelDetailToolbar"
+            app:layout_constraintTop_toTopOf="@+id/NovelDetailToolbar" android:visibility="invisible"
+            android:textColor="@color/colorp" android:textSize="12sp"/>
     <androidx.viewpager2.widget.ViewPager2
             android:layout_width="0dp"
             android:layout_height="0dp" app:layout_constraintTop_toBottomOf="@+id/bookDetailTabLayout"
@@ -15,8 +31,10 @@
             app:layout_constraintBottom_toBottomOf="parent" android:id="@+id/bookDetailViewPager2"/>
     <com.google.android.material.tabs.TabLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" app:layout_constraintTop_toTopOf="parent"
+            android:layout_height="wrap_content"
             app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"
-            android:id="@+id/bookDetailTabLayout" app:tabIndicatorColor="#791C1C1C" app:tabIndicatorFullWidth="false"/>
+            android:id="@+id/bookDetailTabLayout" app:tabIndicatorColor="#791C1C1C" app:tabIndicatorFullWidth="false"
+            app:layout_constraintTop_toBottomOf="@+id/NovelDetailToolbar" app:tabSelectedTextColor="#791C1C1C"
+            app:tabTextColor="#791C1C1C"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

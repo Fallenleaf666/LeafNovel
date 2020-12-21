@@ -7,6 +7,8 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.recyclerview.selection.ItemDetailsLookup
+import androidx.recyclerview.selection.SelectionTracker
 import androidx.recyclerview.widget.RecyclerView
 import com.example.leafnovel.data.model.BookChapter
 import com.example.leafnovel.R
@@ -20,6 +22,8 @@ class BookChAdapter : RecyclerView.Adapter<BookChAdapter.BookChViewHolder>() {
 
     private var thisPosition: Int? = null
     private var savedChapterIndexes: List<ChapterIndex>? = null
+
+    var tracker: SelectionTracker<BookChapter>? = null
     fun getThisPosition(): Int? {
         return thisPosition
     }
@@ -33,9 +37,17 @@ class BookChAdapter : RecyclerView.Adapter<BookChAdapter.BookChViewHolder>() {
         notifyDataSetChanged()
     }
 
-    fun setSavedIndex(indexes:List<ChapterIndex>) {
+    fun getSpecialItems(startIndex:Int,endIndex:Int):List<BookChapter> {
+        var tempList = ArrayList<BookChapter>()
+        for(i in startIndex downTo endIndex){
+            tempList.add(items[i])
+        }
+        return tempList.toList()
+    }
+
+    fun setSavedIndex(indexes: List<ChapterIndex>) {
         savedChapterIndexes = indexes
-        for(i in indexes){
+        for (i in indexes) {
             i.index?.let { notifyItemChanged(it) }
         }
 //        notifyDataSetChanged()
@@ -49,7 +61,7 @@ class BookChAdapter : RecyclerView.Adapter<BookChAdapter.BookChViewHolder>() {
         notifyDataSetChanged()
     }
 
-    fun lastPositionChange(selectPosition : Int){
+    fun lastPositionChange(selectPosition: Int) {
         if (selectPosition != RecyclerView.NO_POSITION) {
             thisPosition?.let { notifyItemChanged(it) }
             thisPosition = selectPosition
@@ -68,6 +80,7 @@ class BookChAdapter : RecyclerView.Adapter<BookChAdapter.BookChViewHolder>() {
 //    }
 
     inner class BookChViewHolder(view: View) : RecyclerView.ViewHolder(view), View.OnClickListener {
+        //        val view:View = view
         val title: TextView = view.ChapterTitle
         val index: TextView = view.IndexView
         val chapterRow: LinearLayout = view.ChapterRow
@@ -87,16 +100,33 @@ class BookChAdapter : RecyclerView.Adapter<BookChAdapter.BookChViewHolder>() {
 //            which you click will change color
                 thisPosition = position
                 val tempBookCh = items[position]
-                listener?.onItemClick(tempBookCh,position)
+                listener?.onItemClick(tempBookCh, position)
                 oldPosition?.let { notifyItemChanged(it) }
                 notifyItemChanged(position)
             }
         }
+
+        fun getItemDetails(): ItemDetailsLookup.ItemDetails<BookChapter> =
+            object : ItemDetailsLookup.ItemDetails<BookChapter>() {
+                override fun getPosition(): Int {
+                    return adapterPosition
+                }
+
+                override fun getSelectionKey(): BookChapter? {
+                    return items[position]
+                }
+            }
+
+        //        fun setChapterBackground(bookChapter:BookChapter,isActivated:Boolean = false){
+        fun setChapterBackground(isActivated: Boolean = false) {
+            chapterRow.setBackgroundResource(R.drawable.item_chapter_background)
+            itemView.isActivated = isActivated
+        }
     }
 
     interface OnItemClickListener {
-        fun onItemClick(bookCh: BookChapter,position:Int)
-        fun onMoreClick(bookCh: BookChapter,position:Int,view:View)
+        fun onItemClick(bookCh: BookChapter, position: Int)
+        fun onMoreClick(bookCh: BookChapter, position: Int, view: View)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BookChViewHolder {
@@ -104,37 +134,45 @@ class BookChAdapter : RecyclerView.Adapter<BookChAdapter.BookChViewHolder>() {
     }
 
     override fun onBindViewHolder(holder: BookChViewHolder, position: Int) {
+        tracker?.let {
+            holder.setChapterBackground(it.isSelected(items[position]))
+        }
 //        holder.title.setText(items[position].chtitle)
         holder.title.text = items[position].chtitle
         holder.index.text = position.toString()
 
-
-        if (position == getThisPosition()) {
+        tracker?.let {
+            if(!it.hasSelection()){
+                if (position == getThisPosition()) {
 //            holder.chapterRow.setBackgroundColor(R.color.selectChBg)
-            holder.chapterRow.setBackgroundResource(R.color.selectChBg)
-        } else {
+                    holder.chapterRow.setBackgroundResource(R.color.selectChBg)
+                } else {
 //            holder.chapterRow.setBackgroundResource(R.color.unselectChBg)
-            holder.chapterRow.setBackgroundColor(Color.TRANSPARENT)
-        }
-        holder.doenloadChapter.setOnClickListener{
-            listener?.onMoreClick(items[position],position,it)
-        }
-
-        savedChapterIndexes?.let {
-                if(it.contains(ChapterIndex(position))){
-                    holder.savedStat.setImageResource(R.drawable.chapter_saved_stat)
-                }else{
-                    holder.savedStat.setImageResource(R.drawable.chapter_saved_stat_unsaved)
+                    holder.chapterRow.setBackgroundColor(Color.TRANSPARENT)
                 }
+            }
         }
 
 
-
+        holder.doenloadChapter.setOnClickListener {
+            listener?.onMoreClick(items[position], position, it)
+        }
+        savedChapterIndexes?.let {
+            if (it.contains(ChapterIndex(position))) {
+                holder.savedStat.setImageResource(R.drawable.chapter_saved_stat)
+            } else {
+                holder.savedStat.setImageResource(R.drawable.chapter_saved_stat_unsaved)
+            }
+        }
 
 //        holder.booktitle.setText(items.get(position).booktitle)
 //        holder.bookUrl.setText(items.get(position).bookUrl)
     }
 
     override fun getItemCount(): Int = items.size
+
+    fun getItem(position: Int) = items[position]
+    fun getPosition(chapterId: String) = items.indexOfFirst { it.chId == chapterId }
+
 
 }

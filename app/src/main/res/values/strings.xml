@@ -8,4 +8,5 @@
     <string name="title_activity_book_introduce">BookIntroduceActivity</string>
     <string name="tab_text_1">Tab 1</string>
     <string name="tab_text_2">Tab 2</string>
+    <string name="multiselecte_download">多選下載</string>
 </resources>

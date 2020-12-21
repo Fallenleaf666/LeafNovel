@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
+import android.widget.TableLayout
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager.widget.PagerAdapter
@@ -23,6 +24,7 @@ import com.example.leafnovel.ui.base.BookDetailViewModelFactory
 import com.example.leafnovel.ui.main.adapter.BookDetailPageAdapter
 import com.example.leafnovel.ui.main.viewmodel.BookContentViewModel
 import com.example.leafnovel.ui.main.viewmodel.BookDetailViewModel
+import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.android.synthetic.main.activity_book_content.*
 import kotlinx.android.synthetic.main.activity_book_detail.*
@@ -68,6 +70,17 @@ class BookDetailActivity : AppCompatActivity() {
                 else -> null
             }
         }.attach()
+        bookDetailTabLayout.addOnTabSelectedListener(object: TabLayout.OnTabSelectedListener{
+            override fun onTabSelected(tab: TabLayout.Tab?) {
+                if(tab?.position == 0){
+                    MutiSelectBT.visibility = View.INVISIBLE
+                }else if(tab?.position == 1){
+                    MutiSelectBT.visibility = View.VISIBLE
+                }
+            }
+            override fun onTabUnselected(tab: TabLayout.Tab?) {}
+            override fun onTabReselected(tab: TabLayout.Tab?) {}
+        })
     }
 
     private fun getIntentString() {
@@ -112,21 +125,11 @@ class BookDetailActivity : AppCompatActivity() {
         }
     }
     private fun setActbar() {
-//        setSupportActionBar(ToolBar)
+        setSupportActionBar(NovelDetailToolbar)
         supportActionBar?.apply {
             title = viewModel?.bookInformation?.value?.bookname
             setDisplayHomeAsUpEnabled(true)
             setHomeButtonEnabled(true)
         }
-//        actionBar?.apply {
-//            title = viewModel?.bookInformation?.value?.bookname
-//            setDisplayHomeAsUpEnabled(true)
-//            setHomeButtonEnabled(true)
-//        }
-//        supportActionBar?.apply {
-//            title = bookTitle
-//            setDisplayHomeAsUpEnabled(true)
-//            setHomeButtonEnabled(true)
-//        }
     }
 }
