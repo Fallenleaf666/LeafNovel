@@ -7,7 +7,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.leafnovel.R
-import com.example.leafnovel.ui.main.adapter.BookChAdapter
+import com.example.leafnovel.ui.main.adapter.BookChapterAdapter
 import com.example.leafnovel.data.model.BookChapter
 import com.example.leafnovel.data.model.BookChsResults
 import kotlinx.android.synthetic.main.activity_book_directory.*
@@ -15,8 +15,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class BookDirectoryActivity : AppCompatActivity(), BookChAdapter.OnItemClickListener {
-    val adapter = BookChAdapter()
+class BookDirectoryActivity : AppCompatActivity(), BookChapterAdapter.OnItemClickListener {
+    val adapter = BookChapterAdapter()
     var bookId = ""
     var booktitle = ""
     private lateinit var transBookChResults: BookChsResults
@@ -40,7 +40,7 @@ class BookDirectoryActivity : AppCompatActivity(), BookChAdapter.OnItemClickList
         initUi()
 
         CoroutineScope(Dispatchers.IO).launch {
-            val bookChResults = NovelApi.RequestChList(bookId)
+            val bookChResults = NovelApi.requestChapterList(bookId)
             transBookChResults = bookChResults
 //            Log.d(TAG,"onCreate:${bookResults.size}")
             launch(Dispatchers.Main) {
@@ -52,8 +52,8 @@ class BookDirectoryActivity : AppCompatActivity(), BookChAdapter.OnItemClickList
     }
 
     fun reversedItems(view: View) {
-            Chapters_order_TextView.text = if(Chapters_order_TextView.text == "倒序")"正序" else "倒序"
-        adapter.reversedItems()
+//            Chapters_order_TextView.text = if(Chapters_order_TextView.text == "倒序")"正序" else "倒序"
+//        adapter.reversedItems()
     }
 
     override fun onItemClick(bookCh: BookChapter,position:Int) {
@@ -61,7 +61,7 @@ class BookDirectoryActivity : AppCompatActivity(), BookChAdapter.OnItemClickList
         val intent = Intent(this, BookContentActivity::class.java).apply {
             putExtra("BOOK_INDEX", position)
             putExtra("BOOK_ID", bookId)
-            putExtra("BOOK_CH_ID", bookCh.chId)
+            putExtra("BOOK_CH_ID", bookCh.chIndex)
             putExtra("BOOK_CH_URL", bookCh.chUrl)
             putExtra("BOOK_CH_TITLE", bookCh.chtitle)
             putExtra("BOOK_TITLE", booktitle)

@@ -6,7 +6,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".ui.main.view.BookDetailActivity"
-        tools:visibility="visible">
+>
 
     <androidx.appcompat.widget.Toolbar
             android:layout_width="match_parent"
@@ -16,14 +16,35 @@
             android:minHeight="?attr/actionBarSize" android:id="@+id/NovelDetailToolbar"
             app:layout_constraintTop_toTopOf="parent" app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" app:titleTextColor="@color/colorp"/>
-    <Button
-            android:text="多選下載"
+
+    <LinearLayout
+            android:orientation="horizontal"
             android:layout_width="wrap_content"
-            android:layout_height="0dp" android:id="@+id/MutiSelectBT"
-            android:background="@android:color/transparent" app:layout_constraintEnd_toEndOf="@+id/NovelDetailToolbar"
-            app:layout_constraintBottom_toBottomOf="@+id/NovelDetailToolbar"
-            app:layout_constraintTop_toTopOf="@+id/NovelDetailToolbar" android:visibility="invisible"
-            android:textColor="@color/colorp" android:textSize="12sp"/>
+            android:layout_height="wrap_content" app:layout_constraintEnd_toEndOf="@+id/NovelDetailToolbar"
+            app:layout_constraintTop_toTopOf="@+id/NovelDetailToolbar"
+            app:layout_constraintBottom_toBottomOf="@+id/NovelDetailToolbar" android:layout_marginEnd="8dp"
+            android:gravity="center_vertical">
+        <Button
+                android:text="多選下載"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent" android:id="@+id/MutiSelectBT"
+                android:background="@android:color/transparent"
+                android:visibility="gone"
+                android:textColor="@color/colorp" android:textSize="12sp"/>
+        <Switch
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:id="@+id/OrderSwitch"
+                android:gravity="fill_horizontal|center_vertical"
+                android:thumb="@drawable/directory_switch_thumb_selector"
+                android:track="@drawable/directory_switch_track_selector" android:textOff="正序" android:textOn="倒序"
+                android:checked="false"
+                android:showText="true"
+                android:textAllCaps="false" android:textIsSelectable="false" android:textSize="14sp"
+                android:switchTextAppearance="@style/DirectorySwitch"
+                android:textColor="@color/fontMorning"
+                android:textStyle="bold"
+                android:visibility="gone" tools:visibility="visible"/>
+    </LinearLayout>
     <androidx.viewpager2.widget.ViewPager2
             android:layout_width="0dp"
             android:layout_height="0dp" app:layout_constraintTop_toBottomOf="@+id/bookDetailTabLayout"

@@ -17,6 +17,7 @@ import com.example.leafnovel.data.model.BookChapter
 import com.example.leafnovel.data.model.ChapterContent
 import com.example.leafnovel.data.database.StoredBookDB
 import com.example.leafnovel.data.api.NovelApi
+import com.example.leafnovel.data.model.LastReadProgress
 import com.example.leafnovel.data.model.StoredChapter
 import com.example.leafnovel.data.repository.Repository
 import com.example.leafnovel.receiver.BatteryChangeReceiver
@@ -85,7 +86,7 @@ class BookContentViewModel(
         var tempContent: String
         scope.launch(Dispatchers.IO) {
 //            repository.getDownloadChapter()
-            val dbChapter : StoredChapter? = repository.getDownloadChapter(bookId,firstBookChapter.chId.toInt())
+            val dbChapter : StoredChapter? = repository.getDownloadChapter(bookId,firstBookChapter.chIndex.toInt())
             tempContent = if(dbChapter!= null){
                 Log.d(TAG, "----------------------使用db資料----------------------------")
                 dbChapter.chapterContent
@@ -110,13 +111,12 @@ class BookContentViewModel(
         var tempBookChTitle = ""
         var tempChapterContents = ""
         var hasNext = false
-//            之後新增檢查正序倒序
         val chapterNum = tempChapterReadIndex.value
         chapterNum?.let {
-            if (chapterNum != 0) {
+            if (chapterNum != allChapter.size -1 ) {
                 tempChUrl = allChapter[chapterNum + 1].chUrl
                 tempBookChTitle = allChapter[chapterNum + 1].chtitle
-                tempChapterContents = NovelApi.RequestChTextBETA(tempChUrl, tempBookChTitle, bookTitle)
+                tempChapterContents = NovelApi.requestChapterText(tempChUrl, tempBookChTitle, bookTitle)
                 hasNext = true
             } else {
                 hasNext = false
@@ -152,7 +152,7 @@ class BookContentViewModel(
             if (chapterNum != 0) {
                 tempChUrl = allChapter[chapterNum - 1].chUrl
                 tempBookChTitle = allChapter[chapterNum - 1].chtitle
-                tempChapterContents = NovelApi.RequestChTextBETA(tempChUrl, tempBookChTitle, bookTitle)
+                tempChapterContents = NovelApi.requestChapterText(tempChUrl, tempBookChTitle, bookTitle)
                 hasNext = true
             } else {
                 hasNext = false
@@ -191,10 +191,10 @@ class BookContentViewModel(
             val chapterReadNum = tempChapterReadIndex.value
 
             if (chapterNum != null && chapterReadNum != null) {
-                if (chapterReadNum != 0) {
+                if (chapterNum != allChapter.size -1 ) {
                     tempChUrl = allChapter[chapterReadNum + 1].chUrl
                     tempBookChTitle = allChapter[chapterReadNum + 1].chtitle
-                    tempChapterContentText = NovelApi.RequestChTextBETA(tempChUrl, tempBookChTitle, bookTitle)
+                    tempChapterContentText = NovelApi.requestChapterText(tempChUrl, tempBookChTitle, bookTitle)
 
                     val tempChapterContent = ChapterContent(tempBookChTitle, tempChapterContentText, tempChUrl)
                     loadChapterContent.postValue(tempChapterContent)
@@ -278,6 +278,12 @@ class BookContentViewModel(
         mContext.unregisterReceiver(mTimeChangeReceiver)
         mContext.unregisterReceiver(mBatteryChangeReceiver)
         parentJob.cancel()
+    }
+
+    fun saveReadProgress(lastReadProgress:LastReadProgress){
+        scope.launch(Dispatchers.IO) {
+            repository.saveReadProgress(lastReadProgress)
+        }
     }
 
     fun initBatteryLevel() {

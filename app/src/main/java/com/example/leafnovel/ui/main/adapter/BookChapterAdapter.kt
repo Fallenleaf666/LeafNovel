@@ -12,23 +12,21 @@ import androidx.recyclerview.selection.SelectionTracker
 import androidx.recyclerview.widget.RecyclerView
 import com.example.leafnovel.data.model.BookChapter
 import com.example.leafnovel.R
-import com.example.leafnovel.data.model.BookChsResults
 import com.example.leafnovel.data.model.ChapterIndex
 import kotlinx.android.synthetic.main.row_bookchapter.view.*
 
-class BookChAdapter : RecyclerView.Adapter<BookChAdapter.BookChViewHolder>() {
+class BookChapterAdapter : RecyclerView.Adapter<BookChapterAdapter.BookChViewHolder>() {
     private val items = ArrayList<BookChapter>()
     private var listener: OnItemClickListener? = null
 
     private var thisPosition: Int? = null
     private var savedChapterIndexes: List<ChapterIndex>? = null
+    private var isPostiveOrder: Boolean = true
 
     var tracker: SelectionTracker<BookChapter>? = null
     fun getThisPosition(): Int? {
         return thisPosition
     }
-//    fun setThisPosition(position: Int)
-//    {this.thisPosition = position}
 
     fun setItems(bookChs: ArrayList<BookChapter>, itemClickListener: OnItemClickListener) {
         items.clear()
@@ -37,9 +35,9 @@ class BookChAdapter : RecyclerView.Adapter<BookChAdapter.BookChViewHolder>() {
         notifyDataSetChanged()
     }
 
-    fun getSpecialItems(startIndex:Int,endIndex:Int):List<BookChapter> {
-        var tempList = ArrayList<BookChapter>()
-        for(i in startIndex downTo endIndex){
+    fun getSpecialItems(startIndex: Int, endIndex: Int): List<BookChapter> {
+        val tempList = ArrayList<BookChapter>()
+        for (i in startIndex downTo endIndex) {
             tempList.add(items[i])
         }
         return tempList.toList()
@@ -50,45 +48,47 @@ class BookChAdapter : RecyclerView.Adapter<BookChAdapter.BookChViewHolder>() {
         for (i in indexes) {
             i.index?.let { notifyItemChanged(it) }
         }
-//        notifyDataSetChanged()
     }
 
-    fun reversedItems() {
-        val reversedNovelChs = items.reversed()
-        items.clear()
-        items.addAll(reversedNovelChs)
-        thisPosition?.let { lastPositionChange(items.size - 1 - it) }
+    fun reversedItems(isReverseOrder: Boolean) {
+        isPostiveOrder = !isReverseOrder
+        items.reverse()
+        thisPosition = items.size - 1 - (thisPosition?:0)
+        if (isReverseOrder) {
+            if (items[0].chIndex == 0) {
+                items.reverse()
+            }
+        } else {
+            if (items[0].chIndex != 0) {
+                items.reverse()
+            }
+        }
+//        thisPosition?.let { lastPositionChange(items.size - 1 - it) }
         notifyDataSetChanged()
     }
 
     fun lastPositionChange(selectPosition: Int) {
-        if (selectPosition != RecyclerView.NO_POSITION) {
+        val newPosition = if (isPostiveOrder) selectPosition else items.size - 1 - selectPosition
+//        if (selectPosition != RecyclerView.NO_POSITION) {
+//            thisPosition?.let { notifyItemChanged(it) }
+//            thisPosition = selectPosition
+//            notifyItemChanged(selectPosition)
+//        }
+        if (newPosition != RecyclerView.NO_POSITION) {
             thisPosition?.let { notifyItemChanged(it) }
-            thisPosition = selectPosition
-            notifyItemChanged(selectPosition)
+            thisPosition = newPosition
+            notifyItemChanged(newPosition)
         }
     }
-
-//    fun downloadChange(index : Int){
-//        if (index != RecyclerView.NO_POSITION) {
-//            notifyItemChanged(index)
-//        }
-//    }
-//    fun reverseItems(){
-//        items.reverse()
-//        notifyDataSetChanged()
-//    }
 
     inner class BookChViewHolder(view: View) : RecyclerView.ViewHolder(view), View.OnClickListener {
         //        val view:View = view
         val title: TextView = view.ChapterTitle
         val index: TextView = view.IndexView
         val chapterRow: LinearLayout = view.ChapterRow
-        val doenloadChapter: ImageView = view.DownloadBT
+        val downloadChapter: ImageView = view.DownloadBT
         val savedStat: ImageView = view.Saved_StatView
 
-        //        val booktitle=view.book_name
-//        val bookUrl=view.other
         init {
             view.setOnClickListener(this)
         }
@@ -117,10 +117,13 @@ class BookChAdapter : RecyclerView.Adapter<BookChAdapter.BookChViewHolder>() {
                 }
             }
 
-        //        fun setChapterBackground(bookChapter:BookChapter,isActivated:Boolean = false){
         fun setChapterBackground(isActivated: Boolean = false) {
             chapterRow.setBackgroundResource(R.drawable.item_chapter_background)
             itemView.isActivated = isActivated
+        }
+
+        fun setSavedChapterBackground(resId: Int) {
+            savedStat.setImageResource(resId)
         }
     }
 
@@ -137,12 +140,11 @@ class BookChAdapter : RecyclerView.Adapter<BookChAdapter.BookChViewHolder>() {
         tracker?.let {
             holder.setChapterBackground(it.isSelected(items[position]))
         }
-//        holder.title.setText(items[position].chtitle)
         holder.title.text = items[position].chtitle
         holder.index.text = position.toString()
 
         tracker?.let {
-            if(!it.hasSelection()){
+            if (!it.hasSelection()) {
                 if (position == getThisPosition()) {
 //            holder.chapterRow.setBackgroundColor(R.color.selectChBg)
                     holder.chapterRow.setBackgroundResource(R.color.selectChBg)
@@ -153,26 +155,24 @@ class BookChAdapter : RecyclerView.Adapter<BookChAdapter.BookChViewHolder>() {
             }
         }
 
-
-        holder.doenloadChapter.setOnClickListener {
+        holder.downloadChapter.setOnClickListener {
             listener?.onMoreClick(items[position], position, it)
         }
         savedChapterIndexes?.let {
             if (it.contains(ChapterIndex(position))) {
-                holder.savedStat.setImageResource(R.drawable.chapter_saved_stat)
+//                holder.savedStat.setImageResource(R.drawable.chapter_saved_stat)
+                holder.setSavedChapterBackground(R.drawable.chapter_saved_stat)
             } else {
-                holder.savedStat.setImageResource(R.drawable.chapter_saved_stat_unsaved)
+                holder.setSavedChapterBackground(R.drawable.chapter_saved_stat_unsaved)
+//                holder.savedStat.setImageResource(R.drawable.chapter_saved_stat_unsaved)
             }
         }
-
-//        holder.booktitle.setText(items.get(position).booktitle)
-//        holder.bookUrl.setText(items.get(position).bookUrl)
     }
 
     override fun getItemCount(): Int = items.size
 
     fun getItem(position: Int) = items[position]
-    fun getPosition(chapterId: String) = items.indexOfFirst { it.chId == chapterId }
+    fun getPosition(chapterId: Int) = items.indexOfFirst { it.chIndex == chapterId }
 
 
 }

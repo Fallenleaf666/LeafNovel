@@ -31,6 +31,8 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <activity android:name=".ui.main.view.BookContentBetaActivity"
+                  android:theme="@style/NovelCotentTheme"/>
         <service android:name=".data.DownloadNovelService"/>
         <receiver android:name=".receiver.DownloadResultReceiver">
                  <intent-filter>

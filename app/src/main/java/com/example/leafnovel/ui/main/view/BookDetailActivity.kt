@@ -1,36 +1,26 @@
 package com.example.leafnovel.ui.main.view
 
 
-import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
-import android.widget.TableLayout
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
-import androidx.viewpager.widget.PagerAdapter
 
-import com.bumptech.glide.Glide
 import com.example.leafnovel.LeafFunction
 import com.example.leafnovel.R
 import com.example.leafnovel.data.model.StoredBook
 import com.example.leafnovel.data.database.StoredBookDB
-import com.example.leafnovel.data.api.NovelApi
 import com.example.leafnovel.data.model.Book
 import com.example.leafnovel.data.repository.Repository
-import com.example.leafnovel.ui.base.BookContentViewModelFactory
 import com.example.leafnovel.ui.base.BookDetailViewModelFactory
 import com.example.leafnovel.ui.main.adapter.BookDetailPageAdapter
-import com.example.leafnovel.ui.main.viewmodel.BookContentViewModel
 import com.example.leafnovel.ui.main.viewmodel.BookDetailViewModel
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
-import kotlinx.android.synthetic.main.activity_book_content.*
 import kotlinx.android.synthetic.main.activity_book_detail.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+
 
 class BookDetailActivity : AppCompatActivity() {
     private var isNetConnected = false
@@ -73,9 +63,11 @@ class BookDetailActivity : AppCompatActivity() {
         bookDetailTabLayout.addOnTabSelectedListener(object: TabLayout.OnTabSelectedListener{
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 if(tab?.position == 0){
-                    MutiSelectBT.visibility = View.INVISIBLE
+//                    MutiSelectBT.visibility = View.INVISIBLE
+                    OrderSwitch.visibility = View.GONE
                 }else if(tab?.position == 1){
-                    MutiSelectBT.visibility = View.VISIBLE
+//                    MutiSelectBT.visibility = View.VISIBLE
+                    OrderSwitch.visibility = View.VISIBLE
                 }
             }
             override fun onTabUnselected(tab: TabLayout.Tab?) {}

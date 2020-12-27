@@ -14,7 +14,6 @@ import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.TextView
 import android.widget.Toast
-import androidx.annotation.NonNull
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
@@ -29,9 +28,9 @@ import com.example.leafnovel.R
 import com.example.leafnovel.data.api.NovelApi
 import com.example.leafnovel.data.model.BookChapter
 import com.example.leafnovel.data.model.ChapterContent
-import com.example.leafnovel.data.model.StoredChapter
+import com.example.leafnovel.data.model.LastReadProgress
 import com.example.leafnovel.ui.base.BookContentViewModelFactory
-import com.example.leafnovel.ui.main.adapter.BookChAdapter
+import com.example.leafnovel.ui.main.adapter.BookChapterAdapter
 import com.example.leafnovel.ui.main.viewmodel.BookContentViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.android.synthetic.main.activity_book_content.*
@@ -41,13 +40,13 @@ import kotlinx.coroutines.launch
 import kotlin.collections.ArrayList
 
 
-class BookContentActivity : AppCompatActivity(), BookChAdapter.OnItemClickListener {
+class BookContentActivity : AppCompatActivity(), BookChapterAdapter.OnItemClickListener {
     companion object {
         const val TAG = "BookContentActivity MVVM測試"
     }
 
     val preference: SharedPreferences by lazy { getSharedPreferences("UiSetting", Context.MODE_PRIVATE) }
-    val adapter = BookChAdapter()
+    val adapter = BookChapterAdapter()
 
     //    小說章節的index(基底用)
     var nowChapterIndex = 0
@@ -63,7 +62,7 @@ class BookContentActivity : AppCompatActivity(), BookChAdapter.OnItemClickListen
 
     private lateinit var viewModel: BookContentViewModel
 
-    private lateinit var bookChId: String
+    private var bookChId: Int = 0
     private lateinit var chTitle: String
     private lateinit var chUrl: String
     lateinit var bookId: String
@@ -90,7 +89,7 @@ class BookContentActivity : AppCompatActivity(), BookChAdapter.OnItemClickListen
     }
 
     private fun setData() {
-        bookChId = intent.getStringExtra("BOOK_CH_ID") ?: ""
+        bookChId = intent.getIntExtra("BOOK_CH_ID",0)
         chTitle = intent.getStringExtra("BOOK_CH_TITLE") ?: ""
         chUrl = intent.getStringExtra("BOOK_CH_URL") ?: ""
         bookId = intent.getStringExtra("BOOK_ID") ?: ""
@@ -101,12 +100,12 @@ class BookContentActivity : AppCompatActivity(), BookChAdapter.OnItemClickListen
         allChapters?.let {
             adapter.setItems(it, this@BookContentActivity)
         } ?: CoroutineScope(Dispatchers.IO).launch {
-            val bookChResults = NovelApi.RequestChList(bookId)
+            val bookChResults = NovelApi.requestChapterList(bookId)
             launch(Dispatchers.Main) {
                 adapter.setItems(bookChResults, this@BookContentActivity)
             }
         }
-        val tempBookChapter = BookChapter(chTitle, bookChId, chUrl)
+        val tempBookChapter = BookChapter(bookChId, chTitle, chUrl)
         viewModel = ViewModelProvider(
             this,
             BookContentViewModelFactory(applicationContext, tempBookChapter, allChapters!!, bookTitle,bookId)
@@ -209,7 +208,7 @@ class BookContentActivity : AppCompatActivity(), BookChAdapter.OnItemClickListen
     override fun onItemClick(bookCh: BookChapter, position: Int) {
         Toast.makeText(this, "Item ${bookCh.chtitle} clicked", Toast.LENGTH_SHORT).show()
         CoroutineScope(Dispatchers.IO).launch {
-            val chapterContents = NovelApi.RequestChTextBETA(bookCh.chUrl, bookCh.chtitle, bookTitle)
+            val chapterContents = NovelApi.requestChapterText(bookCh.chUrl, bookCh.chtitle, bookTitle)
             allChapters?.let {
                 if (bookCh.chUrl == it[position].chUrl) {
 //                nowChapterIndex = position
@@ -363,11 +362,11 @@ class BookContentActivity : AppCompatActivity(), BookChAdapter.OnItemClickListen
                                 nowLenght = (scrollY - contentViewHeightList[i - 2]) / under
                                 totalLenght = (contentViewHeightList[i - 1] - contentViewHeightList[i - 2]) / under
                                 NowLookProgressiew.text = "${nowLenght + 1}/${totalLenght + 1}"
-                                if (nowChapterReadIndex != nowChapterIndex - i + 2) {
-                                    nowChapterReadIndex = nowChapterIndex - i + 2
-                                    viewModel.tempChapterReadIndex.postValue(nowChapterIndex - i + 2)
+                                if (nowChapterReadIndex != nowChapterIndex + i - 2) {
+                                    nowChapterReadIndex = nowChapterIndex + i - 2
+                                    viewModel.tempChapterReadIndex.postValue(nowChapterIndex + i - 2)
                                     NowLookChapter.text =
-                                        viewModel.allChapterList.value?.get(nowChapterIndex - i + 2)?.chtitle
+                                        viewModel.allChapterList.value?.get(nowChapterIndex + i - 2)?.chtitle
                                 }
                                 break
                             }
@@ -593,11 +592,18 @@ class BookContentActivity : AppCompatActivity(), BookChAdapter.OnItemClickListen
         val chapterContextTextViewList = _chapterContextTextViewList
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        StoredChapter("","","",0,5,false)
-        ChapterListView.viewTreeObserver.removeOnGlobalLayoutListener(onGlobalLayoutListener)
+    override fun onPause() {
+        super.onPause()
+        allChapters?.let {
+            Log.d("BCA資料庫","$bookId")
+            viewModel.saveReadProgress(LastReadProgress(bookId,it[nowChapterReadIndex].chtitle,nowChapterReadIndex,
+                it[nowChapterReadIndex].chUrl,0f))
+        }
     }
 
-
+    override fun onDestroy() {
+        super.onDestroy()
+//        StoredChapter("","","",0,5,false)
+        ChapterListView.viewTreeObserver.removeOnGlobalLayoutListener(onGlobalLayoutListener)
+    }
 }

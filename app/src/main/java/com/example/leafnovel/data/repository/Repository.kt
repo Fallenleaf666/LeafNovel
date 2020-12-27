@@ -14,6 +14,18 @@ class Repository constructor(private val sbBooksDao: StoredBookDao) {
     fun insert(storedbook: StoredBook){
         sbBooksDao.insert(storedbook)
     }
+
+    @WorkerThread
+    fun saveReadProgress(lastReadProgress: LastReadProgress){
+//        sbBooksDao.saveLastReadProgress(lastReadProgress)
+        sbBooksDao.updateLastReadProgress(lastReadProgress)
+    }
+
+    @WorkerThread
+    fun getLastReadProgress(bookId:String) : LiveData<LastReadProgress>{
+        return sbBooksDao.getLastReadProgress(bookId)
+    }
+
     @WorkerThread
     fun saveChapter(storedChapter: StoredChapter){
         sbBooksDao.saveChapter(storedChapter)
@@ -46,11 +58,11 @@ class Repository constructor(private val sbBooksDao: StoredBookDao) {
 
     @WorkerThread
     fun getSearchBooks(searchKey:String): BooksResults {
-        return NovelApi.RequestSearchNovelBeta(searchKey)
+        return NovelApi.requestSearchNovel(searchKey)
     }
     @WorkerThread
     fun getSearchBookChaptersList(bookId:String): BookChsResults {
-        return NovelApi.RequestChList(bookId)
+        return NovelApi.requestChapterList(bookId)
     }
 //    @WorkerThread
 //    fun getSearchBookChaptersContext(chapterId:String){
@@ -58,12 +70,12 @@ class Repository constructor(private val sbBooksDao: StoredBookDao) {
 //    }
     @WorkerThread
     fun getSearchBookChaptersContextBeta(chapterUrl:String,bookChTitle:String,bookTitle:String):String{
-        return NovelApi.RequestChTextBETA(chapterUrl,bookChTitle,bookTitle)
+        return NovelApi.requestChapterText(chapterUrl,bookChTitle,bookTitle)
     }
 
     @WorkerThread
     fun requestNovelDetail(bookId:String,bookTitle:String):MutableMap<String, String>{
-        return NovelApi.RequestNovelDetail(bookId,bookTitle)
+        return NovelApi.requestNovelDetail(bookId,bookTitle)
     }
 }
 

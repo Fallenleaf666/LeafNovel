@@ -9,51 +9,52 @@ import com.example.leafnovel.R
 import com.example.leafnovel.ui.main.adapter.BookAdapter.BookViewHolder
 import kotlinx.android.synthetic.main.row_book.view.*
 
-class BookAdapter():RecyclerView.Adapter<BookViewHolder>() {
-    private  val items = ArrayList<Book>()
-    private  var listener: OnItemClickListener?= null
-//    private  val listener : OnItemClickListener
+class BookAdapter() : RecyclerView.Adapter<BookViewHolder>() {
+    private val items = ArrayList<Book>()
+    private var listener: OnItemClickListener? = null
+
+    //    private  val listener : OnItemClickListener
 //    fun setItems(books:ArrayList<Book>){
 //        items.clear()
 //        items.addAll(books)
 //        notifyDataSetChanged()
 //    }
-fun setItems(books:List<Book>?, itemClickListener: OnItemClickListener){
-    items.clear()
-    if (books != null) {
-        items.addAll(books)
+    fun setItems(books: List<Book>?, itemClickListener: OnItemClickListener) {
+        items.clear()
+        books?.let {
+            items.addAll(books)
+        }
+        listener = itemClickListener
+        notifyDataSetChanged()
     }
-    listener = itemClickListener
-    notifyDataSetChanged()
-}
 
+    inner class BookViewHolder(view: View) : RecyclerView.ViewHolder(view), View.OnClickListener {
+        val author = view.BookAuthor
+        val booktitle = view.BookName
 
-
-    inner class BookViewHolder(view: View):RecyclerView.ViewHolder(view),View.OnClickListener{
-        val author=view.BookAuthor
-        val booktitle=view.BookName
-//        val updateTime=view.update_time
+        //        val updateTime=view.update_time
 //        val bookUrl=view.update_time
-        val bookDescripe=view.BookDescripe
+        val bookDescripe = view.BookDescripe
+
         init {
             view.setOnClickListener(this)
         }
 
         override fun onClick(p0: View?) {
             val position = adapterPosition
-            if(position!=RecyclerView.NO_POSITION){
+            if (position != RecyclerView.NO_POSITION) {
                 val tempbook = items[position]
                 listener?.onItemClick(tempbook)
             }
         }
-
     }
-    interface OnItemClickListener{
+
+    interface OnItemClickListener {
         fun onItemClick(book: Book)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BookViewHolder {
-        return BookViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.row_book,parent,false))
+        return BookViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.row_book, parent, false))
     }
 
     override fun onBindViewHolder(holder: BookViewHolder, position: Int) {
@@ -64,7 +65,7 @@ fun setItems(books:List<Book>?, itemClickListener: OnItemClickListener){
         holder.bookDescripe.setText(items.get(position).bookDescripe)
     }
 
-    override fun getItemCount(): Int =items.size
+    override fun getItemCount(): Int = items.size
 
 }
 

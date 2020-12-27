@@ -1,13 +1,16 @@
 package com.example.leafnovel.ui.main.view.fragment
 
 import android.app.Activity
+import android.content.Intent
 import android.opengl.Visibility
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.selection.SelectionTracker
@@ -16,7 +19,9 @@ import androidx.recyclerview.selection.SelectionTracker
 import com.bumptech.glide.Glide
 import com.example.leafnovel.R
 import com.example.leafnovel.data.model.BookChapter
+import com.example.leafnovel.data.model.LastReadProgress
 import com.example.leafnovel.data.model.StoredBook
+import com.example.leafnovel.ui.main.view.BookContentActivity
 import com.example.leafnovel.ui.main.view.BookDetailActivity
 import com.example.leafnovel.ui.main.viewmodel.BookDetailViewModel
 import kotlinx.android.synthetic.main.activity_book_detail.*
@@ -71,6 +76,13 @@ class BookIntroduceFragment : Fragment() {
                 .into(Book_imgView)
             LoadProgressBar.visibility = View.INVISIBLE
         })
+
+        viewModel?.bookLastReadInfo?.observe(viewLifecycleOwner,{
+                LastReadInfo->
+            LastReadInfo?.let {
+                LastReadText.text = it.chapterTitle
+            }
+        })
     }
 
     override fun onAttach(activity: Activity) {
@@ -81,6 +93,22 @@ class BookIntroduceFragment : Fragment() {
     private fun setUiListener() {
         StoreBT.setOnClickListener{
             viewModel?.storedBook()
+        }
+        LastReadText.setOnClickListener{
+            val lastReadInfo = viewModel?.bookLastReadInfo?.value
+            val bookInfo = viewModel?.bookInformation?.value
+            if(lastReadInfo != null && bookInfo!= null){
+            val intent = Intent(context, BookContentActivity::class.java).apply {
+                putExtra("BOOK_INDEX", lastReadInfo.chapterIndex)
+                putExtra("BOOK_ID", bookInfo.bookid)
+                putExtra("BOOK_CH_ID", lastReadInfo.chapterIndex)
+                putExtra("BOOK_CH_URL", lastReadInfo.chapterUrl)
+                putExtra("BOOK_CH_TITLE", lastReadInfo.chapterTitle)
+                putExtra("BOOK_TITLE", bookInfo.bookname)
+                putParcelableArrayListExtra("NOVEL_CHAPTERS", viewModel?.bookChapterList?.value)
+            }
+            this.startActivity(intent)
+            }
         }
 }
 

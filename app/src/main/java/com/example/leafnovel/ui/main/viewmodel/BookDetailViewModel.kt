@@ -29,15 +29,19 @@ class BookDetailViewModel(context: Context, storedBook: StoredBook, repository: 
     val bookOtherInformation: MutableLiveData<Map<String, String>> = MutableLiveData()
     val bookInformation: MutableLiveData<StoredBook> = MutableLiveData(storedBook)
     val bookChapterList: MutableLiveData<BookChsResults> = MutableLiveData()
-    lateinit var chaptersIndexSaved: LiveData<List<ChapterIndex>>
+//    上次閱讀
+    var bookLastReadInfo: LiveData<LastReadProgress>
+//    下載章節
+    var chaptersIndexSaved: LiveData<List<ChapterIndex>>
 
     init {
         scope.launch(Dispatchers.IO) {
             bookOtherInformation.postValue(mRepository.requestNovelDetail(mStoredBook.bookid, mStoredBook.bookname))
-            val bookChResults = NovelApi.RequestChList(mStoredBook.bookid)
+            val bookChResults = NovelApi.requestChapterList(mStoredBook.bookid)
             bookChapterList.postValue(bookChResults)
-            chaptersIndexSaved = repository.queryBookChpapterIndexes(mStoredBook.bookid)
         }
+        chaptersIndexSaved = repository.queryBookChpapterIndexes(mStoredBook.bookid)
+        bookLastReadInfo = repository.getLastReadProgress(mStoredBook.bookid)
     }
 
     private fun getBookDetail() {
@@ -55,7 +59,11 @@ class BookDetailViewModel(context: Context, storedBook: StoredBook, repository: 
                     bI.bookname, bI.bookauthor, bI.booksource,
                     bOI["newChapter"] ?: "", "", bOI["imgUrl"] ?: "", false, bI.bookid
                 )
-                mRepository.insert(storedbook)
+                try {
+                    mRepository.insert(storedbook)
+                    Toast.makeText(mContext, "已將此書收藏", Toast.LENGTH_SHORT).show()
+                } catch (e: Exception) {
+                }
             }
         }
     }
@@ -68,15 +76,9 @@ class BookDetailViewModel(context: Context, storedBook: StoredBook, repository: 
                     setClass(mContext, DownloadNovelService()::class.java)
                     putExtra("bookDownloadInfo", bookInfo)
                     action = DownloadNovelService.DOWNLOAD_SINGLE_ACTION
-//                    putExtra
                 }
                 mContext.startService(intent)
             }
-//            launch(Dispatchers.Main) {
-//                Toast.makeText(mContext, "下載完成", Toast.LENGTH_SHORT).show()
-//            }
         }
     }
-
-//    inner class MessengerHandler()
 }

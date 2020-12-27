@@ -1,6 +1,8 @@
 package com.example.leafnovel.ui.main.view.fragment
 
 import android.content.Intent
+import android.graphics.Canvas
+import android.graphics.Rect
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
@@ -10,7 +12,9 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
+import android.widget.TextView
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -86,15 +90,9 @@ class MyBooks : Fragment(), StoredBookAdapter.OnItemClickListener {
 
 
     override fun onItemClick(sbBook: StoredBook, view: View) {
-//        Toast.makeText(context, "Item ${sbBook.bookid} clicked", Toast.LENGTH_SHORT).show()
-//        Toast.makeText(context, "Id =  ${view.id} clicked", Toast.LENGTH_SHORT).show()
         val intent = Intent(context, BookDetailActivity::class.java).apply {
             putExtra("BOOK_IS_STORED", true)
             putExtra("BOOK_Detail", sbBook)
-//            putExtra("BOOK_ID", sbBook.bookid)
-//            putExtra("BOOK_TITLE", sbBook.bookname)
-//            putExtra("BOOK_AUTHOR", sbBook.bookauthor)
-//            putExtra("BOOK_URL", sbBook.bookid)
         }
         this.startActivity(intent)
     }
@@ -113,10 +111,12 @@ class MyBooks : Fragment(), StoredBookAdapter.OnItemClickListener {
 
 
     private fun initUI() {
+        val decoration = DividerItemDecoration(context,DividerItemDecoration.VERTICAL)
         SB_recycler.apply {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(context)
             adapter = storedBookAdapter
+            addItemDecoration(decoration)
         }
 
         Log.d("Viewmodel", "BEFORE")
@@ -124,13 +124,27 @@ class MyBooks : Fragment(), StoredBookAdapter.OnItemClickListener {
         storedBookAdapter.setViewModel(viewModel)
         context?.let { Log.d("Viewmodel", "has context") }
         Log.d("Viewmodel", "AFTER")
-        viewModel.allsbBooks.observe(viewLifecycleOwner,{ storedBooks ->
+        viewModel.allsbBooks.observe(viewLifecycleOwner, { storedBooks ->
             storedBookAdapter.setItems(storedBooks, this)
         })
-//        viewModel = ViewModelProvider(this).get(MyBooksViewModel::class.java)
     }
 
     override fun onDestroy() {
         super.onDestroy()
     }
+
+//    inner class ItemDecoration :RecyclerView.ItemDecoration(){
+//        override fun onDraw(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
+//            super.onDraw(c, parent, state)
+//        }
+//
+//        override fun onDrawOver(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
+//            super.onDrawOver(c, parent, state)
+//        }
+//
+//        override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
+//            super.getItemOffsets(outRect, view, parent, state)
+//        }
+//    }
+
 }

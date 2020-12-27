@@ -1,8 +1,6 @@
 <resources>
 
-    <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
@@ -19,21 +17,28 @@
         <item name="android:textSize">10sp</item>
     </style>
 
-    <style name="NovelDetailTheme" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
-        <item name="android:textColorPrimary">@color/colorp</item>
-        <item name="android:textColorSecondary">@color/colorp</item>
+    <style name="MyBookTextView" parent="Widget.AppCompat.TextView">
+        <item name="android:textSize">10sp</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:layout_gravity">center_vertical</item>
+    </style>
+
+    <style name="BookDetailButtonTextView" parent="Widget.AppCompat.TextView">
+        <item name="android:textSize">12sp</item>
+        <item name="text_color">@color/fontMorning</item>
+    </style>
+
+    <style name="NovelDetailTheme" parent="MyAppTheme">
         <item name="actionModeBackground">@android:color/black</item>
         <item name="actionModeCloseDrawable">@drawable/ic_baseline_close_24</item>
         <item name="windowActionModeOverlay">true</item>
+        <item name="android:popupMenuStyle">@style/ChapterMorePopMenu</item>
+        <item name="popupMenuStyle">@style/ChapterMorePopMenu</item>
+        <item name="textAppearanceSmallPopupMenu">@style/ChapterMorePopMenuTextApperance</item>
     </style>
 
-    <style name="NovelCotentTheme" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+    <style name="NovelCotentTheme" parent="MyAppTheme">
         <item name="android:textSize">10sp</item>
         <item name="android:textColorPrimary">@color/colorp</item>
         <item name="android:textColorSecondary">@color/colorp</item>
@@ -59,8 +64,29 @@
         <item name="windowNoTitle">true</item>
     </style>
 
+    <style name="MyAppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:homeAsUpIndicator">@drawable/ic_baseline_arrow_back_ios_24</item>
+    </style>
+
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
+
+    <style name="DirectorySwitch" parent="TextAppearance.AppCompat.Small">
+        <item name="android:textColor">#CBF6F6F0</item>
+    </style>
+
+
+    <style name="ChapterMorePopMenu" parent="Widget.AppCompat.PopupMenu">
+        <item name="android:popupBackground">@drawable/directory_popmenu_background</item>
+    </style>
+    <style name="ChapterMorePopMenuTextApperance" parent="TextAppearance.AppCompat.Light.Widget.PopupMenu.Small">
+        <item name="android:textColor">#EB422BA8</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+
 
 </resources>

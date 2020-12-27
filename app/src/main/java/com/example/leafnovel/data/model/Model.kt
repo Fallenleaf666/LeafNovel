@@ -17,16 +17,19 @@ data class Book(
     var bookDescripe: String,
     var updateTime: String
 ):Parcelable{
-    constructor():this("","","","","","")
+    constructor():this("無名","","","匿名","","")
+    constructor(bookUrl: String,author: String,booktitle: String):this(booktitle,"",bookUrl,author,"","")
 }
 
 class BookChsResults:java.util.ArrayList<BookChapter>()
 @Parcelize
 data class BookChapter(
+    var chIndex: Int,
     var chtitle: String,
-    var chId: String,
     var chUrl: String
-):Parcelable
+):Parcelable{
+    constructor():this(0, "", "")
+}
 
 @Parcelize
 data class ChapterContent(
@@ -36,22 +39,31 @@ data class ChapterContent(
 ):Parcelable
 
 @Parcelize
+data class ChapterContentBeta(
+    var chIndex: Int,
+    var chTitle: String,
+    val chContent: String,
+    var chUrl: String
+):Parcelable
+
+@Parcelize
 data class BookDownloadInfo(
     var bookName: String,
     var bookId: String,
-    var download:List<ChapterDownloadInfo>
+    var download: List<BookChapter>
 ):Parcelable{
 }
 
-@Parcelize
-data class ChapterDownloadInfo(
-    var chtitle: String,
-    val chId: String,
-    var chUrl: String,
-    var index: Int
-):Parcelable{
-}
+//@Parcelize
+//data class ChapterDownloadInfo(
+//    var index: Int,
+//    var chtitle: String,
+//    var chUrl: String
+//):Parcelable{
+//}
 
 data class ChapterIndex(
     @ColumnInfo(name = "index")val index:Int?
 )
+
+
