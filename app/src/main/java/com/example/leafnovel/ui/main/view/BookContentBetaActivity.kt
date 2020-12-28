@@ -33,23 +33,7 @@ import com.example.leafnovel.ui.main.adapter.ChapterContentAdapter
 import com.example.leafnovel.ui.main.viewmodel.BookContentBetaViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.android.synthetic.main.activity_book_beta_content.*
-import kotlinx.android.synthetic.main.activity_book_beta_content.BackgroundView
-import kotlinx.android.synthetic.main.activity_book_beta_content.BookChRecyclerView
-import kotlinx.android.synthetic.main.activity_book_beta_content.DrawerLayout
-import kotlinx.android.synthetic.main.activity_book_beta_content.FontSizeSeekBar
-import kotlinx.android.synthetic.main.activity_book_beta_content.FunctionMenu
-import kotlinx.android.synthetic.main.activity_book_beta_content.ImageView
-import kotlinx.android.synthetic.main.activity_book_beta_content.LastPageBT
-import kotlinx.android.synthetic.main.activity_book_beta_content.LightSeekBar
-import kotlinx.android.synthetic.main.activity_book_beta_content.LoadMoreProgressBar
-import kotlinx.android.synthetic.main.activity_book_beta_content.NextPageBT
-import kotlinx.android.synthetic.main.activity_book_beta_content.NowLookChapter
-import kotlinx.android.synthetic.main.activity_book_beta_content.NowLookProgressiew
-import kotlinx.android.synthetic.main.activity_book_beta_content.StyleSettingView
-import kotlinx.android.synthetic.main.activity_book_beta_content.SwipToRefreshView
-import kotlinx.android.synthetic.main.activity_book_beta_content.ToolBar
-import kotlinx.android.synthetic.main.activity_book_beta_content.bottomNavigation
-import kotlinx.android.synthetic.main.activity_book_content.*
+
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -114,6 +98,7 @@ class BookContentBetaActivity : AppCompatActivity(), BookChapterAdapter.OnItemCl
         setActionBar()
         setUI()
         setObserver()
+        setReceiver()
         setUiListener()
         initBottomNavigationView()
     }
@@ -167,6 +152,16 @@ class BookContentBetaActivity : AppCompatActivity(), BookChapterAdapter.OnItemCl
         viewModel.loadChapterContent.observe(this, { chapterContent ->
             chapterContentAdapter.addItem(chapterContent, this)
             LoadMoreProgressBar.visibility = View.INVISIBLE
+        })
+
+        viewModel.systemTime.observe(this, { systemTime ->
+            SystemTimeView.text = systemTime
+        })
+        viewModel.batteryIsCharging.observe(this, { isCharging ->
+            novelBatteryView.isCharging = isCharging
+        })
+        viewModel.batteryLevel.observe(this, { batteryLevel ->
+            novelBatteryView.batteryLevel = batteryLevel
         })
 
     }
@@ -230,6 +225,7 @@ class BookContentBetaActivity : AppCompatActivity(), BookChapterAdapter.OnItemCl
         FontSizeSeekBar.progress = (fontSize - 10).toInt()
 //lock navigationView avoid hand slide
         DrawerLayout.setDrawerLockMode(androidx.drawerlayout.widget.DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+
     }
 
     private fun setUiListener() {
@@ -524,5 +520,10 @@ class BookContentBetaActivity : AppCompatActivity(), BookChapterAdapter.OnItemCl
 //            isGetPageHeight = true
 //            Log.d(TAG,"WINDOW pageHeight${pageHeight}")
 //        }
+    }
+
+    private fun setReceiver() {
+        viewModel.initSystemTime()
+        viewModel.initBatteryLevel()
     }
 }
