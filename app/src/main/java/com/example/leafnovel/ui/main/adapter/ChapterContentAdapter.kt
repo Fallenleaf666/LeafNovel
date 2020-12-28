@@ -38,6 +38,8 @@ class ChapterContentAdapter() : RecyclerView.Adapter<ChapterContentAdapter.Chapt
     }
 
     fun getChapterTitleByPosition(chapterPosition:Int):String = items[chapterPosition].chTitle
+    fun getChapterIdByPosition(chapterPosition:Int):Int = items[chapterPosition].chIndex
+    fun getChapterItemByPosition(chapterPosition:Int):ChapterContentBeta = items[chapterPosition]
 
     inner class ChapterContentAdapterViewHolder(view: View) : RecyclerView.ViewHolder(view), View.OnClickListener {
         val chapterTitle: TextView = view.row_chapter_title
@@ -95,6 +97,9 @@ class ChapterContentAdapter() : RecyclerView.Adapter<ChapterContentAdapter.Chapt
     fun setFontSize(fontSize:Float) {
         this.fontSize = fontSize
         notifyDataSetChanged()
+    }
+    fun getFontSize():Float {
+        return this.fontSize
     }
     fun setUiByDayNightMode(isUiModeNight:Boolean) {
         this.isUiModeNight = isUiModeNight

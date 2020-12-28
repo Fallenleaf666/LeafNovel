@@ -25,5 +25,9 @@ class LeafFunction {
             }
             return isConect
         }
+    fun dp2px(context: Context,dpValue:Float):Int{
+        val scale = context.resources.displayMetrics.density
+        return (dpValue*scale).toInt()
+    }
     }
 }

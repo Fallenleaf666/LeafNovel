@@ -1,5 +1,6 @@
 package com.example.leafnovel.ui.main.view
 
+import android.app.ActionBar
 import android.app.Activity
 import android.content.Context
 import android.content.SharedPreferences
@@ -12,13 +13,10 @@ import android.view.View
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
-import androidx.core.widget.NestedScrollView
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -46,6 +44,7 @@ import kotlinx.android.synthetic.main.activity_book_beta_content.LightSeekBar
 import kotlinx.android.synthetic.main.activity_book_beta_content.LoadMoreProgressBar
 import kotlinx.android.synthetic.main.activity_book_beta_content.NextPageBT
 import kotlinx.android.synthetic.main.activity_book_beta_content.NowLookChapter
+import kotlinx.android.synthetic.main.activity_book_beta_content.NowLookProgressiew
 import kotlinx.android.synthetic.main.activity_book_beta_content.StyleSettingView
 import kotlinx.android.synthetic.main.activity_book_beta_content.SwipToRefreshView
 import kotlinx.android.synthetic.main.activity_book_beta_content.ToolBar
@@ -65,17 +64,34 @@ class BookContentBetaActivity : AppCompatActivity(), BookChapterAdapter.OnItemCl
 
     val preference: SharedPreferences by lazy { getSharedPreferences("UiSetting", Context.MODE_PRIVATE) }
 
-    //    目錄
+    var isNotLoading = true
+
+    //目錄適配器
     val adapter = BookChapterAdapter()
 
-    //    內文
+    //內文適配器
     val chapterContentAdapter = ChapterContentAdapter(this)
 
-    //    目前閱讀的小說章節index
-    var nowChapterReadIndex = 0
+    //目前閱讀的小說章節在adapter裡的index
+    var firstVisibleIndex = 0
 
-    //    除小說高度的值
-    var under = 2000
+    //當前閱讀進度
+    var readProgress = 0
+
+    //適配器中 items每章高度暫存
+    val tempHeight: MutableMap<Int, Int> = mutableMapOf()
+
+    //目前滑動總距離
+    var totalScrollY = 0
+
+    //每頁小說高度(預設)
+    var pageHeight = 2000
+
+    //分隔線高度
+    var decorationHeight = 0
+    var recyclerViewHeight = 0
+
+    var isGetPageHeight = false
 
     var contentViewHeightList = mutableListOf<Int>()
 
@@ -86,16 +102,16 @@ class BookContentBetaActivity : AppCompatActivity(), BookChapterAdapter.OnItemCl
     private lateinit var chUrl: String
     lateinit var bookId: String
     lateinit var bookTitle: String
-    private var bookIndex: Int = 0
 
-    var allChapters: ArrayList<BookChapter>? = null
+
+    private var allChapters: ArrayList<BookChapter>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_book_beta_content)
 
         setData()
-        setActbar()
+        setActionBar()
         setUI()
         setObserver()
         setUiListener()
@@ -108,7 +124,6 @@ class BookContentBetaActivity : AppCompatActivity(), BookChapterAdapter.OnItemCl
         chUrl = intent.getStringExtra("BOOK_CH_URL") ?: ""
         bookId = intent.getStringExtra("BOOK_ID") ?: ""
         bookTitle = intent.getStringExtra("BOOK_TITLE") ?: ""
-        bookIndex = intent.getIntExtra("BOOK_INDEX", 0)
 
 //        填入目錄內容
         allChapters = intent.getParcelableArrayListExtra<BookChapter>("NOVEL_CHAPTERS")
@@ -120,28 +135,34 @@ class BookContentBetaActivity : AppCompatActivity(), BookChapterAdapter.OnItemCl
                 adapter.setItems(bookChResults, this@BookContentBetaActivity)
             }
         }
-
-
         val tempBookChapter = BookChapter(bookChId, chTitle, chUrl)
         viewModel = ViewModelProvider(
-            this,
-            BookContentViewModelFactory(applicationContext, tempBookChapter, allChapters!!, bookTitle, bookId)
+            this, BookContentViewModelFactory(applicationContext, tempBookChapter, allChapters!!, bookTitle, bookId)
         ).get(BookContentBetaViewModel::class.java)
 
-//        nowChNum = viewModel.tempChapterIndex.value ?: 0
-        NowLookChapter.text = chTitle
-        nowChapterReadIndex = bookIndex
-
-//        adapter.lastPositionChange(nowChapterIndex)
+        Handler().post{
+            pageHeight = ChapterContentRecycleView.height
+            Log.d(TAG,"HOLDER$pageHeight")
+        }
     }
 
     private fun setObserver() {
         viewModel.chapterContent.observe(this, { chapterContent ->
             chapterContentAdapter.setItems(chapterContent, this)
             ChapterContentRecycleView.scrollToPosition(0)
+            tempHeight.clear()
+            totalScrollY = 0
+            viewModel.nowLookAtIndex.postValue(chapterContent.chIndex)
             LoadMoreProgressBar.visibility = View.INVISIBLE
             FunctionMenu.visibility = View.INVISIBLE
-            viewModel.nowLookAtIndex.postValue(chapterContent.chIndex)
+            NowLookChapter.text = chapterContentAdapter.getChapterTitleByPosition(0)
+            NowLookProgressiew.text = "${1}/${
+                ((getItemHeight(chapterContent, chapterContentAdapter.getFontSize()) + decorationHeight)/pageHeight)+1
+            }"
+            SwipToRefreshView.isRefreshing = false
+//            if(DrawerLayout.isDrawerOpen(GravityCompat.START)){
+//                DrawerLayout.closeDrawer(GravityCompat.START)
+//            }
         })
         viewModel.loadChapterContent.observe(this, { chapterContent ->
             chapterContentAdapter.addItem(chapterContent, this)
@@ -151,16 +172,19 @@ class BookContentBetaActivity : AppCompatActivity(), BookChapterAdapter.OnItemCl
     }
 
     //    TODO 更新頁面
-    val refreshListener = SwipeRefreshLayout.OnRefreshListener {
-        chapterContentAdapter.refresh()
-//        myList.shuffle()
-//        adapter.notifyDataSetChanged()
-        Handler().postDelayed({ SwipToRefreshView.isRefreshing = false }, 2000)
+    private val refreshListener = SwipeRefreshLayout.OnRefreshListener {
+        viewModel.refresh()
+        Handler().postDelayed({
+            if(SwipToRefreshView.isRefreshing){
+                SwipToRefreshView.isRefreshing = false
+            }
+        }, 5000)
     }
 
     //目錄章節點擊
     override fun onItemClick(bookCh: BookChapter, position: Int) {
         viewModel.goSpecialChapter(bookCh)
+        DrawerLayout.closeDrawer(GravityCompat.START)
     }
 
     override fun onMoreClick(bookCh: BookChapter, position: Int, view: View) {
@@ -169,7 +193,13 @@ class BookContentBetaActivity : AppCompatActivity(), BookChapterAdapter.OnItemCl
 
     private fun setUI() {
 //內文
+
+        NowLookChapter.text = chTitle
         val decoration = DividerItemDecoration(this, DividerItemDecoration.VERTICAL)
+        ContextCompat.getDrawable(this, R.drawable.chapter_item_decoration)?.let {
+            decoration.setDrawable(it)
+            decorationHeight = it.intrinsicHeight
+        }
         ChapterContentRecycleView.apply {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(context)
@@ -203,32 +233,59 @@ class BookContentBetaActivity : AppCompatActivity(), BookChapterAdapter.OnItemCl
     }
 
     private fun setUiListener() {
-        var view: View? = null
-        var index = 0
-
         ChapterContentRecycleView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) { super.onScrollStateChanged(recyclerView, newState) }
+            lateinit var layoutManager: LinearLayoutManager
+            var nowLength = 0
+            var totalLength = 0
+            var tempValue = 0
+
+            init {
+                totalScrollY = 0
+            }
+
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+            }
+
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
+                totalScrollY += dy
                 if (!ChapterContentRecycleView.canScrollVertically(1)) {
                     viewModel.loadNextChapter()
+                    isNotLoading = false
                     LoadMoreProgressBar.visibility = View.VISIBLE
                 }
-
-                if (view != recyclerView.findChildViewUnder(dx.toFloat(), dy.toFloat())) {
-                    view = recyclerView.findChildViewUnder(dx.toFloat(), dy.toFloat())
-                    view?.let { index = recyclerView.getChildAdapterPosition(it) }
-                    NowLookChapter.text = chapterContentAdapter.getChapterTitleByPosition(index)
+                layoutManager = (recyclerView.layoutManager as LinearLayoutManager)
+//                如果當前觀看的的索引與adapter的索引不同
+                if (firstVisibleIndex != layoutManager.findFirstVisibleItemPosition()) {
+                    firstVisibleIndex = layoutManager.findFirstVisibleItemPosition()
+//                    更新觀看chId
+                    viewModel.nowLookAtIndex.postValue(chapterContentAdapter.getChapterIdByPosition(firstVisibleIndex))
                 }
-                Log.d(TAG,"Extent${recyclerView.computeVerticalScrollExtent()}")
-                Log.d(TAG,"Offset${recyclerView.computeVerticalScrollOffset()}")
-                Log.d(TAG,"Range${recyclerView.computeVerticalScrollRange()}")
-                Log.d(TAG,"Rercent${recyclerView.computeVerticalScrollOffset()*100/(recyclerView.computeVerticalScrollRange()-recyclerView.computeVerticalScrollExtent())}")
-                view?.let {
-                    Log.d(TAG,"子物件編號${recyclerView.getChildAdapterPosition(it)}")
-                    Log.d(TAG,"子物件高度${it.height}")
-                }
+                NowLookChapter.text = chapterContentAdapter.getChapterTitleByPosition(firstVisibleIndex)
 
+                if (!tempHeight.containsKey(firstVisibleIndex) || tempHeight[firstVisibleIndex] == 0) {
+                    tempHeight[firstVisibleIndex] = layoutManager.findViewByPosition(firstVisibleIndex)?.height ?: 0
+                }
+                totalLength = ((tempHeight[firstVisibleIndex] ?: 0) + decorationHeight)/pageHeight
+//                Log.d(TAG, "totalLength${totalLength}")
+                if (firstVisibleIndex == 0) {
+                    nowLength = totalScrollY
+                    readProgress = nowLength
+                    NowLookProgressiew.text = "${(nowLength)/pageHeight + 1}/${totalLength + 1}"
+                } else {
+                    tempValue = 0
+                    for (i in 0 until firstVisibleIndex) {
+//                        ChapterContentRecycleView.decoration
+                        tempValue += tempHeight[i] ?: 0
+//                        分隔線高度
+                        tempValue += decorationHeight
+//                        Log.d(TAG, "tempValue${tempValue}")
+                    }
+                    nowLength = totalScrollY - tempValue
+                    readProgress = nowLength / totalLength
+                    NowLookProgressiew.text = "${(nowLength)/pageHeight + 1}/${totalLength + 1}"
+                }
             }
         })
         ChapterContentRecycleView.setOnClickListener {
@@ -260,6 +317,8 @@ class BookContentBetaActivity : AppCompatActivity(), BookChapterAdapter.OnItemCl
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
+//                更新每章高度
+                resetTempHeight()
                 with(preference.edit()) {
                     putFloat(getString(R.string.novel_fontsize), tempFontSizeValue).apply()
                 }
@@ -315,7 +374,7 @@ class BookContentBetaActivity : AppCompatActivity(), BookChapterAdapter.OnItemCl
         }
     }
 
-    private fun setActbar() {
+    private fun setActionBar() {
         setSupportActionBar(ToolBar)
         supportActionBar?.apply {
             title = bookTitle
@@ -415,17 +474,55 @@ class BookContentBetaActivity : AppCompatActivity(), BookChapterAdapter.OnItemCl
 
     override fun onPause() {
         super.onPause()
-        allChapters?.let {
-            viewModel.saveReadProgress(
-                LastReadProgress(
-                    bookId, it[nowChapterReadIndex].chtitle, nowChapterReadIndex,
-                    it[nowChapterReadIndex].chUrl, 0f
+//        防止一點進去就馬上退出的狀況會發生空指針
+        if (firstVisibleIndex < chapterContentAdapter.itemCount) {
+            val chapter = chapterContentAdapter.getChapterItemByPosition(firstVisibleIndex)
+            allChapters?.let {
+                viewModel.saveReadProgress(
+                    LastReadProgress(
+                        bookId, chapter.chTitle, chapter.chIndex,
+                        chapter.chUrl, readProgress.toFloat()
+                    )
                 )
-            )
+            }
         }
     }
 
     override fun onScreenClick(chapterContent: ChapterContentBeta, view: View) {
         FunctionMenu.visibility = View.VISIBLE
+    }
+
+    fun resetTempHeight() {
+        tempHeight.clear()
+        var tempChapterInfo = ChapterContentBeta(0, "", "", "")
+        for (i in 0 until chapterContentAdapter.itemCount) {
+            tempChapterInfo = chapterContentAdapter.getChapterItemByPosition(i)
+            tempHeight[i] = getItemHeight(tempChapterInfo, chapterContentAdapter.getFontSize())
+        }
+    }
+
+    private fun getItemHeight(chapterContent: ChapterContentBeta, fontSize: Float): Int {
+        val tempView =
+            layoutInflater.inflate(R.layout.row_chapter_content, ChapterContentRecycleView, false) as ConstraintLayout
+        val tempViewTitle = (tempView.getViewById(R.id.row_chapter_title) as TextView)
+        val tempViewContent = (tempView.getViewById(R.id.row_chapter_content) as TextView)
+        tempViewTitle.text = chapterContent.chTitle
+        tempViewTitle.textSize = fontSize
+        tempViewContent.text = chapterContent.chContent
+        tempViewContent.textSize = fontSize + 4
+        tempView.measure(
+            View.MeasureSpec.makeMeasureSpec(ChapterContentRecycleView.width, View.MeasureSpec.EXACTLY),
+            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+        )
+        return tempView.measuredHeight
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+//        if (!isGetPageHeight) {
+//            pageHeight = ChapterContentRecycleView.height
+//            isGetPageHeight = true
+//            Log.d(TAG,"WINDOW pageHeight${pageHeight}")
+//        }
     }
 }

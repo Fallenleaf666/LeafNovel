@@ -3,15 +3,10 @@ package com.example.leafnovel.receiver
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
-import android.os.BatteryManager
+
 import android.util.Log
 import android.widget.Toast
-import com.example.leafnovel.`interface`.BatteryChangeHelper
-import com.example.leafnovel.`interface`.SystemTimeHelper
 import com.example.leafnovel.data.DownloadNovelService.DownloadResultType
-import com.example.leafnovel.ui.base.BatteryView
-import kotlinx.android.synthetic.main.fragment_my_books.*
 
 class DownloadResultReceiver() : BroadcastReceiver() {
     companion object{

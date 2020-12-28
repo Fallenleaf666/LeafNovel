@@ -187,9 +187,23 @@ class BookContentBetaViewModel(
     }
 
     fun saveReadProgress(lastReadProgress: LastReadProgress) {
-//        scope.launch(Dispatchers.IO) {
-//            repository.saveReadProgress(lastReadProgress)
-//        }
+        scope.launch(Dispatchers.IO) {
+            repository.saveReadProgress(lastReadProgress)
+        }
+    }
+
+    fun refresh() {
+        scope.launch(Dispatchers.IO) {
+            val chapterIndex = nowLookAtIndex.value
+            chapterIndex?.let {
+                val tempIndex = allChapter[chapterIndex - 1].chIndex
+                val tempChUrl = allChapter[chapterIndex - 1].chUrl
+                val tempBookChTitle = allChapter[chapterIndex - 1].chtitle
+                val tempContent = repository.getSearchBookChaptersContextBeta(tempChUrl, tempBookChTitle, bookTitle)
+                val tempChapterContent = ChapterContentBeta(tempIndex, tempBookChTitle, tempContent, tempChUrl)
+                chapterContent.postValue(tempChapterContent)
+            }
+        }
     }
 
 //    fun getAllChapters(bookId:String):MutableLiveData<BookChsResults>{
