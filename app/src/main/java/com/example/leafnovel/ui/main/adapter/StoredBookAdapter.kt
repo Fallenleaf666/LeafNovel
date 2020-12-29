@@ -1,6 +1,7 @@
 package com.example.leafnovel.ui.main.adapter
 
 import android.content.Context
+import android.os.Bundle
 import com.example.leafnovel.R
 
 import android.view.LayoutInflater
@@ -10,6 +11,8 @@ import android.widget.ImageButton
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.chauthai.swipereveallayout.SwipeRevealLayout
+import com.chauthai.swipereveallayout.ViewBinderHelper
 import com.example.leafnovel.data.model.StoredBook
 import com.example.leafnovel.ui.main.viewmodel.MyBooksViewModel
 import com.rishabhharit.roundedimageview.RoundedImageView
@@ -20,6 +23,12 @@ class StoredBookAdapter() : RecyclerView.Adapter<StoredBookAdapter.StoredBookVie
     private var listener: OnItemClickListener? = null
     private var context : Context? = null
     private var viewModel: MyBooksViewModel? = null
+    private val viewBinderHelperRight: ViewBinderHelper = ViewBinderHelper().apply {
+        setOpenOnlyOne(true)
+    }
+    private val viewBinderHelperLeft: ViewBinderHelper = ViewBinderHelper().apply {
+        setOpenOnlyOne(true)
+    }
     constructor(_mContext: Context) : this(){
         context = _mContext
     }
@@ -36,12 +45,14 @@ class StoredBookAdapter() : RecyclerView.Adapter<StoredBookAdapter.StoredBookVie
     }
 
     inner class StoredBookViewHolder(view: View) : RecyclerView.ViewHolder(view), View.OnClickListener {
+        val swipeLayoutRight:SwipeRevealLayout = view.SwipeLayoutViewRight
+        val swipeLayoutLeft:SwipeRevealLayout = view.SwipeLayoutViewLeft
         val author: TextView = view.MyBookAuthor
         val bookTitle: TextView = view.MyBookName
         val bookLastRead: TextView = view.LastReadChapter
         val bookNewChapter: TextView = view.NewChapter
         val bookImg: RoundedImageView = view.MyBookImgView
-        val moreBT: ImageButton = view.MoreBT
+        val deleteBT: ImageButton = view.StoredBookDeleteBT
         init {
             view.setOnClickListener(this)
         }
@@ -58,6 +69,7 @@ class StoredBookAdapter() : RecyclerView.Adapter<StoredBookAdapter.StoredBookVie
 
     interface OnItemClickListener {
         fun onItemClick(sbBook: StoredBook, view:View)
+        fun onDeleteClick(sbBook: StoredBook, view:View)
         fun onMoreClick(sbBook: StoredBook, view:View)
     }
 
@@ -68,6 +80,11 @@ class StoredBookAdapter() : RecyclerView.Adapter<StoredBookAdapter.StoredBookVie
     override fun getItemCount(): Int = items.size
 
     override fun onBindViewHolder(holder: StoredBookViewHolder, position: Int) {
+//        綁定讓swipemenu可以儲存開關狀態的唯一識別
+        val sbBook: StoredBook = items[position]
+        viewBinderHelperRight.bind(holder.swipeLayoutRight,sbBook.bookid)
+        viewBinderHelperLeft.bind(holder.swipeLayoutLeft,sbBook.bookid)
+
         holder.bookTitle.text = items[position].bookname
         holder.author.text = items[position].bookauthor
         holder.bookLastRead.text = if(items[position].lastread!="")items[position].lastread else "尚未閱讀本書"
@@ -78,8 +95,39 @@ class StoredBookAdapter() : RecyclerView.Adapter<StoredBookAdapter.StoredBookVie
             .fallback(R.drawable.ic_baseline_image_24)
             .centerInside()
             .into(holder.bookImg)
-        holder.moreBT.setOnClickListener{
-            listener?.onMoreClick(items[position], it )
+        holder.deleteBT.setOnClickListener{
+            holder.swipeLayoutRight.close(true)
+            listener?.onDeleteClick(items[position], it )
         }
+        holder.swipeLayoutRight.setSwipeListener(object :SwipeRevealLayout.SwipeListener{
+            override fun onClosed(view: SwipeRevealLayout?) {
+                holder.swipeLayoutLeft.setLockDrag(false)
+            }
+            override fun onSlide(view: SwipeRevealLayout?, slideOffset: Float) {
+                holder.swipeLayoutLeft.setLockDrag(true)
+            }
+            override fun onOpened(view: SwipeRevealLayout?) {}
+        })
+
+        holder.swipeLayoutLeft.setSwipeListener(object :SwipeRevealLayout.SwipeListener{
+            override fun onClosed(view: SwipeRevealLayout?) {
+                holder.swipeLayoutRight.setLockDrag(false)
+            }
+            override fun onSlide(view: SwipeRevealLayout?, slideOffset: Float) {
+                holder.swipeLayoutRight.setLockDrag(true)
+            }
+            override fun onOpened(view: SwipeRevealLayout?) {}
+        })
+    }
+
+    fun saveStates(outState:Bundle){
+        viewBinderHelperRight.saveStates(outState)
+        viewBinderHelperLeft.saveStates(outState)
+    }
+    fun restoreStates(outState:Bundle){
+        viewBinderHelperRight.restoreStates(outState)
+        viewBinderHelperLeft.restoreStates(outState)
     }
 }
+
+

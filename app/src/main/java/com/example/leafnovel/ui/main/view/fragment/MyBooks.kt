@@ -97,6 +97,10 @@ class MyBooks : Fragment(), StoredBookAdapter.OnItemClickListener {
         this.startActivity(intent)
     }
 
+    override fun onDeleteClick(sbBook: StoredBook, view: View) {
+        viewModel.delete(sbBook)
+    }
+
     override fun onMoreClick(sbBook: StoredBook, view: View) {
         val popupMenu = PopupMenu(context, view)
         popupMenu.inflate(R.menu.mybook_more_menu)
@@ -146,5 +150,22 @@ class MyBooks : Fragment(), StoredBookAdapter.OnItemClickListener {
 //            super.getItemOffsets(outRect, view, parent, state)
 //        }
 //    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        if(storedBookAdapter!=null){
+            storedBookAdapter.saveStates(outState)
+        }
+    }
+
+
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        super.onViewStateRestored(savedInstanceState)
+        if(storedBookAdapter!=null){
+            if (savedInstanceState != null) {
+                storedBookAdapter.restoreStates(savedInstanceState)
+            }
+        }
+    }
 
 }

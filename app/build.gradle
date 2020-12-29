@@ -100,4 +100,6 @@ dependencies {
 
 //    circle conner imageview
     implementation "com.rishabhharit.roundedimageview:RoundedImageView:0.8.4"
+//  recyclerview swipemenuview
+    implementation "com.chauthai.swipereveallayout:swipe-reveal-layout:1.4.1"
 }
