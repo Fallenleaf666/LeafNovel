@@ -6,12 +6,15 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
+import java.util.concurrent.Executor
+import java.util.concurrent.LinkedBlockingQueue
+import java.util.concurrent.ThreadPoolExecutor
+import java.util.concurrent.TimeUnit
 
 
 class NovelApi {
     companion object {
-        const val TAG = "NovelApi"
-        fun requestChapterText(url: String, bookChTitle: String, bookTitle: String): String {
+        fun requestChapterText(url: String, bookChTitle: String, bookTitle: String): String{
             val doc: Document = Jsoup.connect("https://tw.uukanshu.com$url").get()
             val contentBox: Element = doc.getElementById("contentbox")
             contentBox.children().select("div.ad_content").remove()
@@ -25,6 +28,7 @@ class NovelApi {
 //            print(dataText)
             return dataText
         }
+        const val TAG = "NovelApi"
 
         fun requestSearchNovel(searchContent: String): BooksResults {
 //            val doc : Document = Jsoup.connect("https://t.uukanshu.com/search.aspx?k="+searchContent)
@@ -147,16 +151,38 @@ class NovelApi {
             return bookMap
         }
 
-        fun downloadBookChapter(bookDownloadInfo: BookDownloadInfo): ArrayList<StoredChapter> {
-            val chapters = bookDownloadInfo.download
-            val bookTitle = bookDownloadInfo.bookName
-            val bookId = bookDownloadInfo.bookId
-            val chapterContents = arrayListOf<StoredChapter>()
-            for (i in chapters) {
-                val chapterContentText = requestChapterText(i.chUrl, i.chtitle, bookTitle)
-                chapterContents.add(StoredChapter(bookId, i.chtitle, chapterContentText, i.chIndex, 0, false))
-            }
-            return chapterContents
-        }
+//        fun downloadBookChapter(bookDownloadInfo: BookDownloadInfo): ArrayList<StoredChapter> {
+//            val chapters = bookDownloadInfo.download
+//            val bookTitle = bookDownloadInfo.bookName
+//            val bookId = bookDownloadInfo.bookId
+//            val chapterContents = arrayListOf<StoredChapter>()
+//            for (i in chapters) {
+//                val chapterContentText = requestChapterText(i.chUrl, i.chtitle, bookTitle)
+//                chapterContents.add(StoredChapter(bookId, i.chtitle, chapterContentText, i.chIndex, 0, false))
+//            }
+//            return chapterContents
+//        }
+
+//        fun downloadBookChapterBeta(singleBookDownloadInfo: SingleBookDownloadInfo): StoredChapter {
+//            val bookChapter = singleBookDownloadInfo.bookChapter
+//            val bookTitle = singleBookDownloadInfo.bookName
+//            val bookId = singleBookDownloadInfo.bookId
+//            val chapterContentText = requestChapterText(bookChapter.chUrl, bookChapter.chtitle, bookTitle)
+//            return StoredChapter(bookId, bookChapter.chtitle, chapterContentText, bookChapter.chIndex, 0, false)
+//        }
+
+//        fun downloadBookChapterThread(bookDownloadInfo: BookDownloadInfo): ArrayList<StoredChapter> {
+//            val chapters = bookDownloadInfo.download
+//            val bookTitle = bookDownloadInfo.bookName
+//            val bookId = bookDownloadInfo.bookId
+//            val chapterContents = arrayListOf<StoredChapter>()
+//            for (i in chapters) {
+//                Executor{
+//                    val chapterContentText = requestChapterText(i.chUrl, i.chtitle, bookTitle)
+//                    chapterContents.add(StoredChapter(bookId, i.chtitle, chapterContentText, i.chIndex, 0, false))
+//                }
+//            }
+//            return chapterContents
+//        }
     }
 }

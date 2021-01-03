@@ -10,10 +10,7 @@ import com.example.leafnovel.data.DownloadNovelService
 import com.example.leafnovel.data.api.NovelApi
 import com.example.leafnovel.data.model.*
 import com.example.leafnovel.data.repository.Repository
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 
 import kotlin.coroutines.CoroutineContext
 
@@ -40,7 +37,7 @@ class BookDetailViewModel(context: Context, storedBook: StoredBook, repository: 
             val bookChResults = NovelApi.requestChapterList(mStoredBook.bookid)
             bookChapterList.postValue(bookChResults)
         }
-        chaptersIndexSaved = repository.queryBookChpapterIndexes(mStoredBook.bookid)
+        chaptersIndexSaved = repository.queryBookChapterIndexes(mStoredBook.bookid)
         bookLastReadInfo = repository.getLastReadProgress(mStoredBook.bookid)
     }
 
@@ -49,6 +46,11 @@ class BookDetailViewModel(context: Context, storedBook: StoredBook, repository: 
             bookOtherInformation.postValue(mRepository.requestNovelDetail(mStoredBook.bookid, mStoredBook.bookname))
         }
     }
+//    suspend fun getBookDetail2() =
+//        withContext(Dispatchers.IO){
+//            mRepository.requestNovelDetail(mStoredBook.bookid, mStoredBook.bookname)
+//        }
+
 
     fun storedBook() {
         scope.launch(Dispatchers.IO) {
@@ -80,5 +82,24 @@ class BookDetailViewModel(context: Context, storedBook: StoredBook, repository: 
                 mContext.startService(intent)
             }
         }
+    }
+
+    fun downLoadOneThreadChapter(bookInfo: BookDownloadInfo?) {
+//        Toast.makeText(mContext, "開始下載", Toast.LENGTH_SHORT).show()
+        scope.launch(Dispatchers.IO) {
+            bookInfo?.let {
+                val intent = Intent().apply {
+                    setClass(mContext, DownloadNovelService()::class.java)
+                    putExtra("bookDownloadInfo", bookInfo)
+                    action = DownloadNovelService.DOWNLOAD_SINGLE_ACTION
+                }
+                mContext.startService(intent)
+            }
+        }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        parentJob.cancel()
     }
 }

@@ -99,6 +99,7 @@ class BookDirectoryFragment : Fragment(), BookChapterAdapter.OnItemClickListener
         viewModel?.bookChapterList?.observe(viewLifecycleOwner,{ bookChResults->
             adapter.setItems(bookChResults, this)
         })
+//        追蹤儲存章節的變化
         viewModel?.chaptersIndexSaved?.observe(viewLifecycleOwner,{ indexes->
             adapter.setSavedIndex(indexes)
         })
@@ -158,7 +159,23 @@ class BookDirectoryFragment : Fragment(), BookChapterAdapter.OnItemClickListener
         when(item?.itemId){
             R.id.action_multi_selected_download->{
 //                Toast.makeText(context,selectedBookChapterItems.toString(),Toast.LENGTH_LONG).show()
-                if(actionMode == null) actionMode = parentActivity?.startSupportActionMode(this@BookDirectoryFragment)
+//                if(actionMode == null) actionMode = parentActivity?.startSupportActionMode(this@BookDirectoryFragment)
+                if(bookId!="" && bookName!=""){
+                    tracker?.let {
+                        val bookTransInfo = BookDownloadInfo(bookName,bookId, it.selection.toList())
+                        viewModel?.downLoadChapter(bookTransInfo)
+                    }
+                }
+                actionMode?.finish()
+            }
+            R.id.action_multi_selected_Onedownload->{
+                if(bookId!="" && bookName!=""){
+                    tracker?.let {
+                        val bookTransInfo = BookDownloadInfo(bookName,bookId, it.selection.toList())
+                        viewModel?.downLoadOneThreadChapter(bookTransInfo)
+                    }
+                }
+                actionMode?.finish()
             }
         }
         return true
@@ -211,11 +228,27 @@ class BookDirectoryFragment : Fragment(), BookChapterAdapter.OnItemClickListener
         popupMenu.inflate(R.menu.chapter_more_menu)
         popupMenu.setOnMenuItemClickListener { item: MenuItem ->
             when (item.itemId) {
+//                R.id.chapterDownload -> {
+//                    if(bookId!="" && bookName!=""){
+//                        val chapterDownloadInfo = BookChapter(bookCh.chIndex, bookCh.chtitle, bookCh.chUrl)
+//                    val bookTransInfo = BookDownloadInfo(bookName,bookId, listOf(chapterDownloadInfo))
+//                        viewModel?.downLoadChapter(bookTransInfo)
+//                    }
+//                }
                 R.id.chapterDownload -> {
                     if(bookId!="" && bookName!=""){
-                        val chapterDownloadInfo = BookChapter(bookCh.chIndex, bookCh.chtitle, bookCh.chUrl)
-                    val bookTransInfo = BookDownloadInfo(bookName,bookId, listOf(chapterDownloadInfo))
-                        viewModel?.downLoadChapter(bookTransInfo)
+                        tracker?.let {
+                            val bookTransInfo = BookDownloadInfo(bookName,bookId, it.selection.toList())
+                            viewModel?.downLoadChapter(bookTransInfo)
+                        }
+                    }
+                }
+                R.id.chapterOneThreadDownload -> {
+                    if(bookId!="" && bookName!=""){
+                        tracker?.let {
+                            val bookTransInfo = BookDownloadInfo(bookName,bookId, it.selection.toList())
+                            viewModel?.downLoadOneThreadChapter((bookTransInfo))
+                        }
                     }
                 }
                 R.id.chapterMoreDownload -> {

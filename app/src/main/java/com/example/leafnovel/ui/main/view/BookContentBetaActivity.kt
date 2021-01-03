@@ -37,6 +37,7 @@ import kotlinx.android.synthetic.main.activity_book_beta_content.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlin.collections.ArrayList
 
 
@@ -116,7 +117,7 @@ class BookContentBetaActivity : AppCompatActivity(), BookChapterAdapter.OnItemCl
             adapter.setItems(it, this@BookContentBetaActivity)
         } ?: CoroutineScope(Dispatchers.IO).launch {
             val bookChResults = NovelApi.requestChapterList(bookId)
-            launch(Dispatchers.Main) {
+            withContext(Dispatchers.Main) {
                 adapter.setItems(bookChResults, this@BookContentBetaActivity)
             }
         }

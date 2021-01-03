@@ -16,7 +16,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent">
             <ImageButton
-                    android:layout_width="70dp"
+                    android:layout_width="60dp"
                     android:layout_height="match_parent" android:src="@drawable/ic_baseline_delete_24"
                     android:id="@+id/StoredBookDeleteBT" android:background="#CDF42121"/>
         </LinearLayout>
@@ -37,14 +37,16 @@
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent">
                     <ImageButton
-                            android:layout_width="70dp"
-                            android:layout_height="match_parent" android:src="@drawable/ic_baseline_delete_24"
-                            android:id="@+id/StoredSpecialBT" android:background="#4FC3F7"/>
+                            android:layout_width="60dp"
+                            android:layout_height="match_parent" android:src="@drawable/ic_pin"
+                            android:id="@+id/StoredSpecialBT" android:background="#4FC3F7"
+                            android:scaleType="centerInside" android:adjustViewBounds="false"
+                            android:cropToPadding="false"/>
                 </LinearLayout>
             </FrameLayout>
             <FrameLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    android:layout_height="match_parent" android:id="@+id/BookInfoView">
                 <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent">

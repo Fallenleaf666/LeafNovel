@@ -96,4 +96,32 @@
     </style>
 
 
+    <style name="MyDownloadTheme" parent="MyAppTheme">
+        <item name="colorAccent">#5E5F60</item>
+        <item name="android:textSize">10sp</item>
+        <item name="android:textColorPrimary">@color/colorp</item>
+        <item name="android:textColorSecondary">@color/colorp</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+    </style>
+
+
+    <style name="MySettingTitleText" parent="Widget.AppCompat.TextView">
+        <item name="android:textSize">14sp</item>
+        <item name="android:maxLines">2</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">#5E5757</item>
+        <item name="android:layout_gravity">center_vertical</item>
+    </style>
+
+    <style name="MySettingSubTitleText" parent="Widget.AppCompat.TextView">
+        <item name="android:textSize">10sp</item>
+        <item name="android:maxLines">2</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">#706868</item>
+        <item name="android:layout_gravity">center_vertical</item>
+    </style>
+
+
 </resources>

@@ -1,18 +1,30 @@
 package com.example.leafnovel.data.repository
 
+import android.util.Log
 import com.example.leafnovel.data.api.NovelApi
 import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
 import com.example.leafnovel.data.database.StoredBookDao
 import com.example.leafnovel.data.model.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.*
+import java.util.concurrent.Executor
+import java.util.concurrent.ThreadPoolExecutor
 
 //  for room crud operation
 class Repository constructor(private val sbBooksDao: StoredBookDao) {
+    companion object{
+        const val TAG = "Repository"
+    }
     val allStoredBooks : LiveData<List<StoredBook>> = sbBooksDao.getAll()
 
     @WorkerThread
-    fun insert(storedbook: StoredBook){
-        sbBooksDao.insert(storedbook)
+    fun insert(storedBook: StoredBook){
+        sbBooksDao.insert(storedBook)
     }
 
     @WorkerThread
@@ -37,24 +49,50 @@ class Repository constructor(private val sbBooksDao: StoredBookDao) {
     }
 
     @WorkerThread
-    fun queryBookChpapterIndexes(bookId:String):LiveData<List<ChapterIndex>>{
+    fun queryBookChapterIndexes(bookId:String):LiveData<List<ChapterIndex>>{
         return sbBooksDao.queryBookChpapterIndexes(bookId)
     }
     @WorkerThread
-    fun deletdAll(){
+    fun deleteAll(){
         sbBooksDao.deleteAll()
     }
     @WorkerThread
-    fun delete(storedbook: StoredBook){
-        sbBooksDao.delete(storedbook)
+    fun deleteAllChapter(){
+        sbBooksDao.deleteAllChapter()
+    }
+    @WorkerThread
+    fun delete(storedBook: StoredBook){
+        sbBooksDao.delete(storedBook)
     }
 
-    @WorkerThread
-    fun downloadBookChapter(bookIdDownloadInfo:BookDownloadInfo){
-        for(i in NovelApi.downloadBookChapter(bookIdDownloadInfo)){
-            sbBooksDao.saveChapter(i)
-        }
-    }
+//    @WorkerThread
+//    fun downloadBookChapter(bookIdDownloadInfo:BookDownloadInfo){
+//        Log.d(TAG,"-----------NotOneThread-----------")
+//        val beforeTime = SimpleDateFormat("yyyy.MM.dd HH:mm:ss").format(Date(System.currentTimeMillis()))
+//        var tempTime = ""
+//        Log.d(TAG,"before$beforeTime")
+//        for(i in NovelApi.downloadBookChapterThread(bookIdDownloadInfo)){
+//                tempTime = SimpleDateFormat("yyyy.MM.dd HH:mm:ss").format(Date(System.currentTimeMillis()))
+//                sbBooksDao.saveChapter(i)
+//                Log.d(TAG,"$i $tempTime")
+//        }
+//        val afterTime = SimpleDateFormat("yyyy.MM.dd HH:mm:ss").format(Date(System.currentTimeMillis()))
+//        Log.d(TAG,"after $afterTime")
+//        Log.d(TAG,"-----------NotOneThread-----------")
+//    }
+
+//    @WorkerThread
+//    fun downloadBookChapterBeta(bookIdDownloadInfo:BookDownloadInfo){
+//        val bookName = bookIdDownloadInfo.bookName
+//        val bookId = bookIdDownloadInfo.bookId
+//        val downloadChaptersList = bookIdDownloadInfo.download
+//        Log.d(TAG,"-----------OneThread-----------")
+//        for(i in downloadChaptersList){
+//            val chapterContentText = NovelApi.requestChapterText(i.chUrl,i.chtitle, bookName)
+//            sbBooksDao.saveChapter(StoredChapter(bookId, i.chtitle, chapterContentText, i.chIndex, 0, false))
+//        }
+//        Log.d(TAG,"-----------OneThread-----------")
+//    }
 
     @WorkerThread
     fun getSearchBooks(searchKey:String): BooksResults {

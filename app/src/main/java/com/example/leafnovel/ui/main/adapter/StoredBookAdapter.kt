@@ -7,6 +7,7 @@ import com.example.leafnovel.R
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
@@ -45,6 +46,7 @@ class StoredBookAdapter() : RecyclerView.Adapter<StoredBookAdapter.StoredBookVie
     }
 
     inner class StoredBookViewHolder(view: View) : RecyclerView.ViewHolder(view), View.OnClickListener {
+        private val bookInfoView: FrameLayout = view.BookInfoView
         val swipeLayoutRight:SwipeRevealLayout = view.SwipeLayoutViewRight
         val swipeLayoutLeft:SwipeRevealLayout = view.SwipeLayoutViewLeft
         val author: TextView = view.MyBookAuthor
@@ -53,15 +55,15 @@ class StoredBookAdapter() : RecyclerView.Adapter<StoredBookAdapter.StoredBookVie
         val bookNewChapter: TextView = view.NewChapter
         val bookImg: RoundedImageView = view.MyBookImgView
         val deleteBT: ImageButton = view.StoredBookDeleteBT
+        val pinningBT: ImageButton = view.StoredSpecialBT
         init {
-            view.setOnClickListener(this)
+            bookInfoView.setOnClickListener(this)
         }
 
         override fun onClick(p0: View?) {
             val position = adapterPosition
             if (position != RecyclerView.NO_POSITION) {
                 val tempBook = items[position]
-//                listener?.onItemClick(tempBook)
                 p0?.let { listener?.onItemClick(tempBook, it) }
             }
         }
@@ -70,7 +72,7 @@ class StoredBookAdapter() : RecyclerView.Adapter<StoredBookAdapter.StoredBookVie
     interface OnItemClickListener {
         fun onItemClick(sbBook: StoredBook, view:View)
         fun onDeleteClick(sbBook: StoredBook, view:View)
-        fun onMoreClick(sbBook: StoredBook, view:View)
+        fun onPinningClick(sbBook: StoredBook, view:View)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StoredBookViewHolder {
@@ -98,6 +100,10 @@ class StoredBookAdapter() : RecyclerView.Adapter<StoredBookAdapter.StoredBookVie
         holder.deleteBT.setOnClickListener{
             holder.swipeLayoutRight.close(true)
             listener?.onDeleteClick(items[position], it )
+        }
+        holder.pinningBT.setOnClickListener{
+            holder.swipeLayoutLeft.close(true)
+            listener?.onPinningClick(items[position], it )
         }
         holder.swipeLayoutRight.setSwipeListener(object :SwipeRevealLayout.SwipeListener{
             override fun onClosed(view: SwipeRevealLayout?) {

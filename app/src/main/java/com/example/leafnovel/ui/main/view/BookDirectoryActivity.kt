@@ -14,6 +14,7 @@ import kotlinx.android.synthetic.main.activity_book_directory.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class BookDirectoryActivity : AppCompatActivity(), BookChapterAdapter.OnItemClickListener {
     val adapter = BookChapterAdapter()
@@ -43,7 +44,7 @@ class BookDirectoryActivity : AppCompatActivity(), BookChapterAdapter.OnItemClic
             val bookChResults = NovelApi.requestChapterList(bookId)
             transBookChResults = bookChResults
 //            Log.d(TAG,"onCreate:${bookResults.size}")
-            launch(Dispatchers.Main) {
+            withContext(Dispatchers.Main) {
                 adapter.setItems(bookChResults, this@BookDirectoryActivity)
             }
         }

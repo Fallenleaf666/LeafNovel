@@ -33,6 +33,9 @@ interface StoredBookDao{
     @Query(value = "delete from storedBook")
     fun deleteAll()
 
+    @Query(value = "delete from StoredChapter")
+    fun deleteAllChapter()
+
     @Delete
     fun delete(storedbook: StoredBook)
 

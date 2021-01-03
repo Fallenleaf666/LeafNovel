@@ -13,6 +13,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
 import android.widget.TextView
+import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -101,16 +102,17 @@ class MyBooks : Fragment(), StoredBookAdapter.OnItemClickListener {
         viewModel.delete(sbBook)
     }
 
-    override fun onMoreClick(sbBook: StoredBook, view: View) {
-        val popupMenu = PopupMenu(context, view)
-        popupMenu.inflate(R.menu.mybook_more_menu)
-        popupMenu.setOnMenuItemClickListener { item: MenuItem ->
-            when (item.itemId) {
-                R.id.menuBookDelete -> viewModel.delete(sbBook)
-            }
-            true
-        }
-        popupMenu.show()
+    override fun onPinningClick(sbBook: StoredBook, view: View) {
+        Toast.makeText(context,"已將\"${sbBook.bookname}\"釘選",Toast.LENGTH_SHORT).show()
+//        val popupMenu = PopupMenu(context, view)
+//        popupMenu.inflate(R.menu.mybook_more_menu)
+//        popupMenu.setOnMenuItemClickListener { item: MenuItem ->
+//            when (item.itemId) {
+//                R.id.menuBookDelete -> viewModel.delete(sbBook)
+//            }
+//            true
+//        }
+//        popupMenu.show()
     }
 
 

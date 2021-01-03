@@ -62,8 +62,26 @@ data class BookDownloadInfo(
 //):Parcelable{
 //}
 
+@Parcelize
+data class SingleBookDownloadInfo(
+    var bookName: String,
+    var bookId: String,
+    var bookChapter: BookChapter
+):Parcelable
+
 data class ChapterIndex(
     @ColumnInfo(name = "index")val index:Int?
 )
 
 
+@Parcelize
+data class ChapterDownloadResult(
+    var chIndex: Int,
+    var chtitle: String,
+    var chUrl: String,
+    var state:ChapterDownloadState
+):Parcelable{}
+
+enum class ChapterDownloadState {
+    SUCCESS,FAIL,STOP
+}

@@ -15,14 +15,13 @@ import com.example.leafnovel.R
 import com.example.leafnovel.data.model.ChapterIndex
 import kotlinx.android.synthetic.main.row_bookchapter.view.*
 
-class BookChapterAdapter : RecyclerView.Adapter<BookChapterAdapter.BookChViewHolder>() {
+class MyDownloadAdapter : RecyclerView.Adapter<MyDownloadAdapter.BookChViewHolder>() {
     private val items = ArrayList<BookChapter>()
     private var listener: OnItemClickListener? = null
 
     private var thisPosition: Int? = null
     private var savedChapterIndexes: List<ChapterIndex>? = null
     private var isPostiveOrder: Boolean = true
-    private var indexesList: ArrayList<Int> = ArrayList()
 
     var tracker: SelectionTracker<BookChapter>? = null
     fun getThisPosition(): Int? {
@@ -35,12 +34,6 @@ class BookChapterAdapter : RecyclerView.Adapter<BookChapterAdapter.BookChViewHol
         listener = itemClickListener
         notifyDataSetChanged()
     }
-//    fun updateItem(bookChs: ArrayList<BookChapter>) {
-//        items.clear()
-//        items.addAll(bookChs)
-//        listener = itemClickListener
-//        notifyDataSetChanged()
-//    }
 
     fun getSpecialItems(startIndex: Int, endIndex: Int): List<BookChapter> {
         val tempList = ArrayList<BookChapter>()
@@ -50,22 +43,11 @@ class BookChapterAdapter : RecyclerView.Adapter<BookChapterAdapter.BookChViewHol
         return tempList.toList()
     }
 
-//    正反序還沒確定
     fun setSavedIndex(indexes: List<ChapterIndex>) {
-//    savedChapterIndexes = indexes
-//    for (i in indexes) {
-//        i.index?.let { notifyItemChanged(it) }
-//    }
-    savedChapterIndexes = if(isPostiveOrder){ indexes }else{
-        indexes.map { ChapterIndex( it.index?.let { mIndex->items.size -1 - mIndex })}
-    }
-    savedChapterIndexes?.let {
-        for (i in it) {
-            i.index?.let {i2->
-                notifyItemChanged(i2)
-            }
+        savedChapterIndexes = indexes
+        for (i in indexes) {
+            i.index?.let { notifyItemChanged(it) }
         }
-    }
     }
 
     fun reversedItems(isReverseOrder: Boolean) {

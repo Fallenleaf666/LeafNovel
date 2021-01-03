@@ -7,3 +7,9 @@ interface BatteryChangeHelper {
 interface SystemTimeHelper {
     fun updateTime()
 }
+
+interface NotificationHelper{
+    fun onCall():Boolean{
+        return false
+    }
+}
