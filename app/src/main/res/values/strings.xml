@@ -11,4 +11,18 @@
     <string name="tab_text_2">Tab 2</string>
     <string name="multiselecte_download">多選下載</string>
     <string name="novel_loadmore">NOVEL_LOADMORE</string>
+    <string name="developerEmail">yeh19980001@gmail.com</string>
+    <string name="ALERT_WEBCONNECT_STATE">請確認當前連線狀態！</string>
+    <string name="novel_title_hide">NOVELTITLEHIDE</string>
+    <string name="please_check_net_connect_state">請確認當前連線狀態</string>
+    <string name="db_no_data">DB Has No Data</string>
+    <string-array name="email_problem_type">
+        <item>Bug回報</item>
+        <item>意見提供</item>
+        <item>其他</item>
+    </string-array>
+    <drawable name="bg_color1">@color/bgcolor1</drawable>
+    <drawable name="bg_color2">@color/bgcolor2</drawable>
+    <drawable name="bgMorning">@color/bgMorning</drawable>
+    <drawable name="bgNight">@color/bgNight</drawable>
 </resources>

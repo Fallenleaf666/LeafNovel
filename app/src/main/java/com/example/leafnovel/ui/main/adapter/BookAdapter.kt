@@ -58,11 +58,11 @@ class BookAdapter() : RecyclerView.Adapter<BookViewHolder>() {
     }
 
     override fun onBindViewHolder(holder: BookViewHolder, position: Int) {
-        holder.author.setText(items.get(position).author)
-        holder.booktitle.setText(items.get(position).booktitle)
+        holder.author.text = items[position].author
+        holder.booktitle.text = items[position].booktitle
 //        holder.bookUrl.setText(items.get(position).bookUrl)
 //        holder.updateTime.setText(items.get(position).updateTime)
-        holder.bookDescripe.setText(items.get(position).bookDescripe)
+        holder.bookDescripe.text = items[position].bookDescripe
     }
 
     override fun getItemCount(): Int = items.size

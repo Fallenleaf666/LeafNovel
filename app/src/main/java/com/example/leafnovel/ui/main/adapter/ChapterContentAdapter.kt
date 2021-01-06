@@ -6,6 +6,7 @@ import com.example.leafnovel.R
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
@@ -19,6 +20,7 @@ class ChapterContentAdapter() : RecyclerView.Adapter<ChapterContentAdapter.Chapt
     private var items = arrayListOf<ChapterContentBeta>()
     private var fontSize = 16f
     private var isUiModeNight = false
+    private var isTitleHidden = false
     private var listener: OnItemClickListener? = null
     private var context : Context? = null
     constructor(_mContext: Context) : this(){
@@ -44,7 +46,7 @@ class ChapterContentAdapter() : RecyclerView.Adapter<ChapterContentAdapter.Chapt
     inner class ChapterContentAdapterViewHolder(view: View) : RecyclerView.ViewHolder(view), View.OnClickListener {
         val chapterTitle: TextView = view.row_chapter_title
         val chapterContent: TextView = view.row_chapter_content
-        val chapterContentView: ConstraintLayout = view.row_chapter_content_view
+        val chapterContentView: LinearLayout = view.row_chapter_content_view
         init {
             view.setOnClickListener(this)
         }
@@ -63,14 +65,22 @@ class ChapterContentAdapter() : RecyclerView.Adapter<ChapterContentAdapter.Chapt
         fun setUiByDayNightMode(isUiModeNight:Boolean) {
             if (isUiModeNight) {
                 context?.let {
-                chapterTitle.setTextColor(ContextCompat.getColor(it, R.color.fontNight))
-                chapterContent.setTextColor(ContextCompat.getColor(it, R.color.fontNight))
+                    chapterTitle.setTextColor(ContextCompat.getColor(it, R.color.fontNight))
+                    chapterContent.setTextColor(ContextCompat.getColor(it, R.color.fontNight))
                 }
             } else {
                 context?.let {
-                chapterTitle.setTextColor(ContextCompat.getColor(it, R.color.fontMorning))
-                chapterContent.setTextColor(ContextCompat.getColor(it, R.color.fontMorning))
+                    chapterTitle.setTextColor(ContextCompat.getColor(it, R.color.fontMorning))
+                    chapterContent.setTextColor(ContextCompat.getColor(it, R.color.fontMorning))
                 }
+            }
+        }
+
+        fun setTitleHidden(isTitleHidden: Boolean) {
+            if (!isTitleHidden) {
+                chapterTitle.visibility = View.VISIBLE
+            } else {
+                chapterTitle.visibility = View.GONE
             }
         }
     }
@@ -93,21 +103,29 @@ class ChapterContentAdapter() : RecyclerView.Adapter<ChapterContentAdapter.Chapt
         }
         holder.setFontSize(fontSize)
         holder.setUiByDayNightMode(isUiModeNight)
+        holder.setTitleHidden(isTitleHidden)
     }
     fun setFontSize(fontSize:Float) {
         this.fontSize = fontSize
         notifyDataSetChanged()
     }
-    fun getFontSize():Float {
+
+    fun getFontSize(): Float {
         return this.fontSize
     }
-    fun setUiByDayNightMode(isUiModeNight:Boolean) {
+
+    fun setUiByDayNightMode(isUiModeNight: Boolean) {
         this.isUiModeNight = isUiModeNight
         notifyDataSetChanged()
     }
 
+    fun setTitleHidden(isTitleHidden: Boolean) {
+        this.isTitleHidden = isTitleHidden
+        notifyDataSetChanged()
+    }
 
-    fun refresh(){
+
+    fun refresh() {
 //        TODO 刷新
     }
 }

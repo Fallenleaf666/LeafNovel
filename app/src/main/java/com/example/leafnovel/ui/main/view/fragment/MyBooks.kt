@@ -33,6 +33,7 @@ class MyBooks : Fragment(), StoredBookAdapter.OnItemClickListener {
         val newInstance: MyBooks by lazy {
             MyBooks()
         }
+//        var isCreate = true
     }
 
     lateinit var mLinearLayoutManager: LinearLayoutManager
@@ -50,17 +51,19 @@ class MyBooks : Fragment(), StoredBookAdapter.OnItemClickListener {
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
         val view = layoutInflater.inflate(R.layout.fragment_my_books, container, false)
-
         return view
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        storedBookAdapter = activity?.applicationContext?.let { StoredBookAdapter(it) } ?: StoredBookAdapter()
-        initUI()
-        initUiLister()
-        loadingMore()
+//        if (isCreate) {
+            storedBookAdapter = activity?.applicationContext?.let { StoredBookAdapter(it) } ?: StoredBookAdapter()
+            initUI()
+            initUiLister()
+            loadingMore()
+//            isCreate = false
 //        currentChapter = 1
+//        }
     }
 
     private fun loadingMore() {

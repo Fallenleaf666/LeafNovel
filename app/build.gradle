@@ -102,4 +102,8 @@ dependencies {
     implementation "com.rishabhharit.roundedimageview:RoundedImageView:0.8.4"
 //  recyclerview swipemenuview
     implementation "com.chauthai.swipereveallayout:swipe-reveal-layout:1.4.1"
+
+//    javamail API
+    implementation "com.sun.mail:android-mail:1.6.2"
+    implementation "com.sun.mail:android-activation:1.6.2"
 }

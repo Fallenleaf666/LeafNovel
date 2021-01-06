@@ -61,7 +61,10 @@ class BookIntroduceFragment : Fragment() {
 
     private fun setObserver() {
         viewModel?.bookOtherInformation?.observe(viewLifecycleOwner,{bookInfo->
-            NewChapterText.text = bookInfo["newChapter"]
+//            NewChapterText.text = bookInfo["newChapter"]
+            bookInfo["newChapter"]?.let{
+                NewChapterText.text = if(it.length<=9)it else it.subSequence(0,9).toString() + "..."
+            }
             UpdateTimeText.text = bookInfo["updateTime"]
             Book_DescripeView.text = bookInfo["bookDescripe"]
             val novelState = bookInfo["novelState"]

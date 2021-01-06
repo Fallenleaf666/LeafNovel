@@ -5,11 +5,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.leafnovel.data.model.Book
 import com.example.leafnovel.data.database.StoredBookDB
+import com.example.leafnovel.data.model.BooksResults
 import com.example.leafnovel.data.repository.Repository
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import kotlin.coroutines.CoroutineContext
 
 class SearchBookViewModel(context: Context): ViewModel() {
@@ -36,6 +34,9 @@ class SearchBookViewModel(context: Context): ViewModel() {
         }
         return searchBooksResults
     }
+
+
+
     override fun onCleared() {
         super.onCleared()
         parentJob.cancel()

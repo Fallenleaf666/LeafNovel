@@ -10,9 +10,11 @@ import android.provider.Settings
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
+import android.widget.LinearLayout
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
@@ -23,6 +25,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.leafnovel.R
+import com.example.leafnovel.checkNetConnect
 import com.example.leafnovel.data.api.NovelApi
 import com.example.leafnovel.data.model.BookChapter
 import com.example.leafnovel.data.model.ChapterContentBeta
@@ -50,6 +53,10 @@ class BookContentBetaActivity : AppCompatActivity(), BookChapterAdapter.OnItemCl
     val preference: SharedPreferences by lazy { getSharedPreferences("UiSetting", Context.MODE_PRIVATE) }
 
     var isNotLoading = true
+    //是否自動讀取下一章
+    var isLoadingMore = true
+    //是否隱藏標題
+    var isHiddenTitle = false
 
     //目錄適配器
     val adapter = BookChapterAdapter()
@@ -111,7 +118,7 @@ class BookContentBetaActivity : AppCompatActivity(), BookChapterAdapter.OnItemCl
         bookId = intent.getStringExtra("BOOK_ID") ?: ""
         bookTitle = intent.getStringExtra("BOOK_TITLE") ?: ""
 
-//        填入目錄內容
+        //填入目錄內容
         allChapters = intent.getParcelableArrayListExtra<BookChapter>("NOVEL_CHAPTERS")
         allChapters?.let {
             adapter.setItems(it, this@BookContentBetaActivity)
@@ -126,10 +133,14 @@ class BookContentBetaActivity : AppCompatActivity(), BookChapterAdapter.OnItemCl
             this, BookContentViewModelFactory(applicationContext, tempBookChapter, allChapters!!, bookTitle, bookId)
         ).get(BookContentBetaViewModel::class.java)
 
+        //取得裝置顯示RecycleView之高度
         Handler().post{
             pageHeight = ChapterContentRecycleView.height
             Log.d(TAG,"HOLDER$pageHeight")
         }
+        isLoadingMore = preference.getBoolean(getString(R.string.novel_loadmore),true)
+        isHiddenTitle = preference.getBoolean(getString(R.string.novel_title_hide),false)
+
     }
 
     private fun setObserver() {
@@ -167,7 +178,7 @@ class BookContentBetaActivity : AppCompatActivity(), BookChapterAdapter.OnItemCl
 
     }
 
-    //    TODO 更新頁面
+    //TODO 更新頁面
     private val refreshListener = SwipeRefreshLayout.OnRefreshListener {
         viewModel.refresh()
         Handler().postDelayed({
@@ -184,12 +195,11 @@ class BookContentBetaActivity : AppCompatActivity(), BookChapterAdapter.OnItemCl
     }
 
     override fun onMoreClick(bookCh: BookChapter, position: Int, view: View) {
-//        TODO("Not yet implemented")
+    //TODO("Not yet implemented")
     }
 
     private fun setUI() {
-//內文
-
+        //內文
         NowLookChapter.text = chTitle
         val decoration = DividerItemDecoration(this, DividerItemDecoration.VERTICAL)
         ContextCompat.getDrawable(this, R.drawable.chapter_item_decoration)?.let {
@@ -202,29 +212,33 @@ class BookContentBetaActivity : AppCompatActivity(), BookChapterAdapter.OnItemCl
             adapter = chapterContentAdapter
             addItemDecoration(decoration)
         }
-//目錄
+        //目錄
         BookChRecyclerView.apply {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(this@BookContentBetaActivity)
             adapter = this@BookContentBetaActivity.adapter
         }
-//取得字體大小
+        //取得字體大小，預設為16sp
         val fontSize = preference.getFloat(getString(R.string.novel_fontsize), 16F)
         chapterContentAdapter.setFontSize(fontSize)
-//取得當前日夜模式
+        //是否在內文隱藏標題，預設為顯示
+        chapterContentAdapter.setTitleHidden(preference.getBoolean(getString(R.string.novel_title_hide),false))
+        //取得當前日夜模式
         chapterContentAdapter.setUiByDayNightMode(checkUiModeNight())
         if (checkUiModeNight()) {
-            BackgroundView.setBackgroundResource(R.color.bgNight)
+        //BackgroundView.setBackgroundResource(R.color.bgNight)
+            BackgroundView.setBackgroundResource(R.drawable.bgNight)
         } else {
-            val bgResId = preference.getInt(getString(R.string.novel_background), R.color.bgMorning)
+            //val bgResId = preference.getInt(getString(R.string.novel_background), R.color.bgMorning)
+            val bgResId = preference.getInt(getString(R.string.novel_background), R.drawable.bgMorning)
             BackgroundView.setBackgroundResource(bgResId)
         }
-//取得螢幕亮度
+        //取得螢幕亮度
         windowBrightness = preference.getFloat(getString(R.string.window_brightness), getSysWindowBrightness())
-//        if windowBrightness not default it will in 0 ~ 1
+        //if windowBrightness not default it will in 0 ~ 1
         LightSeekBar.progress = if (windowBrightness in 0.0..1.0) (windowBrightness * 100).toInt() else 0
         FontSizeSeekBar.progress = (fontSize - 10).toInt()
-//lock navigationView avoid hand slide
+        //lock navigationView avoid hand slide
         DrawerLayout.setDrawerLockMode(androidx.drawerlayout.widget.DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
 
     }
@@ -247,16 +261,20 @@ class BookContentBetaActivity : AppCompatActivity(), BookChapterAdapter.OnItemCl
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
                 totalScrollY += dy
-                if (!ChapterContentRecycleView.canScrollVertically(1)) {
-                    viewModel.loadNextChapter()
-                    isNotLoading = false
-                    LoadMoreProgressBar.visibility = View.VISIBLE
+                if (!ChapterContentRecycleView.canScrollVertically(1) && isLoadingMore) {
+//                    if(checkNetConnect(this@BookContentBetaActivity)){
+                        viewModel.loadNextChapter()
+                        isNotLoading = false
+                        LoadMoreProgressBar.visibility = View.VISIBLE
+//                    }else{
+//                        Toast.makeText(this@BookContentBetaActivity,R.string.please_check_net_connect_state,Toast.LENGTH_SHORT).show()
+//                    }
                 }
                 layoutManager = (recyclerView.layoutManager as LinearLayoutManager)
-//                如果當前觀看的的索引與adapter的索引不同
+                //如果當前觀看的的索引與adapter的索引不同
                 if (firstVisibleIndex != layoutManager.findFirstVisibleItemPosition()) {
                     firstVisibleIndex = layoutManager.findFirstVisibleItemPosition()
-//                    更新觀看chId
+                    //更新觀看chId
                     viewModel.nowLookAtIndex.postValue(chapterContentAdapter.getChapterIdByPosition(firstVisibleIndex))
                 }
                 NowLookChapter.text = chapterContentAdapter.getChapterTitleByPosition(firstVisibleIndex)
@@ -265,23 +283,23 @@ class BookContentBetaActivity : AppCompatActivity(), BookChapterAdapter.OnItemCl
                     tempHeight[firstVisibleIndex] = layoutManager.findViewByPosition(firstVisibleIndex)?.height ?: 0
                 }
                 totalLength = ((tempHeight[firstVisibleIndex] ?: 0) + decorationHeight)/pageHeight
-//                Log.d(TAG, "totalLength${totalLength}")
+                //Log.d(TAG, "totalLength${totalLength}")
                 if (firstVisibleIndex == 0) {
                     nowLength = totalScrollY
                     readProgress = nowLength
-                    NowLookProgressiew.text = "${(nowLength)/pageHeight + 1}/${totalLength + 1}"
+                    NowLookProgressiew.text = "${nowLength/pageHeight + 1}/${totalLength + 1}"
                 } else {
                     tempValue = 0
                     for (i in 0 until firstVisibleIndex) {
-//                        ChapterContentRecycleView.decoration
+                        //ChapterContentRecycleView.decoration
                         tempValue += tempHeight[i] ?: 0
-//                        分隔線高度
+                        //分隔線高度
                         tempValue += decorationHeight
-//                        Log.d(TAG, "tempValue${tempValue}")
+                        //Log.d(TAG, "tempValue${tempValue}")
                     }
                     nowLength = totalScrollY - tempValue
                     readProgress = nowLength / totalLength
-                    NowLookProgressiew.text = "${(nowLength)/pageHeight + 1}/${totalLength + 1}"
+                    NowLookProgressiew.text = "${nowLength/pageHeight + 1}/${totalLength + 1}"
                 }
             }
         })
@@ -296,25 +314,33 @@ class BookContentBetaActivity : AppCompatActivity(), BookChapterAdapter.OnItemCl
         }
 
         LastPageBT.setOnClickListener {
-            LoadMoreProgressBar.visibility = View.VISIBLE
-            viewModel.goLastChapter()
+//            if(checkNetConnect(this)){
+                LoadMoreProgressBar.visibility = View.VISIBLE
+                viewModel.goLastChapter()
+//            }else{
+//                Toast.makeText(this,R.string.please_check_net_connect_state,Toast.LENGTH_SHORT).show()
+//            }
         }
         NextPageBT.setOnClickListener {
+//            if(checkNetConnect(this)){
             LoadMoreProgressBar.visibility = View.VISIBLE
             viewModel.goNextChapter()
+//            }else{
+//                Toast.makeText(this,R.string.please_check_net_connect_state,Toast.LENGTH_SHORT).show()
+//            }
         }
 
         FontSizeSeekBar.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
             var tempFontSizeValue = 16F
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                //                max is 25 but min is 10
+                //max is 25 but min is 10
                 tempFontSizeValue = progress.toFloat() + 10
                 chapterContentAdapter.setFontSize(tempFontSizeValue)
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
-//                更新每章高度
+                //更新每章高度
                 resetTempHeight()
                 with(preference.edit()) {
                     putFloat(getString(R.string.novel_fontsize), tempFontSizeValue).apply()
@@ -325,7 +351,7 @@ class BookContentBetaActivity : AppCompatActivity(), BookChapterAdapter.OnItemCl
         LightSeekBar.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
             var tempLightValue = preference.getFloat(getString(R.string.window_brightness), 0F)
 
-            //            var tempLightValue = 0F
+            //var tempLightValue = 0F
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 tempLightValue = progress / 100F
                 windowBrightness = tempLightValue
@@ -333,7 +359,7 @@ class BookContentBetaActivity : AppCompatActivity(), BookChapterAdapter.OnItemCl
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                //                set app window_brightness , it also can put in onDestroy
+                //set app window_brightness , it also can put in onDestroy
                 with(preference.edit()) {
                     putFloat(getString(R.string.window_brightness), tempLightValue).apply()
                 }
@@ -348,11 +374,11 @@ class BookContentBetaActivity : AppCompatActivity(), BookChapterAdapter.OnItemCl
             when (it.id) {
                 R.id.Bg_ColorBT1 -> setBackgroundRes(R.drawable.bg_paper5)
                 R.id.Bg_ColorBT3 -> setBackgroundRes(R.drawable.bg_paper2)
-                R.id.Bg_ColorBT4 -> setBackgroundRes(R.color.bgcolor1)
-                R.id.Bg_ColorBT5 -> setBackgroundRes(R.color.bgcolor2)
+                R.id.Bg_ColorBT4 -> setBackgroundRes(R.drawable.bg_color1)
+                R.id.Bg_ColorBT5 -> setBackgroundRes(R.drawable.bg_color2)
                 R.id.Bg_ColorBT6 -> setBackgroundRes(R.drawable.bg_paper1)
                 R.id.Bg_ColorBT7 -> setBackgroundRes(R.drawable.bg_paper3)
-                else -> setBackgroundRes(R.color.bgcolor1)
+                else -> setBackgroundRes(R.drawable.bg_color1)
             }
         }
     }
@@ -363,7 +389,7 @@ class BookContentBetaActivity : AppCompatActivity(), BookChapterAdapter.OnItemCl
             putInt(getString(R.string.novel_background), resId).apply()
         }
         if (checkUiModeNight()) {
-            chapterContentAdapter.setUiByDayNightMode(checkUiModeNight())
+            chapterContentAdapter.setUiByDayNightMode(!checkUiModeNight())
             with(preference.edit()) {
                 putBoolean(getString(R.string.novel_uimode), false).apply()
             }
@@ -404,17 +430,19 @@ class BookContentBetaActivity : AppCompatActivity(), BookChapterAdapter.OnItemCl
     private val bottomNavigationViewListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         when (item.itemId) {
             R.id.dayNightModeItem -> {
-//                return true -> night , false -> morning
+                //return true -> night , false -> morning
                 chapterContentAdapter.setUiByDayNightMode(!checkUiModeNight())
                 if (checkUiModeNight()) {
-                    val bgResId = preference.getInt(getString(R.string.novel_background), R.color.bgMorning)
+                    //val bgResId = preference.getInt(getString(R.string.novel_background), R.color.bgMorning)
+                    val bgResId = preference.getInt(getString(R.string.novel_background), R.drawable.bgMorning)
                     BackgroundView.setBackgroundResource(bgResId)
                     item.title = "日間模式"
                     with(preference.edit()) {
                         putBoolean(getString(R.string.novel_uimode), false).apply()
                     }
                 } else {
-                    BackgroundView.setBackgroundResource(R.color.bgNight)
+                    //BackgroundView.setBackgroundResource(R.color.bgNight)
+                    BackgroundView.setBackgroundResource(R.drawable.bgNight)
                     item.title = "夜間模式"
                     with(preference.edit()) {
                         putBoolean(getString(R.string.novel_uimode), true).apply()
@@ -443,7 +471,7 @@ class BookContentBetaActivity : AppCompatActivity(), BookChapterAdapter.OnItemCl
     var Activity.windowBrightness
         get() = window.attributes.screenBrightness
         set(brightness) {
-//            less than 0 or big then 1.0 see as sys default brightness (-1)
+            //less than 0 or big then 1.0 see as sys default brightness (-1)
             window.attributes = window.attributes.apply {
                 screenBrightness = if (brightness > 1.0 || brightness < 0) -1.0F else brightness
             }
@@ -452,7 +480,7 @@ class BookContentBetaActivity : AppCompatActivity(), BookChapterAdapter.OnItemCl
     private fun getSysWindowBrightness(): Float {
         var nowWindowBrightness = 0
         try {
-//  get system windowBrightness it usually in 0 ~ 255 , need adjust to 0 ~ 100 in seekbar
+            //get system windowBrightness it usually in 0 ~ 255 , need adjust to 0 ~ 100 in seekbar
             nowWindowBrightness =
                 Settings.System.getInt(applicationContext.contentResolver, Settings.System.SCREEN_BRIGHTNESS)
         } catch (e: Exception) {
@@ -464,14 +492,13 @@ class BookContentBetaActivity : AppCompatActivity(), BookChapterAdapter.OnItemCl
     fun checkUiModeNight(): Boolean {
         return preference.getBoolean(getString(R.string.novel_uimode), false)
     }
-
-//    private fun refreshChapter() {
+//        private fun refreshChapter() {
 //        Handler().postDelayed({SwipToRefreshView.isRefreshing = false},2000)
 //    }
 
     override fun onPause() {
         super.onPause()
-//        防止一點進去就馬上退出的狀況會發生空指針
+        //防止一點進去就馬上退出的狀況會發生空指針
         if (firstVisibleIndex < chapterContentAdapter.itemCount) {
             val chapter = chapterContentAdapter.getChapterItemByPosition(firstVisibleIndex)
             allChapters?.let {
@@ -500,11 +527,18 @@ class BookContentBetaActivity : AppCompatActivity(), BookChapterAdapter.OnItemCl
 
     private fun getItemHeight(chapterContent: ChapterContentBeta, fontSize: Float): Int {
         val tempView =
-            layoutInflater.inflate(R.layout.row_chapter_content, ChapterContentRecycleView, false) as ConstraintLayout
-        val tempViewTitle = (tempView.getViewById(R.id.row_chapter_title) as TextView)
-        val tempViewContent = (tempView.getViewById(R.id.row_chapter_content) as TextView)
-        tempViewTitle.text = chapterContent.chTitle
-        tempViewTitle.textSize = fontSize
+            layoutInflater.inflate(R.layout.row_chapter_content, ChapterContentRecycleView, false) as LinearLayout
+//        val tempViewTitle = (tempView.getViewById(R.id.row_chapter_title) as TextView)
+//        val tempViewContent = (tempView.getViewById(R.id.row_chapter_content) as TextView)
+        val tempViewTitle = tempView.getChildAt(0) as TextView
+        val tempViewContent = tempView.getChildAt(1) as TextView
+        if(isHiddenTitle){
+            tempView.removeViewAt(0)
+        }
+        else{
+            tempViewTitle.text = chapterContent.chTitle
+            tempViewTitle.textSize = fontSize
+        }
         tempViewContent.text = chapterContent.chContent
         tempViewContent.textSize = fontSize + 4
         tempView.measure(

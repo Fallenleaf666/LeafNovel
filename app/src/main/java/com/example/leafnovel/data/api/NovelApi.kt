@@ -49,7 +49,7 @@ class NovelApi {
                 val bookId = tempDoc.attr("href").split("=")[1]
                 val bookUrl = tempDoc.attr("href")
                 val author = i.getElementsByClass("aut").text().split(" ")[0]
-                val bookDescribe = i.getElementsByTag("p").first().getElementsByTag("a").first().text()
+                val bookDescribe = i.getElementsByTag("p").first().getElementsByTag("a").first().text()?:"此書無簡介"
                 val updateTime = i.getElementsByTag("p").first().getElementsByTag("span").first().text()
 
                 val tempBook = Book()

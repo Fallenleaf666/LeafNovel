@@ -8,8 +8,8 @@ import android.view.View
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 
-import com.example.leafnovel.LeafFunction
 import com.example.leafnovel.R
+import com.example.leafnovel.checkNetConnect
 import com.example.leafnovel.data.model.StoredBook
 import com.example.leafnovel.data.database.StoredBookDB
 import com.example.leafnovel.data.model.Book
@@ -34,7 +34,7 @@ class BookDetailActivity : AppCompatActivity() {
 
         repository = StoredBookDB.getInstance(applicationContext)?.storedbookDao()?.let { Repository(it) }
 //        isNetConnected = CheckNetConnect()
-        isNetConnected = LeafFunction.CheckNetConnect(applicationContext)
+        isNetConnected = checkNetConnect(applicationContext)
 
         if (isNetConnected) {
             getIntentString()

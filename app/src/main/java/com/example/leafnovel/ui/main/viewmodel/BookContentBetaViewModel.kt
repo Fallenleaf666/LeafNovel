@@ -7,8 +7,10 @@ import android.os.BatteryManager
 import android.widget.Toast
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.leafnovel.R
 import com.example.leafnovel.`interface`.BatteryChangeHelper
 import com.example.leafnovel.`interface`.SystemTimeHelper
+import com.example.leafnovel.checkNetConnect
 import com.example.leafnovel.data.database.StoredBookDB
 import com.example.leafnovel.data.api.NovelApi
 import com.example.leafnovel.data.model.*
@@ -44,7 +46,8 @@ class BookContentBetaViewModel(
     private val repository: Repository
     private val isLoadMore: MutableLiveData<Boolean> = MutableLiveData(false)
     private val isRefresh: MutableLiveData<Boolean> = MutableLiveData(false)
-
+    private var hasNetConnect = true
+    private var hasDbData = true
     //    擺放主畫面第一個chapter用的章節data，包含標題及內文
     val chapterContent: MutableLiveData<ChapterContentBeta> = MutableLiveData()
 
@@ -95,22 +98,40 @@ class BookContentBetaViewModel(
         val chapterIndex = nowLookAtIndex.value
         chapterIndex?.let {
             if (chapterIndex != allChapter.size - 1) {
+                hasNext = true
                 tempIndex = allChapter[chapterIndex + 1].chIndex
                 tempChUrl = allChapter[chapterIndex + 1].chUrl
                 tempBookChTitle = allChapter[chapterIndex + 1].chtitle
-                tempChapterContents = NovelApi.requestChapterText(tempChUrl, tempBookChTitle, bookTitle)
-                hasNext = true
+                val dbChapter: StoredChapter? = repository.getDownloadChapter(bookId,tempIndex)
+//                tempChapterContents = dbChapter?.chapterContent
+//                    ?:repository.getSearchBookChaptersContextBeta(tempChUrl, tempBookChTitle, bookTitle)
+                tempChapterContents = dbChapter?.chapterContent
+                    ?:mContext.getString(R.string.db_no_data)
+                if(tempChapterContents == mContext.getString(R.string.db_no_data)){
+                    hasDbData = false
+                    if(checkNetConnect(mContext)){
+                        hasNetConnect = true
+                        tempChapterContents = repository.getSearchBookChaptersContextBeta(tempChUrl, tempBookChTitle, bookTitle)
+                    }
+                    else{
+                        hasNetConnect = false
+                    }
+                }else{
+                    hasDbData = true
+                }
             } else {
                 hasNext = false
             }
         }
-        launch(Dispatchers.Main) {
-            if (hasNext) {
+        withContext(Dispatchers.Main) {
+            if(hasNext&&(hasNetConnect||hasDbData)) {
                 Toast.makeText(mContext, "下一章", Toast.LENGTH_SHORT).show()
                 chapterContent.postValue(ChapterContentBeta(tempIndex, tempBookChTitle, tempChapterContents, tempChUrl))
                 chapterIndex?.let { nowLookAtIndex.postValue(tempIndex) }
-            } else {
+            }else if(!hasNext){
                 Toast.makeText(mContext, "已經沒有下一章囉", Toast.LENGTH_SHORT).show()
+            }else {
+                Toast.makeText(mContext,mContext.getString(R.string.please_check_net_connect_state),Toast.LENGTH_SHORT).show()
             }
             isRefresh.postValue(false)
         }
@@ -130,13 +151,17 @@ class BookContentBetaViewModel(
                 tempIndex = allChapter[chapterIndex - 1].chIndex
                 tempChUrl = allChapter[chapterIndex - 1].chUrl
                 tempBookChTitle = allChapter[chapterIndex - 1].chtitle
-                tempChapterContents = NovelApi.requestChapterText(tempChUrl, tempBookChTitle, bookTitle)
+//                tempChapterContents = NovelApi.requestChapterText(tempChUrl, tempBookChTitle, bookTitle)
+                val dbChapter: StoredChapter? = repository.getDownloadChapter(bookId,tempIndex)
+                tempChapterContents = dbChapter?.chapterContent
+                    ?: repository.getSearchBookChaptersContextBeta(tempChUrl, tempBookChTitle, bookTitle)
                 hasNext = true
             } else {
                 hasNext = false
             }
         }
-        launch(Dispatchers.Main) {
+//        launch(Dispatchers.Main) {
+        withContext(Dispatchers.Main) {
             if (hasNext) {
                 Toast.makeText(mContext, "上一章", Toast.LENGTH_SHORT).show()
                 chapterContent.postValue(ChapterContentBeta(tempIndex, tempBookChTitle, tempChapterContents, tempChUrl))
@@ -162,7 +187,11 @@ class BookContentBetaViewModel(
                     tempIndex = allChapter[it + 1].chIndex
                     tempChUrl = allChapter[it + 1].chUrl
                     tempBookChTitle = allChapter[it + 1].chtitle
-                    tempChapterContentText = NovelApi.requestChapterText(tempChUrl, tempBookChTitle, bookTitle)
+//                    tempChapterContentText = NovelApi.requestChapterText(tempChUrl, tempBookChTitle, bookTitle)
+                    val dbChapter: StoredChapter? = repository.getDownloadChapter(bookId,tempIndex)
+                    tempChapterContentText = dbChapter?.chapterContent
+                        ?: repository.getSearchBookChaptersContextBeta(tempChUrl, tempBookChTitle, bookTitle)
+
                     loadChapterContent.postValue(
                         ChapterContentBeta(
                             tempIndex,
@@ -176,7 +205,8 @@ class BookContentBetaViewModel(
                     hasNext = false
                 }
             }
-            launch(Dispatchers.Main) {
+//            launch(Dispatchers.Main) {
+            withContext(Dispatchers.Main) {
                 if (hasNext) {
                     Toast.makeText(mContext, "下一章", Toast.LENGTH_SHORT).show()
                 } else {
@@ -243,7 +273,6 @@ class BookContentBetaViewModel(
         val mBatteryChangeHelper = object : BatteryChangeHelper {
             override fun updateBatteryStat(level: Int, isCharging: Boolean) {
                 scope.launch(Dispatchers.IO) {
-
                     batteryIsCharging.postValue(isCharging)
                     batteryLevel.postValue(level)
                 }
@@ -269,7 +298,7 @@ class BookContentBetaViewModel(
 
                     var time = ""
 
-                    time += if (hour >= 10) hour.toString()
+                    time += if (hour >= 10) "$hour:"
                     else "0$hour:"
 
                     time += if (minute >= 10) minute.toString()

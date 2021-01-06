@@ -61,7 +61,8 @@
                             android:layout_gravity="center_vertical|end" android:checked="true"
                             app:layout_constraintTop_toTopOf="parent" app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintBottom_toBottomOf="parent" android:layout_marginEnd="20dp"
-                            android:thumb="@drawable/mysetting_switch_thumb_selector"/>
+                            android:thumb="@drawable/mysetting_switch_thumb_selector"
+                            android:track="@drawable/mysetting_switch_track_selector"/>
                 </androidx.constraintlayout.widget.ConstraintLayout>
                 <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
@@ -102,7 +103,48 @@
                             app:layout_constraintBottom_toBottomOf="parent" android:layout_marginEnd="20dp"
                             android:thumb="@drawable/mysetting_switch_thumb_selector"
                             android:saveEnabled="false"
-                    />
+                            android:track="@drawable/mysetting_switch_track_selector"/>
+                </androidx.constraintlayout.widget.ConstraintLayout>
+                <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                    <ImageView
+                            android:src="@drawable/ic_baseline_visibility_24"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" android:id="@+id/imageView16"
+                            app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="16dp"/>
+                    <LinearLayout
+                            android:orientation="vertical"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintBottom_toBottomOf="parent" android:layout_marginTop="8dp"
+                            android:layout_marginBottom="8dp"
+                            app:layout_constraintVertical_bias="0.0"
+                            app:layout_constraintStart_toEndOf="@+id/imageView16" android:layout_marginStart="16dp">
+                        <TextView
+                                android:text="隱藏章節標題"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="5dp" style="@style/MySettingTitleText"/>
+                        <TextView
+                                android:text="在閱讀小說時，取消顯示標題於內文"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                style="@style/MySettingSubTitleText"
+                                android:layout_marginTop="3dp" android:layout_marginBottom="5dp"/>
+                    </LinearLayout>
+                    <Switch
+                            android:layout_width="wrap_content"
+                            android:layout_height="27dp" android:id="@+id/ChapterTitleHideSwitch"
+                            android:layout_gravity="center_vertical|end" android:checked="true"
+                            app:layout_constraintTop_toTopOf="parent" app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintBottom_toBottomOf="parent" android:layout_marginEnd="20dp"
+                            android:thumb="@drawable/mysetting_switch_thumb_selector"
+                            android:saveEnabled="false"
+                            android:track="@drawable/mysetting_switch_track_selector"/>
                 </androidx.constraintlayout.widget.ConstraintLayout>
                 <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
@@ -176,6 +218,33 @@
                             app:layout_constraintStart_toEndOf="@+id/imageView7" android:layout_marginStart="16dp">
                         <TextView
                                 android:text="公告通知"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                style="@style/MySettingTitleText"
+                                android:gravity="center_vertical"/>
+                    </LinearLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
+                <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" android:id="@+id/ContactUsView">
+
+                    <ImageView
+                            android:src="@drawable/ic_baseline_mail_24"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" android:id="@+id/imageView55"
+                            app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="16dp"
+                            android:foregroundGravity="center_vertical"/>
+                    <LinearLayout
+                            android:orientation="vertical"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintBottom_toBottomOf="parent" android:layout_marginTop="12dp"
+                            android:layout_marginBottom="12dp"
+                            app:layout_constraintStart_toEndOf="@+id/imageView55" android:layout_marginStart="16dp">
+                        <TextView
+                                android:text="聯絡開發人"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 style="@style/MySettingTitleText"

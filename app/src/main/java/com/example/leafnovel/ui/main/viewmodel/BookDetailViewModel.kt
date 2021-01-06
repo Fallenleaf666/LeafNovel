@@ -57,14 +57,13 @@ class BookDetailViewModel(context: Context, storedBook: StoredBook, repository: 
             val bI = bookInformation.value
             val bOI = bookOtherInformation.value
             if (bI != null && bOI != null) {
-                val storedbook = StoredBook(
+                val storedBook = StoredBook(
                     bI.bookname, bI.bookauthor, bI.booksource,
                     bOI["newChapter"] ?: "", "", bOI["imgUrl"] ?: "", false, bI.bookid
                 )
-                try {
-                    mRepository.insert(storedbook)
-                    Toast.makeText(mContext, "已將此書收藏", Toast.LENGTH_SHORT).show()
-                } catch (e: Exception) {
+                mRepository.insert(storedBook)
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(mContext, "已將${bI.bookname}放入書櫃", Toast.LENGTH_SHORT).show()
                 }
             }
         }
