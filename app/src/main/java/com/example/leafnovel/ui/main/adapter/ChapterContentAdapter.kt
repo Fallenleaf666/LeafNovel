@@ -21,21 +21,18 @@ class ChapterContentAdapter() : RecyclerView.Adapter<ChapterContentAdapter.Chapt
     private var fontSize = 16f
     private var isUiModeNight = false
     private var isTitleHidden = false
-    private var listener: OnItemClickListener? = null
     private var context : Context? = null
     constructor(_mContext: Context) : this(){
         context = _mContext
     }
 
-    fun setItems(chapterContent: ChapterContentBeta, itemClickListener: OnItemClickListener) {
+    fun setItems(chapterContent: ChapterContentBeta) {
         items.clear()
         items.add(chapterContent)
-        listener = itemClickListener
         notifyDataSetChanged()
     }
-    fun addItem(chapterContent:ChapterContentBeta, itemClickListener: OnItemClickListener) {
+    fun addItem(chapterContent:ChapterContentBeta) {
         items.add(chapterContent)
-        listener = itemClickListener
         notifyItemInserted(items.size-1)
     }
 
@@ -48,7 +45,7 @@ class ChapterContentAdapter() : RecyclerView.Adapter<ChapterContentAdapter.Chapt
         val chapterContent: TextView = view.row_chapter_content
         val chapterContentView: LinearLayout = view.row_chapter_content_view
         init {
-            view.setOnClickListener(this)
+//            view.setOnClickListener(this)
         }
 
         override fun onClick(p0: View?) {
@@ -85,10 +82,6 @@ class ChapterContentAdapter() : RecyclerView.Adapter<ChapterContentAdapter.Chapt
         }
     }
 
-    interface OnItemClickListener {
-        fun onScreenClick(chapterContent:ChapterContentBeta, view:View)
-    }
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ChapterContentAdapterViewHolder {
         return ChapterContentAdapterViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.row_chapter_content, parent, false))
     }
@@ -98,9 +91,6 @@ class ChapterContentAdapter() : RecyclerView.Adapter<ChapterContentAdapter.Chapt
     override fun onBindViewHolder(holder: ChapterContentAdapterViewHolder, position: Int) {
         holder.chapterTitle.text = items[position].chTitle
         holder.chapterContent.text = items[position].chContent
-        holder.chapterContentView.setOnClickListener{
-            listener?.onScreenClick(items[position], it )
-        }
         holder.setFontSize(fontSize)
         holder.setUiByDayNightMode(isUiModeNight)
         holder.setTitleHidden(isTitleHidden)
@@ -122,10 +112,5 @@ class ChapterContentAdapter() : RecyclerView.Adapter<ChapterContentAdapter.Chapt
     fun setTitleHidden(isTitleHidden: Boolean) {
         this.isTitleHidden = isTitleHidden
         notifyDataSetChanged()
-    }
-
-
-    fun refresh() {
-//        TODO 刷新
     }
 }

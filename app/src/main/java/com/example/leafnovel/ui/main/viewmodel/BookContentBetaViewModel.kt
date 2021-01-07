@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.BatteryManager
+import android.text.style.LineHeightSpan
 import android.widget.Toast
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -31,7 +32,7 @@ class BookContentBetaViewModel(
 ) :
     ViewModel() {
     companion object {
-        const val TAG = "ViewModel MVVM測試"
+        const val TAG = "BookContentBetaViewModel"
     }
 
     val bookTitle = _bookTitle
@@ -44,8 +45,8 @@ class BookContentBetaViewModel(
     private val scope = CoroutineScope(coroutineContext)
 
     private val repository: Repository
-    private val isLoadMore: MutableLiveData<Boolean> = MutableLiveData(false)
-    private val isRefresh: MutableLiveData<Boolean> = MutableLiveData(false)
+    val isLoadMore: MutableLiveData<Boolean> = MutableLiveData(false)
+    val isRefresh: MutableLiveData<Boolean> = MutableLiveData(false)
     private var hasNetConnect = true
     private var hasDbData = true
     //    擺放主畫面第一個chapter用的章節data，包含標題及內文
@@ -68,192 +69,47 @@ class BookContentBetaViewModel(
     init {
         val sbBooksDao = StoredBookDB.getInstance(context)?.storedbookDao()
         repository = sbBooksDao?.let { Repository(it) }!!
-        var tempContent: String
-//        初始化第一篇章節 若db沒有就網路抓
-        scope.launch(Dispatchers.IO) {
-            val dbChapter: StoredChapter? = repository.getDownloadChapter(bookId, firstBookChapter.chIndex)
-            tempContent = dbChapter?.chapterContent
-                ?: repository.getSearchBookChaptersContextBeta(
-                    firstBookChapter.chUrl,
-                    firstBookChapter.chtitle,
-                    bookTitle
-                )
-            val tempChapterContent = ChapterContentBeta(
-                firstBookChapter.chIndex,
-                firstBookChapter.chtitle,
-                tempContent,
-                firstBookChapter.chUrl
-            )
-            chapterContent.postValue(tempChapterContent)
-        }
+        //初始化第一篇章節 若db沒有就網路抓
+        getChapter(Target.ASSIGN, false, firstBookChapter.chIndex)
     }
 
-    fun goNextChapter() = scope.launch(Dispatchers.IO) {
+    fun goNextChapter() = getChapter(Target.NEXT, false, null)
+
+    fun goLastChapter() = getChapter(Target.LAST, false, null)
+
+    fun loadNextChapter() = getChapter(Target.NEXT, true, null)
+
+    fun goSpecialChapter(bookChapter: BookChapter) = getChapter(Target.ASSIGN, false, bookChapter.chIndex)
+
+    fun saveReadProgress(lastReadProgress: LastReadProgress) = scope.launch(Dispatchers.IO) {
+        repository.saveReadProgress(lastReadProgress)
+    }
+
+
+    fun refresh() = scope.launch(Dispatchers.IO) {
         isRefresh.postValue(true)
-        var tempChUrl = ""
-        var tempBookChTitle = ""
-        var tempChapterContents = ""
-        var tempIndex = 0
-        var hasNext = false
         val chapterIndex = nowLookAtIndex.value
         chapterIndex?.let {
-            if (chapterIndex != allChapter.size - 1) {
-                hasNext = true
-                tempIndex = allChapter[chapterIndex + 1].chIndex
-                tempChUrl = allChapter[chapterIndex + 1].chUrl
-                tempBookChTitle = allChapter[chapterIndex + 1].chtitle
-                val dbChapter: StoredChapter? = repository.getDownloadChapter(bookId,tempIndex)
-//                tempChapterContents = dbChapter?.chapterContent
-//                    ?:repository.getSearchBookChaptersContextBeta(tempChUrl, tempBookChTitle, bookTitle)
-                tempChapterContents = dbChapter?.chapterContent
-                    ?:mContext.getString(R.string.db_no_data)
-                if(tempChapterContents == mContext.getString(R.string.db_no_data)){
-                    hasDbData = false
-                    if(checkNetConnect(mContext)){
-                        hasNetConnect = true
-                        tempChapterContents = repository.getSearchBookChaptersContextBeta(tempChUrl, tempBookChTitle, bookTitle)
-                    }
-                    else{
-                        hasNetConnect = false
-                    }
-                }else{
-                    hasDbData = true
-                }
-            } else {
-                hasNext = false
-            }
-        }
-        withContext(Dispatchers.Main) {
-            if(hasNext&&(hasNetConnect||hasDbData)) {
-                Toast.makeText(mContext, "下一章", Toast.LENGTH_SHORT).show()
-                chapterContent.postValue(ChapterContentBeta(tempIndex, tempBookChTitle, tempChapterContents, tempChUrl))
-                chapterIndex?.let { nowLookAtIndex.postValue(tempIndex) }
-            }else if(!hasNext){
-                Toast.makeText(mContext, "已經沒有下一章囉", Toast.LENGTH_SHORT).show()
-            }else {
-                Toast.makeText(mContext,mContext.getString(R.string.please_check_net_connect_state),Toast.LENGTH_SHORT).show()
-            }
-            isRefresh.postValue(false)
-        }
-    }
-
-    fun goLastChapter() = scope.launch(Dispatchers.IO) {
-        isRefresh.postValue(true)
-        var tempChUrl = ""
-        var tempBookChTitle = ""
-        var tempChapterContents = ""
-        var tempIndex = 0
-        var hasNext = false
-//            之後新增檢查正序倒序
-        val chapterIndex = nowLookAtIndex.value
-        chapterIndex?.let {
-            if (chapterIndex != 0) {
-                tempIndex = allChapter[chapterIndex - 1].chIndex
-                tempChUrl = allChapter[chapterIndex - 1].chUrl
-                tempBookChTitle = allChapter[chapterIndex - 1].chtitle
-//                tempChapterContents = NovelApi.requestChapterText(tempChUrl, tempBookChTitle, bookTitle)
-                val dbChapter: StoredChapter? = repository.getDownloadChapter(bookId,tempIndex)
-                tempChapterContents = dbChapter?.chapterContent
-                    ?: repository.getSearchBookChaptersContextBeta(tempChUrl, tempBookChTitle, bookTitle)
-                hasNext = true
-            } else {
-                hasNext = false
-            }
-        }
-//        launch(Dispatchers.Main) {
-        withContext(Dispatchers.Main) {
-            if (hasNext) {
-                Toast.makeText(mContext, "上一章", Toast.LENGTH_SHORT).show()
-                chapterContent.postValue(ChapterContentBeta(tempIndex, tempBookChTitle, tempChapterContents, tempChUrl))
-                chapterIndex?.let { nowLookAtIndex.postValue(tempIndex) }
-            } else {
-                Toast.makeText(mContext, "已經沒有上一章囉", Toast.LENGTH_SHORT).show()
-            }
-            isRefresh.postValue(false)
-        }
-    }
-
-    fun loadNextChapter() {
-        scope.launch(Dispatchers.IO) {
-            isLoadMore.postValue(true)
-            val tempChUrl: String
-            val tempBookChTitle: String
-            val tempChapterContentText: String
-            val tempIndex: Int
-            var hasNext = false
-            val chapterIndex = nowLookAtIndex.value
-            chapterIndex?.let {
-                if (it != allChapter.size - 1) {
-                    tempIndex = allChapter[it + 1].chIndex
-                    tempChUrl = allChapter[it + 1].chUrl
-                    tempBookChTitle = allChapter[it + 1].chtitle
-//                    tempChapterContentText = NovelApi.requestChapterText(tempChUrl, tempBookChTitle, bookTitle)
-                    val dbChapter: StoredChapter? = repository.getDownloadChapter(bookId,tempIndex)
-                    tempChapterContentText = dbChapter?.chapterContent
-                        ?: repository.getSearchBookChaptersContextBeta(tempChUrl, tempBookChTitle, bookTitle)
-
-                    loadChapterContent.postValue(
-                        ChapterContentBeta(
-                            tempIndex,
-                            tempBookChTitle,
-                            tempChapterContentText,
-                            tempChUrl
-                        )
-                    )
-                    hasNext = true
-                } else {
-                    hasNext = false
-                }
-            }
-//            launch(Dispatchers.Main) {
-            withContext(Dispatchers.Main) {
-                if (hasNext) {
-                    Toast.makeText(mContext, "下一章", Toast.LENGTH_SHORT).show()
-                } else {
-                    Toast.makeText(mContext, "已經沒有下一章囉", Toast.LENGTH_SHORT).show()
-                }
-                isLoadMore.postValue(false)
-            }
-        }
-    }
-
-    fun goSpecialChapter(bookCh: BookChapter) {
-        scope.launch(Dispatchers.IO) {
-            val dbChapter: StoredChapter? = repository.getDownloadChapter(bookId, bookCh.chIndex)
-            val tempContent = dbChapter?.chapterContent
-                ?: repository.getSearchBookChaptersContextBeta(bookCh.chUrl, bookCh.chtitle, bookTitle)
-            val tempChapterContent = ChapterContentBeta(bookCh.chIndex, bookCh.chtitle, tempContent, bookCh.chUrl)
-            chapterContent.postValue(tempChapterContent)
-        }
-    }
-
-
-    override fun onCleared() {
-        super.onCleared()
-        mContext.unregisterReceiver(mTimeChangeReceiver)
-        mContext.unregisterReceiver(mBatteryChangeReceiver)
-        parentJob.cancel()
-    }
-
-    fun saveReadProgress(lastReadProgress: LastReadProgress) {
-        scope.launch(Dispatchers.IO) {
-            repository.saveReadProgress(lastReadProgress)
-        }
-    }
-
-    fun refresh() {
-        scope.launch(Dispatchers.IO) {
-            val chapterIndex = nowLookAtIndex.value
-            chapterIndex?.let {
-                val tempIndex = allChapter[it].chIndex
-                val tempChUrl = allChapter[it].chUrl
-                val tempBookChTitle = allChapter[it].chtitle
+            val tempIndex = allChapter[it].chIndex
+            val tempChUrl = allChapter[it].chUrl
+            val tempBookChTitle = allChapter[it].chtitle
+            if (checkNetConnect(mContext)) {
                 val tempContent = repository.getSearchBookChaptersContextBeta(tempChUrl, tempBookChTitle, bookTitle)
                 val tempChapterContent = ChapterContentBeta(tempIndex, tempBookChTitle, tempContent, tempChUrl)
                 chapterContent.postValue(tempChapterContent)
+            } else {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(
+                        mContext,
+                        mContext.getString(R.string.please_check_net_connect_state),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
         }
+        isRefresh.postValue(false)
     }
+
 
     fun initBatteryLevel() {
         val batteryStat: Intent? = IntentFilter(Intent.ACTION_BATTERY_CHANGED).let { ifilter ->
@@ -319,4 +175,130 @@ class BookContentBetaViewModel(
 //        return allChapterList
 //}
 
+    //targetChapter 欲取得章節的方向 ，isLoadMoreChapter 是否為上拉加載的章節 ，specialChapter 若是由目錄選擇章節則傳入該章節屬性
+    private fun getChapter(targetChapter: Target, isLoadMoreChapter: Boolean, specialChapterIndex: Int?) {
+        scope.launch(Dispatchers.IO) {
+            var tempChUrl = ""
+            var tempBookChTitle = ""
+            var tempChapterContents = ""
+            var tempIndex = 0
+            var targetIndex = 0
+            var hasTarget = false
+            val chapterIndex = nowLookAtIndex.value
+
+            isLoadMore.postValue(true)
+            chapterIndex?.let {
+                when (targetChapter) {
+                    Target.NEXT -> {
+                        hasTarget = chapterIndex != allChapter.size - 1
+                        targetIndex = chapterIndex + 1
+                    }
+                    Target.LAST -> {
+                        hasTarget = chapterIndex != 0
+                        targetIndex = chapterIndex - 1
+                    }
+                    Target.ASSIGN -> {
+                        specialChapterIndex?.let {
+                            hasTarget = it < allChapter.size
+                            targetIndex = it
+                        }
+                    }
+                }
+                if (hasTarget) {
+                    tempIndex = allChapter[targetIndex].chIndex
+                    tempChUrl = allChapter[targetIndex].chUrl
+                    tempBookChTitle = allChapter[targetIndex].chtitle
+                    val dbChapter: StoredChapter? = repository.getDownloadChapter(bookId, tempIndex)
+                    tempChapterContents = dbChapter?.chapterContent
+                        ?: mContext.getString(R.string.db_no_data)
+                    if (tempChapterContents == mContext.getString(R.string.db_no_data)) {
+                        hasDbData = false
+                        if (checkNetConnect(mContext)) {
+                            hasNetConnect = true
+                            tempChapterContents =
+                                repository.getSearchBookChaptersContextBeta(tempChUrl, tempBookChTitle, bookTitle)
+                        } else {
+                            hasNetConnect = false
+                            tempChapterContents = "無法讀取 ${bookTitle}${allChapter[targetIndex].chtitle}之章節資訊，請在確認網路連線後，下拉刷新！"
+                        }
+                    } else {
+                        hasDbData = true
+                    }
+                }
+            }
+            withContext(Dispatchers.Main) {
+                if (hasTarget && (hasNetConnect || hasDbData)) {
+                    when (targetChapter) {
+                        Target.NEXT ->
+                            Toast.makeText(mContext, mContext.getString(R.string.next_chapter), Toast.LENGTH_SHORT)
+                                .show()
+                        Target.LAST ->
+                            Toast.makeText(mContext, mContext.getString(R.string.last_chapter), Toast.LENGTH_SHORT)
+                                .show()
+                        Target.ASSIGN -> {
+                        }
+                    }
+                    if (isLoadMoreChapter) {
+                        loadChapterContent.postValue(
+                            ChapterContentBeta(
+                                tempIndex,
+                                tempBookChTitle,
+                                tempChapterContents,
+                                tempChUrl
+                            )
+                        )
+                    } else {
+                        chapterContent.postValue(
+                            ChapterContentBeta(
+                                tempIndex,
+                                tempBookChTitle,
+                                tempChapterContents,
+                                tempChUrl
+                            )
+                        )
+                        chapterIndex?.let { nowLookAtIndex.postValue(tempIndex) }
+                    }
+                } else if (!hasTarget) {
+                    when (targetChapter) {
+                        Target.NEXT ->
+                            Toast.makeText(mContext, mContext.getString(R.string.no_next_chapter), Toast.LENGTH_SHORT)
+                                .show()
+                        Target.LAST ->
+                            Toast.makeText(mContext, mContext.getString(R.string.no_last_chapter), Toast.LENGTH_SHORT)
+                                .show()
+                        Target.ASSIGN -> {
+                        }
+                    }
+                } else {
+                    if(!isLoadMoreChapter){
+                        chapterContent.postValue(
+                            ChapterContentBeta(
+                                tempIndex,
+                                tempBookChTitle,
+                                tempChapterContents,
+                                tempChUrl
+                            )
+                        )
+                    }
+                    Toast.makeText(
+                        mContext,
+                        mContext.getString(R.string.please_check_net_connect_state),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                isLoadMore.postValue(false)
+            }
+        }
+    }
+
+    enum class Target {
+        NEXT, LAST, ASSIGN
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        mContext.unregisterReceiver(mTimeChangeReceiver)
+        mContext.unregisterReceiver(mBatteryChangeReceiver)
+        parentJob.cancel()
+    }
 }

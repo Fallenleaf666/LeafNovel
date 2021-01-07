@@ -9,7 +9,9 @@ import android.os.Handler
 import android.provider.Settings
 import android.util.Log
 import android.view.MenuItem
+import android.view.MotionEvent
 import android.view.View
+import android.view.ViewConfiguration
 import android.widget.LinearLayout
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
@@ -42,10 +44,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.collections.ArrayList
+import kotlin.math.abs
 
 
-class BookContentBetaActivity : AppCompatActivity(), BookChapterAdapter.OnItemClickListener,
-    ChapterContentAdapter.OnItemClickListener {
+class BookContentBetaActivity : AppCompatActivity(), BookChapterAdapter.OnItemClickListener{
     companion object {
         const val TAG = "BookContentBetaActivity5"
     }
@@ -94,7 +96,6 @@ class BookContentBetaActivity : AppCompatActivity(), BookChapterAdapter.OnItemCl
     private lateinit var chUrl: String
     lateinit var bookId: String
     lateinit var bookTitle: String
-
 
     private var allChapters: ArrayList<BookChapter>? = null
 
@@ -145,7 +146,7 @@ class BookContentBetaActivity : AppCompatActivity(), BookChapterAdapter.OnItemCl
 
     private fun setObserver() {
         viewModel.chapterContent.observe(this, { chapterContent ->
-            chapterContentAdapter.setItems(chapterContent, this)
+            chapterContentAdapter.setItems(chapterContent)
             ChapterContentRecycleView.scrollToPosition(0)
             tempHeight.clear()
             totalScrollY = 0
@@ -162,7 +163,7 @@ class BookContentBetaActivity : AppCompatActivity(), BookChapterAdapter.OnItemCl
 //            }
         })
         viewModel.loadChapterContent.observe(this, { chapterContent ->
-            chapterContentAdapter.addItem(chapterContent, this)
+            chapterContentAdapter.addItem(chapterContent)
             LoadMoreProgressBar.visibility = View.INVISIBLE
         })
 
@@ -176,16 +177,25 @@ class BookContentBetaActivity : AppCompatActivity(), BookChapterAdapter.OnItemCl
             novelBatteryView.batteryLevel = batteryLevel
         })
 
-    }
+        viewModel.isLoadMore.observe(this, { isLoadMore ->
+            LoadMoreProgressBar.visibility = if(isLoadMore)View.VISIBLE else View.INVISIBLE
+        })
 
-    //TODO 更新頁面
-    private val refreshListener = SwipeRefreshLayout.OnRefreshListener {
-        viewModel.refresh()
-        Handler().postDelayed({
-            if(SwipToRefreshView.isRefreshing){
+        viewModel.isRefresh.observe(this, { isRefreshing ->
+            if(!isRefreshing){
                 SwipToRefreshView.isRefreshing = false
             }
-        }, 5000)
+        })
+
+    }
+
+    private val refreshListener = SwipeRefreshLayout.OnRefreshListener {
+        viewModel.refresh()
+//        Handler().postDelayed({
+//            if(SwipToRefreshView.isRefreshing){
+//                SwipToRefreshView.isRefreshing = false
+//            }
+//        }, 5000)
     }
 
     //目錄章節點擊
@@ -254,6 +264,7 @@ class BookContentBetaActivity : AppCompatActivity(), BookChapterAdapter.OnItemCl
                 totalScrollY = 0
             }
 
+
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 super.onScrollStateChanged(recyclerView, newState)
             }
@@ -303,9 +314,35 @@ class BookContentBetaActivity : AppCompatActivity(), BookChapterAdapter.OnItemCl
                 }
             }
         })
-        ChapterContentRecycleView.setOnClickListener {
-            FunctionMenu.visibility = View.VISIBLE
-        }
+
+//        ContentView.setOnClickListener {
+//            FunctionMenu.visibility = View.VISIBLE
+//        }
+
+        ChapterContentRecycleView.addOnItemTouchListener(object :RecyclerView.SimpleOnItemTouchListener(){
+            var startX = 0f
+            var startY = 0f
+            var endX = 0f
+            var endY = 0f
+            var minScrollDistance = ViewConfiguration.get(this@BookContentBetaActivity).scaledTouchSlop
+            override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
+                when(e.action){
+                    MotionEvent.ACTION_DOWN ->{
+                        startX = e.x
+                        startY = e.y
+                    }
+                    MotionEvent.ACTION_UP ->{
+                        endX = e.x
+                        endY = e.y
+                        if(abs(startX - endX) < minScrollDistance && abs(startY - endY ) < minScrollDistance && rv.scrollState == 0){
+                            FunctionMenu.visibility = View.VISIBLE
+                        }
+                    }
+                }
+                return super.onInterceptTouchEvent(rv, e)
+            }
+        })
+
         ImageView.setOnClickListener {
             when (StyleSettingView.visibility) {
                 View.VISIBLE -> StyleSettingView.visibility = View.GONE
@@ -314,20 +351,12 @@ class BookContentBetaActivity : AppCompatActivity(), BookChapterAdapter.OnItemCl
         }
 
         LastPageBT.setOnClickListener {
-//            if(checkNetConnect(this)){
-                LoadMoreProgressBar.visibility = View.VISIBLE
-                viewModel.goLastChapter()
-//            }else{
-//                Toast.makeText(this,R.string.please_check_net_connect_state,Toast.LENGTH_SHORT).show()
-//            }
+            LoadMoreProgressBar.visibility = View.VISIBLE
+            viewModel.goLastChapter()
         }
         NextPageBT.setOnClickListener {
-//            if(checkNetConnect(this)){
             LoadMoreProgressBar.visibility = View.VISIBLE
             viewModel.goNextChapter()
-//            }else{
-//                Toast.makeText(this,R.string.please_check_net_connect_state,Toast.LENGTH_SHORT).show()
-//            }
         }
 
         FontSizeSeekBar.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
@@ -510,10 +539,6 @@ class BookContentBetaActivity : AppCompatActivity(), BookChapterAdapter.OnItemCl
                 )
             }
         }
-    }
-
-    override fun onScreenClick(chapterContent: ChapterContentBeta, view: View) {
-        FunctionMenu.visibility = View.VISIBLE
     }
 
     fun resetTempHeight() {

@@ -181,7 +181,7 @@ class MySetting : Fragment() {
                 if (checkNetConnect(mContext)) {
                     sendEmail(sendBody.text.toString(), problemType)
                 } else {
-                    Toast.makeText(context, getString(R.string.ALERT_WEBCONNECT_STATE), Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, getString(R.string.please_check_net_connect_state), Toast.LENGTH_SHORT).show()
                 }
             }
             dialog.show()

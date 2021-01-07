@@ -21,7 +21,7 @@ import com.example.leafnovel.R
 import com.example.leafnovel.data.model.BookChapter
 import com.example.leafnovel.data.model.LastReadProgress
 import com.example.leafnovel.data.model.StoredBook
-import com.example.leafnovel.ui.main.view.BookContentActivity
+import com.example.leafnovel.ui.main.view.BookContentBetaActivity
 import com.example.leafnovel.ui.main.view.BookDetailActivity
 import com.example.leafnovel.ui.main.viewmodel.BookDetailViewModel
 import kotlinx.android.synthetic.main.activity_book_detail.*
@@ -101,13 +101,13 @@ class BookIntroduceFragment : Fragment() {
             val lastReadInfo = viewModel?.bookLastReadInfo?.value
             val bookInfo = viewModel?.bookInformation?.value
             if(lastReadInfo != null && bookInfo!= null){
-            val intent = Intent(context, BookContentActivity::class.java).apply {
-                putExtra("BOOK_INDEX", lastReadInfo.chapterIndex)
+            val intent = Intent(context, BookContentBetaActivity::class.java).apply {
                 putExtra("BOOK_ID", bookInfo.bookid)
+                putExtra("BOOK_TITLE", bookInfo.bookname)
+                putExtra("BOOK_INDEX", lastReadInfo.chapterIndex)
                 putExtra("BOOK_CH_ID", lastReadInfo.chapterIndex)
                 putExtra("BOOK_CH_URL", lastReadInfo.chapterUrl)
                 putExtra("BOOK_CH_TITLE", lastReadInfo.chapterTitle)
-                putExtra("BOOK_TITLE", bookInfo.bookname)
                 putParcelableArrayListExtra("NOVEL_CHAPTERS", viewModel?.bookChapterList?.value)
             }
             this.startActivity(intent)
