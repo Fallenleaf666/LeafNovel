@@ -21,11 +21,28 @@ class Repository constructor(private val sbBooksDao: StoredBookDao) {
         const val TAG = "Repository"
     }
     val allStoredBooks : LiveData<List<StoredBook>> = sbBooksDao.getAll()
+    val allStoredBookFolders : LiveData<List<StoredBookFolder>> = sbBooksDao.getAllStoredBookFolder()
 
     @WorkerThread
     fun insert(storedBook: StoredBook){
         sbBooksDao.insert(storedBook)
     }
+
+    @WorkerThread
+    fun addBookFolder(storedBookFolder: StoredBookFolder):Long{
+        return sbBooksDao.addBookFolder(storedBookFolder)
+    }
+
+    @WorkerThread
+    fun deleteBookFolder(storedBookFolder: StoredBookFolder){
+        sbBooksDao.deleteBookFolder(storedBookFolder)
+    }
+
+    @WorkerThread
+    fun updateBookFolder(newName:String,storedBookFolderId: String){
+        sbBooksDao.updateBookFolder(newName,storedBookFolderId)
+    }
+
 
     @WorkerThread
     fun saveReadProgress(lastReadProgress: LastReadProgress){

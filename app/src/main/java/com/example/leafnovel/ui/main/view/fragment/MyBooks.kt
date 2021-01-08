@@ -1,28 +1,24 @@
 package com.example.leafnovel.ui.main.view.fragment
 
 import android.content.Intent
-import android.graphics.Canvas
-import android.graphics.Rect
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.PopupMenu
-import android.widget.TextView
 import android.widget.Toast
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import com.example.leafnovel.*
-import com.example.leafnovel.ui.main.adapter.StoredBookAdapter
+import com.example.leafnovel.R
+import com.example.leafnovel.bean.MyBookFirstBean
 import com.example.leafnovel.data.model.StoredBook
 import com.example.leafnovel.ui.base.MyBooksViewModelFactory
+import com.example.leafnovel.ui.main.adapter.StoredBookAdapter
 import com.example.leafnovel.ui.main.view.BookDetailActivity
 import com.example.leafnovel.ui.main.viewmodel.MyBooksViewModel
 import kotlinx.android.synthetic.main.fragment_my_books.*
@@ -106,7 +102,7 @@ class MyBooks : Fragment(), StoredBookAdapter.OnItemClickListener {
     }
 
     override fun onPinningClick(sbBook: StoredBook, view: View) {
-        Toast.makeText(context,"已將\"${sbBook.bookname}\"釘選",Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, "已將\"${sbBook.bookname}\"釘選", Toast.LENGTH_SHORT).show()
 //        val popupMenu = PopupMenu(context, view)
 //        popupMenu.inflate(R.menu.mybook_more_menu)
 //        popupMenu.setOnMenuItemClickListener { item: MenuItem ->
@@ -120,12 +116,16 @@ class MyBooks : Fragment(), StoredBookAdapter.OnItemClickListener {
 
 
     private fun initUI() {
-        val decoration = DividerItemDecoration(context,DividerItemDecoration.VERTICAL)
+        val decoration = DividerItemDecoration(context, DividerItemDecoration.VERTICAL)
         SB_recycler.apply {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(context)
             adapter = storedBookAdapter
             addItemDecoration(decoration)
+        }
+        val list: MutableList<MyBookFirstBean> = ArrayList()
+        for (i in 0..19) {
+            list.add(MyBookFirstBean())
         }
 
         Log.d("Viewmodel", "BEFORE")

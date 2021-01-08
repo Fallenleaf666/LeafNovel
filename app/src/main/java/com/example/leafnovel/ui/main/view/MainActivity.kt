@@ -7,6 +7,7 @@ import android.os.PersistableBundle
 import androidx.fragment.app.Fragment
 import com.example.leafnovel.R
 import com.example.leafnovel.ui.main.view.fragment.MyBooks
+import com.example.leafnovel.ui.main.view.fragment.MyBooksBeta
 import com.example.leafnovel.ui.main.view.fragment.MySetting
 import com.example.leafnovel.ui.main.view.fragment.Search
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -61,7 +62,8 @@ class MainActivity : AppCompatActivity(),FragNavController.RootFragmentListener 
     }
 
     private fun initFragNavController(savedInstanceState: Bundle?) {
-        val fragments = listOf<Fragment>(MyBooks.newInstance, Search.newInstance, MySetting.newInstance)
+//        val fragments = listOf<Fragment>(MyBooks.newInstance, Search.newInstance, MySetting.newInstance)
+        val fragments = listOf<Fragment>(MyBooksBeta.newInstance, Search.newInstance, MySetting.newInstance)
         fragNavController.apply {
             rootFragments = fragments
             initialize(FragNavController.TAB1,savedInstanceState)
@@ -73,7 +75,8 @@ class MainActivity : AppCompatActivity(),FragNavController.RootFragmentListener 
 
     override fun getRootFragment(index: Int): Fragment {
         when(index){
-            FragNavController.TAB1 -> return MyBooks.newInstance
+//            FragNavController.TAB1 -> return MyBooks.newInstance
+            FragNavController.TAB1 -> return MyBooksBeta.newInstance
             FragNavController.TAB2 -> return Search.newInstance
             FragNavController.TAB3 -> return MySetting.newInstance
         }

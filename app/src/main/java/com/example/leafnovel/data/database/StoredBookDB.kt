@@ -6,9 +6,10 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.leafnovel.data.model.LastReadProgress
 import com.example.leafnovel.data.model.StoredBook
+import com.example.leafnovel.data.model.StoredBookFolder
 import com.example.leafnovel.data.model.StoredChapter
 
-@Database(entities = [StoredBook::class, StoredChapter::class, LastReadProgress::class], version = 1)
+@Database(entities = [StoredBook::class, StoredChapter::class, LastReadProgress::class, StoredBookFolder::class], version = 1)
 abstract class StoredBookDB : RoomDatabase() {
     abstract fun storedbookDao(): StoredBookDao
 
