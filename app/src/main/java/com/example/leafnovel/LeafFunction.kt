@@ -1,8 +1,15 @@
 package com.example.leafnovel
 
+import android.app.Activity
 import android.content.Context
 import android.net.ConnectivityManager
 import android.os.Build
+import android.text.Layout
+import android.view.LayoutInflater
+import android.widget.Toast
+import androidx.core.view.LayoutInflaterCompat
+import androidx.fragment.app.FragmentActivity
+import kotlinx.android.synthetic.main.toastview.view.*
 
 //top level function
 fun checkNetConnect(context: Context): Boolean {
@@ -54,3 +61,28 @@ private constructor(context: Context){
         }
     }
 }
+
+fun customToast(context:Context, body:String): Toast{
+    val customView = LayoutInflater.from(context).inflate(R.layout.toastview,null,false)
+    val customToast = Toast.makeText(context,body,Toast.LENGTH_SHORT)
+    customView.ToastTextView.text = body
+    customToast.view = customView
+    return customToast
+}
+
+fun customToast(context: Activity, body:String): Toast{
+    val customView = context.layoutInflater.inflate(R.layout.toastview,null,false)
+    val customToast = Toast.makeText(context,body,Toast.LENGTH_SHORT)
+    customView.ToastTextView.text = body
+    customToast.view = customView
+    return customToast
+}
+
+fun customToast(context: FragmentActivity?, body:String): Toast{
+    val customView = context?.layoutInflater?.inflate(R.layout.toastview,null,false)
+    val customToast = Toast.makeText(context,body,Toast.LENGTH_SHORT)
+    customView?.ToastTextView?.text = body
+    customToast.view = customView
+    return customToast
+}
+

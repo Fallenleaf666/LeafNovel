@@ -13,11 +13,22 @@
             app:layout_constraintBottom_toBottomOf="parent" android:layout_marginBottom="16dp"
             android:layout_marginTop="16dp" android:layout_marginStart="32dp" android:textSize="18sp"
             android:gravity="center_vertical" android:foregroundGravity="center_vertical"/>
-    <ImageView
+    <LinearLayout
+            android:orientation="horizontal"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:src="@drawable/ic_baseline_keyboard_arrow_down_24"
-            android:id="@+id/BookFolderExpandableIcon"
-            app:layout_constraintEnd_toEndOf="parent" app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginTop="13dp" app:layout_constraintBottom_toBottomOf="parent"
-            android:layout_marginBottom="14dp" android:layout_marginEnd="24dp"/>
+            android:layout_height="match_parent" app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="16dp">
+        <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:src="@drawable/ic_baseline_keyboard_arrow_down_24"
+                android:id="@+id/BookFolderExpandableIcon"
+                android:layout_marginEnd="12dp"
+                android:layout_gravity="center_vertical"/>
+        <ImageButton
+                android:layout_width="30dp"
+                android:layout_height="30dp" android:src="@drawable/ic_baseline_more_vert_24"
+                android:id="@+id/BookFolderMoewBT" android:layout_gravity="center_vertical"
+                android:background="@android:color/transparent" android:scaleType="fitXY"/>
+    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

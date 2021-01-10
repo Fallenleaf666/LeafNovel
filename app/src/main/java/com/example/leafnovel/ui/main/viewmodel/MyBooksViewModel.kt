@@ -6,6 +6,8 @@ import android.widget.Toast
 import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
+import com.example.leafnovel.bean.Group
+import com.example.leafnovel.customToast
 import com.example.leafnovel.data.model.StoredBook
 import com.example.leafnovel.data.database.StoredBookDB
 import com.example.leafnovel.data.model.StoredBookFolder
@@ -34,6 +36,7 @@ class MyBooksViewModel(context: Context) : ViewModel() {
         allsbBookFolders = repository.allStoredBookFolders
     }
 
+
     fun insert(sbBook: StoredBook) = scope.launch(Dispatchers.IO) {
         repository.insert(sbBook)
     }
@@ -42,11 +45,24 @@ class MyBooksViewModel(context: Context) : ViewModel() {
         repository.delete(sbBook)
     }
 
+    fun moveBook(bookId:String,folderId:Long) = scope.launch(Dispatchers.IO) {
+        repository.moveBook(bookId,folderId)
+    }
+
+    fun deleteBookById(bookId:String) = scope.launch(Dispatchers.IO) {
+        repository.deleteBookById(bookId)
+    }
+
+    fun getBookFolders():Deferred<List<StoredBookFolder>> = scope.async(Dispatchers.IO) {
+        repository.getBookFolders()
+    }
+
     suspend fun addFolder(sbBookFolder: StoredBookFolder): Deferred<Long> =
         scope.async(Dispatchers.IO) {
             val id = repository.addBookFolder(sbBookFolder)
             withContext(Dispatchers.Main) {
-                Toast.makeText(mContext, "\"${sbBookFolder.foldername}\"建立成功！id=$id", Toast.LENGTH_SHORT).show()
+//                Toast.makeText(mContext, "\"${sbBookFolder.foldername}\"建立成功！id=$id", Toast.LENGTH_SHORT).show()
+                customToast(mContext,"\"${sbBookFolder.foldername}\"建立成功！id=$id").show()
             }
             id
         }
@@ -63,12 +79,20 @@ class MyBooksViewModel(context: Context) : ViewModel() {
 //        }
 //    }
 
-    fun deleteFolder(sbBookFolder: StoredBookFolder) = scope.launch(Dispatchers.IO) {
-        repository.deleteBookFolder(sbBookFolder)
+    fun deleteBookFolderAndUpdate(folderId: Long) = scope.launch(Dispatchers.IO) {
+        repository.deleteBookFolderAndUpdate(folderId)
     }
 
-    fun updateFolder(newName: String, storedBookFolderId: String) = scope.launch(Dispatchers.IO) {
+    fun updateFolder(newName: String, storedBookFolderId: Long) = scope.launch(Dispatchers.IO) {
         repository.updateBookFolder(newName, storedBookFolderId)
+    }
+
+    fun getFolderWithBook():Deferred<ArrayList<Group>> = scope.async(Dispatchers.IO) {
+        repository.getFolderWithBook()
+    }
+
+    fun updateBookParentFolder(oldFolderId:Long) = scope.async(Dispatchers.IO) {
+        repository.updateBookParentFolder(oldFolderId)
     }
 
 

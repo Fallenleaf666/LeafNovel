@@ -6,8 +6,8 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.os.Handler
-import android.util.Log
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.leafnovel.R
 import com.example.leafnovel.bean.*
+import com.example.leafnovel.customToast
 import com.example.leafnovel.data.model.StoredBook
 import com.example.leafnovel.data.model.StoredBookFolder
 import com.example.leafnovel.ui.base.MyBooksViewModelFactory
@@ -28,9 +29,10 @@ import kotlinx.android.synthetic.main.fragment_my_books.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
-class MyBooksBeta : Fragment(), MyBookAdapter.OnItemClickListener {
+class MyBooksBeta : Fragment(), MyBookAdapter.OnItemClickListener, MyBookAdapter.OnFolderItemClickListener{
     companion object {
         val newInstance: MyBooksBeta by lazy {
             MyBooksBeta()
@@ -80,10 +82,12 @@ class MyBooksBeta : Fragment(), MyBookAdapter.OnItemClickListener {
     }
 
     private fun initUiLister() {
+        mAdapter.setListener(this,this)
         MyBookRefreshLayout.setOnRefreshListener(refreshListener)
         AddBookFolderBT.setOnClickListener {
             launchAlertDialog()
         }
+
     }
 
     private val refreshListener = SwipeRefreshLayout.OnRefreshListener {
@@ -99,19 +103,21 @@ class MyBooksBeta : Fragment(), MyBookAdapter.OnItemClickListener {
             putExtra(
                 "BOOK_Detail", StoredBook(
                     sbBook.bookName, sbBook.bookAuthor, sbBook.bookSource,
-                    sbBook.newChapter, sbBook.lastRead, sbBook.bookUrl, sbBook.isMostLike, sbBook.bookId
+                    sbBook.newChapter, sbBook.lastRead, sbBook.bookUrl, sbBook.isMostLike, -5, sbBook.bookId
                 )
             )
         }
         this.startActivity(intent)
     }
 
-    override fun onDeleteClick(sbBook: StoredBook, view: View) {
-        viewModel.delete(sbBook)
+    override fun onDeleteClick(book:Child, view: View) {
+        viewModel.deleteBookById(book.bookId)
+        mAdapter.removeChildItem(book)
     }
 
-    override fun onPinningClick(sbBook: StoredBook, view: View) {
-        Toast.makeText(context, "已將\"${sbBook.bookname}\"釘選", Toast.LENGTH_SHORT).show()
+    override fun onPinningClick(sbbook:Child, view: View) {
+        launchAlertDialogForMoveItem(sbbook)
+//        Toast.makeText(context, "已將\"${sbBook.bookname}\"釘選", Toast.LENGTH_SHORT).show()
 //        val popupMenu = PopupMenu(context, view)
 //        popupMenu.inflate(R.menu.mybook_more_menu)
 //        popupMenu.setOnMenuItemClickListener { item: MenuItem ->
@@ -135,34 +141,57 @@ class MyBooksBeta : Fragment(), MyBookAdapter.OnItemClickListener {
         }
 
         viewModel = ViewModelProvider(this, MyBooksViewModelFactory(context!!)).get(MyBooksViewModel::class.java)
-//        storedBookAdapter.setViewModel(viewModel)
-        context?.let { Log.d("Viewmodel", "has context") }
+//      storedBookAdapter.setViewModel(viewModel)
+
+        CoroutineScope(Dispatchers.IO).launch {
+            mAdapter.clear()
+            val groupList = viewModel.getFolderWithBook().await()
+            for (i in groupList.indices) {
+                val folder = groupList[i]
+                mAdapter.addItem(folder)
+            }
+            withContext(Dispatchers.Main) {
+                mAdapter.notifyDataSetChanged()
+            }
+        }
 
         viewModel.allsbBooks.observe(viewLifecycleOwner, { storedBooks ->
-            mAdapter.setListener(this)
-            val groupNames = arrayOf("未分類")
-            for (i in groupNames.indices) {
-                val group = Group()
-                group.id = i
-                group.isExpendable = i == 0
-                group.title = groupNames[i]
-                for (j in storedBooks.indices) {
-                    val storedBook = Child()
-                    storedBook.bookUrl = storedBooks[j].bookUrl
-                    storedBook.bookAuthor = storedBooks[j].bookauthor
-                    storedBook.bookName = storedBooks[j].bookname
-                    storedBook.isMostLike = storedBooks[j].ismostlike
-                    storedBook.bookId = storedBooks[j].bookid
-                    storedBook.position = j
-                    storedBook.group = group
-                    group.addSubItem(storedBook)
-                }
-                mAdapter.addItem(group)
-            }
+//            CoroutineScope(Dispatchers.IO).launch {
+//                mAdapter.clear()
+//                val groupList = viewModel.getFolderWithBook().await()
+//                for (i in groupList.indices) {
+//                    val folder = groupList[i]
+//                    mAdapter.addItem(folder)
+//                }
+//                withContext(Dispatchers.Main) {
+//                    mAdapter.notifyDataSetChanged()
+//                }
+//            }
+//            mAdapter.setListener(this)
+//            mAdapter.addItem()
+//            mAdapter.addAll(viewModel.getFolderWithBook().await())
+//            val groupNames = arrayOf("未分類")
+//            for (i in groupNames.indices) {
+//                val folder = Group()
+//                folder.id = i
+//                folder.isExpendable = i == 0
+//                folder.title = groupNames[i]
+//                for (j in storedBooks.indices) {
+//                    val storedBook = Child()
+//                    storedBook.bookUrl = storedBooks[j].bookUrl
+//                    storedBook.bookAuthor = storedBooks[j].bookauthor
+//                    storedBook.bookName = storedBooks[j].bookname
+//                    storedBook.isMostLike = storedBooks[j].ismostlike
+//                    storedBook.bookId = storedBooks[j].bookid
+//                    storedBook.position = j
+//                    storedBook.group = folder
+//                    folder.addSubItem(storedBook)
+//                }
+//                mAdapter.addItem(folder)
+//            }
         })
 
-//        viewModel.allsbBookFolders.observe(viewLifecycleOwner, { storedBookFolders ->
-//        })
+        viewModel.allsbBookFolders.observe(viewLifecycleOwner, { storedBookFolders -> })
 //
 //        Handler().postDelayed({ //更新第0组
 //            val foldersName = mutableListOf<String>()
@@ -183,11 +212,11 @@ class MyBooksBeta : Fragment(), MyBookAdapter.OnItemClickListener {
 
         mAdapter.setExpandableToggleListener(object : ExpandableItemAdapter.ExpandableToggleListener {
             override fun onExpand(item: Item) {
-                Toast.makeText(context, (item as Group).title + " 展開", Toast.LENGTH_SHORT).show()
+//                Toast.makeText(context, (item as Group).title + " 展開", Toast.LENGTH_SHORT).show()
             }
 
             override fun onCollapse(item: Item) {
-                Toast.makeText(context, (item as Group).title + " 收起", Toast.LENGTH_SHORT).show()
+//                Toast.makeText(context, (item as Group).title + " 收起", Toast.LENGTH_SHORT).show()
             }
         })
     }
@@ -196,36 +225,22 @@ class MyBooksBeta : Fragment(), MyBookAdapter.OnItemClickListener {
         super.onDestroy()
     }
 
-//    inner class ItemDecoration :RecyclerView.ItemDecoration(){
-//        override fun onDraw(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
-//            super.onDraw(c, parent, state)
-//        }
-//
-//        override fun onDrawOver(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
-//            super.onDrawOver(c, parent, state)
-//        }
-//
-//        override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
-//            super.getItemOffsets(outRect, view, parent, state)
-//        }
-//    }
-//
-//    override fun onSaveInstanceState(outState: Bundle) {
-//        super.onSaveInstanceState(outState)
-//        if(mAdapter!=null){
-//            storedBookAdapter.saveStates(outState)
-//        }
-//    }
-//
-//
-//    override fun onViewStateRestored(savedInstanceState: Bundle?) {
-//        super.onViewStateRestored(savedInstanceState)
-//        if(storedBookAdapter!=null){
-//            if (savedInstanceState != null) {
-//                storedBookAdapter.restoreStates(savedInstanceState)
-//            }
-//        }
-//    }
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        if(mAdapter!=null){
+            mAdapter.saveStates(outState)
+        }
+    }
+
+
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        super.onViewStateRestored(savedInstanceState)
+        if(mAdapter!=null){
+            if (savedInstanceState != null) {
+                mAdapter.restoreStates(savedInstanceState)
+            }
+        }
+    }
 
     private fun launchAlertDialog() {
         context?.let { mContext ->
@@ -242,7 +257,7 @@ class MyBooksBeta : Fragment(), MyBookAdapter.OnItemClickListener {
 
             addBt.setOnClickListener {
                 if (name.text.isEmpty()) {
-                    Toast.makeText(context, "清輸入至少1個字元！", Toast.LENGTH_SHORT).show()
+                    customToast(activity,"請輸入至少1個字元！").show()
                 } else {
                     CoroutineScope(Dispatchers.IO).launch{
                         val id = viewModel.addFolder(StoredBookFolder(name.text.toString(), System.currentTimeMillis()))
@@ -258,6 +273,100 @@ class MyBooksBeta : Fragment(), MyBookAdapter.OnItemClickListener {
                 }
             }
             dialog.show()
+        }
+    }
+
+    private fun launchAlertDialogEditFolderName(folder:Group,position:Int) {
+        context?.let { mContext ->
+            val dialogView = LayoutInflater.from(mContext).inflate(R.layout.dialogview_add_book_folder, null)
+            val builder = AlertDialog.Builder(mContext).apply {
+                setView(dialogView)
+            }
+            val addBt = dialogView.findViewById<Button>(R.id.DialogAddBookFolderBT)
+            val name = dialogView.findViewById<TextView>(R.id.DialogAddBookFolderEditTextView)
+            val title = dialogView.findViewById<TextView>(R.id.DialogUpdateFolderTitle)
+            addBt.text = "編輯"
+            title.text = "編輯分類名稱"
+            name.text = folder.title
+
+            val dialog = builder.create().apply {
+                window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            }
+
+            addBt.setOnClickListener {
+                if (name.text.isEmpty()) {
+                    customToast(activity,"請輸入至少1個字元！").show()
+                } else {
+                    CoroutineScope(Dispatchers.IO).launch{
+                        val id = viewModel.updateFolder(name.text.toString(),folder.id.toLong())
+                        folder.title = name.text.toString()
+                        mAdapter.notifyItemChanged(position,folder)
+                        dialog.cancel()
+                    }
+                }
+            }
+            dialog.show()
+        }
+    }
+
+    override fun onMoreClick(bookFolder: Group, view: View, position:Int) {
+        val popupMenu = PopupMenu(context, view)
+        popupMenu.inflate(R.menu.mybook_folder_more_menu)
+        popupMenu.setOnMenuItemClickListener { item: MenuItem ->
+            when (item.itemId) {
+                R.id.menuBookFolderDelete -> {
+//                    TODO 鎖起來
+                    CoroutineScope(Dispatchers.IO).launch {
+                        val folder = mAdapter.getItem(0xfa01,bookFolder.id)
+                        viewModel.deleteBookFolderAndUpdate(bookFolder.id.toLong())
+                        mAdapter.removeItem(bookFolder)
+                        withContext(Dispatchers.Main){
+                            mAdapter.notifyDataSetChanged()
+                        }
+                    }
+                }
+                R.id.menuBookFolderEdit -> {
+                    launchAlertDialogEditFolderName(bookFolder,position)
+                }
+            }
+            true
+        }
+        popupMenu.show()
+    }
+
+    private fun launchAlertDialogForMoveItem(sbbook:Child) {
+        CoroutineScope(Dispatchers.IO).launch {
+            val folderList = viewModel.getBookFolders().await().toMutableList()
+            folderList.add(StoredBookFolder("未分類", 0, -5))
+            val folderNameList = arrayListOf<String>()
+            folderList.let {
+                for (i in it) {
+                    folderNameList.add(i.foldername)
+                }
+            }
+            withContext(Dispatchers.Main) {
+                var singleIndex = 0
+                context?.let { mContext ->
+                    AlertDialog.Builder(mContext)
+                        .setTitle("選擇移動分類")
+                        .setSingleChoiceItems(folderNameList.toTypedArray(), singleIndex) { _, clickIndex ->
+                            singleIndex = clickIndex
+                        }
+                        .setPositiveButton("移動") { dialog, _ ->
+                            CoroutineScope(Dispatchers.IO).launch {
+                                folderList.let {
+//                                    viewModel.storedBook(it[singleIndex].folderid)
+                                    viewModel.moveBook(sbbook.bookId,it[singleIndex].folderid)
+                                    mAdapter.moveChildItem(sbbook,it[singleIndex].folderid)
+                                }
+                                withContext(Dispatchers.Main) {
+                                    customToast(activity,"已將書本放入${folderNameList[singleIndex]}").show()
+                                    dialog.dismiss()
+                                }
+                            }
+                        }.show()
+                }
+            }
         }
     }
 }

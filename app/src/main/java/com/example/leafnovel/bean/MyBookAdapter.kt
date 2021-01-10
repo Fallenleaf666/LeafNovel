@@ -1,5 +1,6 @@
 package com.example.leafnovel.bean
 
+import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,6 +11,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.chauthai.swipereveallayout.SwipeRevealLayout
+import com.chauthai.swipereveallayout.ViewBinderHelper
 import com.example.leafnovel.R
 import com.example.leafnovel.data.model.StoredBook
 import com.rishabhharit.roundedimageview.RoundedImageView
@@ -22,11 +24,23 @@ class MyBookAdapter:ExpandableItemAdapter() {
         const val TYPE_CHILD = 0xfa02
     }
 
+    private val viewBinderHelperRight: ViewBinderHelper = ViewBinderHelper().apply {
+        setOpenOnlyOne(true)
+    }
+    private val viewBinderHelperLeft: ViewBinderHelper = ViewBinderHelper().apply {
+        setOpenOnlyOne(true)
+    }
+
     private var listener: OnItemClickListener? = null
+    private var folderListener: OnFolderItemClickListener? = null
 
     fun setListener(itemClickListener:OnItemClickListener) {
         listener = itemClickListener
-        notifyDataSetChanged()
+    }
+
+    fun setListener(itemClickListener:OnItemClickListener,folderListener: OnFolderItemClickListener) {
+        this.listener = itemClickListener
+        this.folderListener = folderListener
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
@@ -54,18 +68,23 @@ class MyBookAdapter:ExpandableItemAdapter() {
             TYPE_GROUP -> {
                 val folder = item as Group
                 val folderVH = bookVH as GroupViewHolder
+                folderVH.changeIcon(item.isExpendable)
                 folderVH.title.text = folder.title
                 folderVH.itemView.setOnClickListener{
                     toggle(folder)
                     bookVH.changeIcon(folder.isExpendable)
                     notifyDataSetChanged()
                 }
+                folderVH.more.setOnClickListener{
+                    folderListener?.onMoreClick(folder,it,position)
+                }
+                folderVH.more.visibility = if(folder.id == -5)View.INVISIBLE else View.VISIBLE
             }
             TYPE_CHILD -> {
                 val book = item as Child
                 val bookVH = bookVH as ChildViewHolder
-//                viewBinderHelperRight.bind(bookVH.swipeLayoutRight, sbBook.bookid)
-//                viewBinderHelperLeft.bind(bookVH.swipeLayoutLeft, sbBook.bookid)
+                viewBinderHelperRight.bind(bookVH.swipeLayoutRight, book.bookId)
+                viewBinderHelperLeft.bind(bookVH.swipeLayoutLeft, book.bookId)
                 bookVH.bookTitle.text = book.bookName
                 bookVH.author.text = book.bookAuthor
                 bookVH.bookLastRead.text = if(book.lastRead!="")book.lastRead else "尚未閱讀本書"
@@ -76,6 +95,38 @@ class MyBookAdapter:ExpandableItemAdapter() {
                     .fallback(R.drawable.ic_baseline_image_24)
                     .centerInside()
                     .into(bookVH.bookImg)
+
+                bookVH.deleteBT.setOnClickListener{
+                    bookVH.swipeLayoutRight.close(true)
+                    listener?.onDeleteClick(book, it)
+                }
+                bookVH.pinningBT.setOnClickListener{
+                    bookVH.swipeLayoutLeft.close(true)
+                    listener?.onPinningClick(book, it)
+                }
+                bookVH.swipeLayoutRight.setSwipeListener(object : SwipeRevealLayout.SwipeListener {
+                    override fun onClosed(view: SwipeRevealLayout?) {
+                        bookVH.swipeLayoutLeft.setLockDrag(false)
+                    }
+
+                    override fun onSlide(view: SwipeRevealLayout?, slideOffset: Float) {
+                        bookVH.swipeLayoutLeft.setLockDrag(true)
+                    }
+
+                    override fun onOpened(view: SwipeRevealLayout?) {}
+                })
+
+                bookVH.swipeLayoutLeft.setSwipeListener(object : SwipeRevealLayout.SwipeListener {
+                    override fun onClosed(view: SwipeRevealLayout?) {
+                        bookVH.swipeLayoutRight.setLockDrag(false)
+                    }
+
+                    override fun onSlide(view: SwipeRevealLayout?, slideOffset: Float) {
+                        bookVH.swipeLayoutRight.setLockDrag(true)
+                    }
+
+                    override fun onOpened(view: SwipeRevealLayout?) {}
+                })
             }
         }
 
@@ -85,6 +136,7 @@ class MyBookAdapter:ExpandableItemAdapter() {
     private inner class GroupViewHolder(itemView: View) : ItemViewHolder(itemView) {
         var title: TextView = itemView.BookFolderTitleText
         var icon: ImageView = itemView.BookFolderExpandableIcon
+        var more: ImageButton = itemView.BookFolderMoewBT
 
         init {
         }
@@ -132,8 +184,21 @@ class MyBookAdapter:ExpandableItemAdapter() {
 
     interface OnItemClickListener {
         fun onItemClick(sbBook: Child, view: View)
-        fun onDeleteClick(sbBook: StoredBook, view: View)
-        fun onPinningClick(sbBook: StoredBook, view: View)
+        fun onDeleteClick(book:Child, view: View)
+        fun onPinningClick(sbbook:Child, view: View)
+    }
+
+    interface OnFolderItemClickListener {
+        fun onMoreClick(bookFolder: Group, view: View,position:Int)
+    }
+
+    fun saveStates(outState: Bundle){
+        viewBinderHelperRight.saveStates(outState)
+        viewBinderHelperLeft.saveStates(outState)
+    }
+    fun restoreStates(outState: Bundle){
+        viewBinderHelperRight.restoreStates(outState)
+        viewBinderHelperLeft.restoreStates(outState)
     }
 
 }

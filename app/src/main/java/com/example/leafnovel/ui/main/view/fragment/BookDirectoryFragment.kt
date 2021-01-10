@@ -1,12 +1,9 @@
 package com.example.leafnovel.ui.main.view.fragment
 
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.*
-import android.view.animation.Animation
 import androidx.fragment.app.Fragment
 import androidx.appcompat.view.ActionMode
 import android.widget.Button
@@ -25,11 +22,9 @@ import com.example.leafnovel.data.model.BookDownloadInfo
 import com.example.leafnovel.ui.main.adapter.BookChapterAdapter
 import com.example.leafnovel.ui.main.adapter.multiselection.BookChapterItemDetailLookup
 import com.example.leafnovel.ui.main.adapter.multiselection.BookChapterItemKeyProvider
-import com.example.leafnovel.ui.main.view.BookContentActivity
 import com.example.leafnovel.ui.main.view.BookContentBetaActivity
 import com.example.leafnovel.ui.main.view.BookDetailActivity
 import com.example.leafnovel.ui.main.viewmodel.BookDetailViewModel
-import kotlinx.android.synthetic.main.activity_book_directory.*
 import kotlinx.android.synthetic.main.fragment_book_directory.*
 
 class BookDirectoryFragment : Fragment(), BookChapterAdapter.OnItemClickListener ,ActionMode.Callback{

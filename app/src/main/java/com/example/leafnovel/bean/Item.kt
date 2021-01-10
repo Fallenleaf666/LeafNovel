@@ -20,6 +20,11 @@ abstract class Item {
     fun clearSubItems(){
         items.clear()
     }
+
+    fun removeSubItem(item: Item){
+        items.remove(item)
+    }
+
     fun getSubItems():ArrayList<Item>{
         return items
     }

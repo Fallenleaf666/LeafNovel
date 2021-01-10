@@ -4,6 +4,7 @@ import android.util.Log
 import com.example.leafnovel.data.api.NovelApi
 import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
+import com.example.leafnovel.bean.Group
 import com.example.leafnovel.data.database.StoredBookDao
 import com.example.leafnovel.data.model.*
 import kotlinx.coroutines.CoroutineScope
@@ -34,12 +35,13 @@ class Repository constructor(private val sbBooksDao: StoredBookDao) {
     }
 
     @WorkerThread
-    fun deleteBookFolder(storedBookFolder: StoredBookFolder){
-        sbBooksDao.deleteBookFolder(storedBookFolder)
+    fun deleteBookFolderAndUpdate(folderid: Long){
+//        sbBooksDao.deleteBookFolder(folderid)
+        sbBooksDao.deleteBookFolderAndUpdate(folderid)
     }
 
     @WorkerThread
-    fun updateBookFolder(newName:String,storedBookFolderId: String){
+    fun updateBookFolder(newName:String,storedBookFolderId: Long){
         sbBooksDao.updateBookFolder(newName,storedBookFolderId)
     }
 
@@ -80,6 +82,11 @@ class Repository constructor(private val sbBooksDao: StoredBookDao) {
     @WorkerThread
     fun delete(storedBook: StoredBook){
         sbBooksDao.delete(storedBook)
+    }
+
+    @WorkerThread
+    fun deleteBookById(bookId:String){
+        sbBooksDao.deleteBookById(bookId)
     }
 
 //    @WorkerThread
@@ -131,6 +138,25 @@ class Repository constructor(private val sbBooksDao: StoredBookDao) {
     @WorkerThread
     fun requestNovelDetail(bookId:String,bookTitle:String):MutableMap<String, String>{
         return NovelApi.requestNovelDetail(bookId,bookTitle)
+    }
+    @WorkerThread
+    fun getFolderWithBook():ArrayList<Group>{
+        return sbBooksDao.getFolderWithBook()
+    }
+
+    @WorkerThread
+    fun updateBookParentFolder(oldFolderId:Long){
+        return sbBooksDao.updateBookParentFolder(oldFolderId)
+    }
+
+    @WorkerThread
+    fun getBookFolders():List<StoredBookFolder>{
+        return sbBooksDao.getBookFolders()
+    }
+
+    @WorkerThread
+    fun moveBook(bookId: String, folderId: Long) {
+        return sbBooksDao.moveBook(bookId,folderId)
     }
 }
 

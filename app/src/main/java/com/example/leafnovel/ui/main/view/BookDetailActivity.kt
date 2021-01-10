@@ -89,7 +89,7 @@ class BookDetailActivity : AppCompatActivity() {
         } else {
             val bookInfo : Book? = intent.getParcelableExtra("BOOK_INFO")
             bookInfo?.let {
-            bookDetail = StoredBook(it.booktitle,it.author,"UU看書","","",it.bookUrl,false,it.bookId)?:null
+            bookDetail = StoredBook(it.booktitle, it.author, "UU看書", "", "", it.bookUrl, false, -5, it.bookId)?:null
             }
         }
             bookDetail?.let {

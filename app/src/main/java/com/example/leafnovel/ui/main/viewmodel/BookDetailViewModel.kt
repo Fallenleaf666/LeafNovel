@@ -59,12 +59,29 @@ class BookDetailViewModel(context: Context, storedBook: StoredBook, repository: 
             if (bI != null && bOI != null) {
                 val storedBook = StoredBook(
                     bI.bookname, bI.bookauthor, bI.booksource,
-                    bOI["newChapter"] ?: "", "", bOI["imgUrl"] ?: "", false, bI.bookid
+                    bOI["newChapter"] ?: "", "", bOI["imgUrl"] ?: "", false, -5, bI.bookid
                 )
                 mRepository.insert(storedBook)
                 withContext(Dispatchers.Main) {
                     Toast.makeText(mContext, "已將${bI.bookname}放入書櫃", Toast.LENGTH_SHORT).show()
                 }
+            }
+        }
+    }
+
+    fun storedBook(folderId:Long) {
+        scope.launch(Dispatchers.IO) {
+            val bI = bookInformation.value
+            val bOI = bookOtherInformation.value
+            if (bI != null && bOI != null) {
+                val storedBook = StoredBook(
+                    bI.bookname, bI.bookauthor, bI.booksource,
+                    bOI["newChapter"] ?: "", "", bOI["imgUrl"] ?: "", false, folderId, bI.bookid
+                )
+                mRepository.insert(storedBook)
+//                withContext(Dispatchers.Main) {
+//                    Toast.makeText(mContext, "已將${bI.bookname}放入書櫃", Toast.LENGTH_SHORT).show()
+//                }
             }
         }
     }
@@ -95,6 +112,11 @@ class BookDetailViewModel(context: Context, storedBook: StoredBook, repository: 
                 mContext.startService(intent)
             }
         }
+    }
+
+
+    fun getBookFolders():Deferred<List<StoredBookFolder>> = scope.async(Dispatchers.IO) {
+        mRepository.getBookFolders()
     }
 
     override fun onCleared() {

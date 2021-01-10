@@ -3,7 +3,6 @@ package com.example.leafnovel.ui.main.view.fragment
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
-import android.content.IntentSender
 import android.content.SharedPreferences
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -25,8 +24,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.*
-import javax.mail.internet.MimeMessage
 
 
 class MySetting : Fragment() {
@@ -132,7 +129,7 @@ class MySetting : Fragment() {
             CoroutineScope(Dispatchers.IO).launch {
                 val storedBook = StoredBook(
                     "易筋經", "達摩", "葉子書城", "第一章 洒家不吃素啦", "",
-                    "http://www", false, "120000"
+                    "http://www", false, -5, "120000"
                 )
                 repository?.insert(storedBook)
                 withContext(Dispatchers.Main) {

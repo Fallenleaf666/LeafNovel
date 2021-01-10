@@ -2,7 +2,6 @@ package com.example.leafnovel.ui.main.adapter
 
 import android.content.Context
 import android.os.Bundle
-import android.util.SparseArray
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,7 +13,6 @@ import com.bumptech.glide.Glide
 import com.chauthai.swipereveallayout.SwipeRevealLayout
 import com.chauthai.swipereveallayout.ViewBinderHelper
 import com.example.leafnovel.R
-import com.example.leafnovel.bean.MyBookFirstBean
 import com.example.leafnovel.data.model.StoredBook
 import com.example.leafnovel.ui.main.viewmodel.MyBooksViewModel
 import com.rishabhharit.roundedimageview.RoundedImageView
