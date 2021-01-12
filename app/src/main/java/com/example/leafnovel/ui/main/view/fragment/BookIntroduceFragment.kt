@@ -6,6 +6,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -47,6 +48,7 @@ class BookIntroduceFragment : Fragment() {
 
         viewModel = parentActivity?.getActivityViewModel()
 
+
         setUi()
         setObserver()
         setUiListener()
@@ -85,6 +87,18 @@ class BookIntroduceFragment : Fragment() {
                 LastReadText.text = it.chapterTitle
             }
         })
+//
+//        viewModel?.isBookStored?.observe(viewLifecycleOwner,{
+//                isBookStored->
+//            StoreBT.text = if(isBookStored)"已收藏" else "收藏"
+//            Log.d(TAG,"收藏狀態:${isBookStored}")
+//        })
+
+        viewModel?.bookFavorite?.observe(viewLifecycleOwner,{
+                bookFavorite->
+            StoreBT.text = if(bookFavorite != null)"已收藏" else "收藏"
+            Log.d(TAG,"收藏狀態:${bookFavorite?.bookid}")
+        })
     }
 
     override fun onAttach(activity: Activity) {
@@ -94,7 +108,16 @@ class BookIntroduceFragment : Fragment() {
 
     private fun setUiListener() {
         StoreBT.setOnClickListener {
-            launchAlertDialog()
+            if(StoreBT.text == "已收藏"){
+                viewModel?.removeFavoriteBook()
+            }else{
+                launchAlertDialog()
+            }
+//            viewModel?.isBookStored?.value?.let {
+//                viewModel?.isBookStored?.value = !it
+//            }
+//            TODO 如果cancel就放到預設
+//            launchAlertDialog()
 //            viewModel?.storedBook()
         }
         LastReadText.setOnClickListener {
@@ -141,7 +164,9 @@ class BookIntroduceFragment : Fragment() {
                         .setPositiveButton("加入") { dialog, _ ->
                             CoroutineScope(Dispatchers.IO).launch {
                                 folderList?.let {
-                                    viewModel?.storedBook(it[singleIndex].folderid)
+//                                    viewModel?.storedBook(it[singleIndex].folderid)
+//                                    viewModel?.storedBook()
+                                    viewModel?.addFavoriteBook(it[singleIndex].folderid)
                                 }
                                 withContext(Dispatchers.Main) {
                                     customToast(activity,"已將書本放入${folderNameList[singleIndex]}").show()
@@ -152,5 +177,8 @@ class BookIntroduceFragment : Fragment() {
                 }
             }
         }
+    }
+    companion object{
+        const val TAG = "BookIntroduceFragment"
     }
 }

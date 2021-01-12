@@ -8,6 +8,27 @@ import com.example.leafnovel.data.model.*
 
 @Dao
 interface StoredBookDao{
+
+    @Transaction
+    @Query("select * from BookFavorite")
+    fun getAllFavoriteBook():List<BookFavorite>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun addFavoriteBook(bookFavorite: BookFavorite)
+
+    @Transaction
+    fun addStoredBookAndFavoriteBook(storedBook:StoredBook,bookFavorite:BookFavorite){
+        insert(storedBook)
+        addFavoriteBook(bookFavorite)
+    }
+
+    @Query(value = "delete from BookFavorite where bookid = :bookId")
+    fun removeFavoriteBook(bookId:String)
+
+    @Query(value = "select * from BookFavorite where bookid = :bookId")
+    fun getFavoriteBook(bookId:String) : LiveData<BookFavorite>
+
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(storedBook: StoredBook)
 
@@ -65,7 +86,9 @@ interface StoredBookDao{
     @Delete
     fun delete(storedbook: StoredBook)
 
-    @Query("DELETE from storedBook where bookid = :bookId")
+//    @Query("DELETE from storedBook where bookid = :bookId")
+//    fun deleteBookById(bookId: String)
+    @Query("DELETE from BookFavorite where bookid = :bookId")
     fun deleteBookById(bookId: String)
 
     @Transaction
@@ -80,6 +103,12 @@ interface StoredBookDao{
 
     @Query("select * from StoredBook where parent = :folderId")
     fun getBooksByFolderId(folderId:Long):List<StoredBook>
+
+    @Transaction
+    @Query("select BookFavorite.bookid ,StoredBook.* from BookFavorite inner join StoredBook on BookFavorite.bookid = StoredBook.bookid where BookFavorite.parent = :folderId")
+//    @Query("select * from BookFavorite,StoredBook where BookFavorite.parent = :folderId")
+//    @Query("select * from BookFavorite,StoredBook where BookFavorite.parent = :folderId and BookFavorite.bookid = StoredBook.bookid ")
+    fun getFavoriteBooksByFolderId(folderId:Long):List<BookFavoriteWithStoredBook>
 
     @Query("select * from StoredBookFolder order by creattime desc")
     fun getBookFolders():List<StoredBookFolder>
@@ -120,7 +149,46 @@ interface StoredBookDao{
         return folderWithBook
     }
 
-    @Query("UPDATE storedbook SET parent = :folderId where bookid = :bookId")
+//    @Query("UPDATE storedbook SET parent = :folderId where bookid = :bookId")
+//    fun moveBook(bookId: String, folderId: Long)
+
+    @Query("UPDATE BookFavorite SET parent = :folderId where bookid = :bookId")
     fun moveBook(bookId: String, folderId: Long)
+
+    @Transaction
+    fun getFolderWithBookBeta():ArrayList<Group>{
+        //之後可改成relation
+        val folderList = getAllStoredBookFolderNoLive().toMutableList()
+        //預設未分類
+        folderList.add(StoredBookFolder("未分類",0,-5))
+        val folderIdList = arrayListOf<Long>()
+        for(i in folderList.indices){
+            folderIdList.add(folderList[i].folderid)
+        }
+        val folderWithBook = ArrayList<Group>()
+        for(j in folderList.indices){
+            val folder = Group().apply {
+                id = folderList[j].folderid.toInt()
+                isExpendable = j == 0
+                title = folderList[j].foldername
+            }
+            val storedBookList = getFavoriteBooksByFolderId(folderList[j].folderid)
+            for (k in storedBookList.indices) {
+                val bookInfo = storedBookList[k]
+                val storedBook = Child()
+                storedBook.bookUrl = bookInfo.bookUrl
+                storedBook.newChapter= bookInfo.newchapter
+                storedBook.lastRead= bookInfo.lastread
+                storedBook.bookAuthor = bookInfo.author
+                storedBook.bookName = bookInfo.bookname
+                storedBook.bookId = bookInfo.bookid
+                storedBook.position = k
+                storedBook.group = folder
+                folder.addSubItem(storedBook)
+            }
+            folderWithBook.add(folder)
+        }
+        return folderWithBook
+    }
 
 }

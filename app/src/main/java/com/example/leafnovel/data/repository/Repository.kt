@@ -4,6 +4,7 @@ import android.util.Log
 import com.example.leafnovel.data.api.NovelApi
 import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
+import androidx.room.Transaction
 import com.example.leafnovel.bean.Group
 import com.example.leafnovel.data.database.StoredBookDao
 import com.example.leafnovel.data.model.*
@@ -28,6 +29,9 @@ class Repository constructor(private val sbBooksDao: StoredBookDao) {
     fun insert(storedBook: StoredBook){
         sbBooksDao.insert(storedBook)
     }
+
+
+
 
     @WorkerThread
     fun addBookFolder(storedBookFolder: StoredBookFolder):Long{
@@ -141,7 +145,8 @@ class Repository constructor(private val sbBooksDao: StoredBookDao) {
     }
     @WorkerThread
     fun getFolderWithBook():ArrayList<Group>{
-        return sbBooksDao.getFolderWithBook()
+//        return sbBooksDao.getFolderWithBook()
+        return sbBooksDao.getFolderWithBookBeta()
     }
 
     @WorkerThread
@@ -157,6 +162,22 @@ class Repository constructor(private val sbBooksDao: StoredBookDao) {
     @WorkerThread
     fun moveBook(bookId: String, folderId: Long) {
         return sbBooksDao.moveBook(bookId,folderId)
+    }
+    @WorkerThread
+    fun getFavoriteBook(bookId:String) : LiveData<BookFavorite>{
+        return sbBooksDao.getFavoriteBook(bookId)
+    }
+
+    @WorkerThread
+    fun addFavoriteBook(storedBook:StoredBook,bookFavorite:BookFavorite){
+//        return sbBooksDao.addFavoriteBook(storedBook,bookFavorite)
+        return sbBooksDao.addStoredBookAndFavoriteBook(storedBook,bookFavorite)
+    }
+
+
+    @WorkerThread
+    fun removeFavoriteBook(bookId:String){
+        return sbBooksDao.removeFavoriteBook(bookId)
     }
 }
 

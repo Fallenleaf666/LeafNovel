@@ -12,6 +12,7 @@ import kotlinx.android.parcel.Parcelize
 @Entity
 data class StoredBook(
     @NonNull
+    @ColumnInfo(name = "bookname")
     var bookname: String,
     @NonNull
     @ColumnInfo(name = "author")
@@ -19,16 +20,21 @@ data class StoredBook(
     @NonNull
     @ColumnInfo(name = "source")
     var booksource: String,
+    @ColumnInfo(name = "newchapter")
     var newchapter: String,
+    @ColumnInfo(name = "lastread")
     var lastread: String,
+    @ColumnInfo(name = "bookUrl")
     var bookUrl: String,
     @Ignore
     var ismostlike: Boolean = false,
     @NonNull
+//    @Ignore
     @ColumnInfo(name = "parent")
     var parentfolderid: Long = -5,
     @PrimaryKey
     @NonNull
+    @ColumnInfo(name = "bookid")
     var bookid: String
 ) : Parcelable {
     constructor():this("", "", "", "", "", "", false, -5, "")

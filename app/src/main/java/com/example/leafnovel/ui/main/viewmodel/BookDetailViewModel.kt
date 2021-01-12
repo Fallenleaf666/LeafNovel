@@ -2,6 +2,7 @@ package com.example.leafnovel.ui.main.viewmodel
 
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -26,6 +27,8 @@ class BookDetailViewModel(context: Context, storedBook: StoredBook, repository: 
     val bookOtherInformation: MutableLiveData<Map<String, String>> = MutableLiveData()
     val bookInformation: MutableLiveData<StoredBook> = MutableLiveData(storedBook)
     val bookChapterList: MutableLiveData<BookChsResults> = MutableLiveData()
+    val isBookStored: MutableLiveData<Boolean> = MutableLiveData()
+    var bookFavorite: LiveData<BookFavorite>
 //    上次閱讀
     var bookLastReadInfo: LiveData<LastReadProgress>
 //    下載章節
@@ -37,6 +40,7 @@ class BookDetailViewModel(context: Context, storedBook: StoredBook, repository: 
             val bookChResults = NovelApi.requestChapterList(mStoredBook.bookid)
             bookChapterList.postValue(bookChResults)
         }
+        bookFavorite = repository.getFavoriteBook(mStoredBook.bookid)
         chaptersIndexSaved = repository.queryBookChapterIndexes(mStoredBook.bookid)
         bookLastReadInfo = repository.getLastReadProgress(mStoredBook.bookid)
     }
@@ -53,7 +57,7 @@ class BookDetailViewModel(context: Context, storedBook: StoredBook, repository: 
 
 
     fun storedBook() {
-        scope.launch(Dispatchers.IO) {
+        scope.launch(Dispatchers.IO){
             val bI = bookInformation.value
             val bOI = bookOtherInformation.value
             if (bI != null && bOI != null) {
@@ -62,14 +66,15 @@ class BookDetailViewModel(context: Context, storedBook: StoredBook, repository: 
                     bOI["newChapter"] ?: "", "", bOI["imgUrl"] ?: "", false, -5, bI.bookid
                 )
                 mRepository.insert(storedBook)
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(mContext, "已將${bI.bookname}放入書櫃", Toast.LENGTH_SHORT).show()
-                }
+//                withContext(Dispatchers.Main) {
+//                    Toast.makeText(mContext, "已將${bI.bookname}放入書櫃", Toast.LENGTH_SHORT).show()
+//                }
             }
         }
     }
 
-    fun storedBook(folderId:Long) {
+
+    fun storedBookInfo(folderId:Long) {
         scope.launch(Dispatchers.IO) {
             val bI = bookInformation.value
             val bOI = bookOtherInformation.value
@@ -79,6 +84,41 @@ class BookDetailViewModel(context: Context, storedBook: StoredBook, repository: 
                     bOI["newChapter"] ?: "", "", bOI["imgUrl"] ?: "", false, folderId, bI.bookid
                 )
                 mRepository.insert(storedBook)
+//                withContext(Dispatchers.Main) {
+//                    Toast.makeText(mContext, "已將${bI.bookname}放入書櫃", Toast.LENGTH_SHORT).show()
+//                }
+            }
+        }
+    }
+
+    fun addFavoriteBook(folderId:Long) {
+        scope.launch(Dispatchers.IO) {
+            val bI = bookInformation.value
+            val bOI = bookOtherInformation.value
+            if (bI != null && bOI != null) {
+                val storedBook = StoredBook(
+                    bI.bookname, bI.bookauthor, bI.booksource,
+                    bOI["newChapter"] ?: "", "", bOI["imgUrl"] ?: "", false, -5, bI.bookid
+                )
+//                mRepository.insert(storedBook)
+                mRepository.addFavoriteBook(storedBook,BookFavorite(folderId,bI.bookid))
+//                withContext(Dispatchers.Main) {
+//                    Toast.makeText(mContext, "已將${bI.bookname}放入書櫃", Toast.LENGTH_SHORT).show()
+//                }
+            }
+//            bookInformation.value?.let {
+//                mRepository.addFavoriteBook(BookFavorite(folderId,it.bookid))
+////                withContext(Dispatchers.Main) {
+////                    Toast.makeText(mContext, "已將${bI.bookname}放入書櫃", Toast.LENGTH_SHORT).show()
+////                }
+//            }
+        }
+    }
+
+    fun removeFavoriteBook() {
+        scope.launch(Dispatchers.IO) {
+            bookInformation.value?.let {
+                mRepository.removeFavoriteBook(it.bookid)
 //                withContext(Dispatchers.Main) {
 //                    Toast.makeText(mContext, "已將${bI.bookname}放入書櫃", Toast.LENGTH_SHORT).show()
 //                }

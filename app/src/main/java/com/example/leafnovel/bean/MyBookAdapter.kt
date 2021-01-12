@@ -62,6 +62,34 @@ class MyBookAdapter:ExpandableItemAdapter() {
     }
 
 
+    override fun onBindViewHolder(holder: ItemViewHolder, position: Int, payloads: MutableList<Any>) {
+//        super.onBindViewHolder(holder, position, payloads)
+        if (payloads.isEmpty()) {
+            onBindViewHolder(holder, position)
+        } else {
+            when (getItemViewType(position)) {
+                TYPE_GROUP -> {
+                    val folderVH = holder as GroupViewHolder
+                    (payloads[0] as Group).title.let {
+                        if(folderVH.title.text != it){
+                            folderVH.title.text = it
+                        }
+                    }
+                }
+                TYPE_CHILD -> {
+                    val bookVH = holder as ChildViewHolder
+                    if(bookVH.bookLastRead.text != (payloads[0] as Child).lastRead){
+                        bookVH.bookLastRead.text = (payloads[0] as Child).lastRead
+                    }
+                    if(bookVH.bookNewChapter.text != (payloads[0] as Child).newChapter){
+                        bookVH.bookNewChapter.text = (payloads[0] as Child).newChapter
+                    }
+                    //TODO 是否有新章
+                }
+            }
+        }
+    }
+
     override fun onBindViewHolder(bookVH: ItemViewHolder, position: Int) {
         val item: Item = getItem(position)
         when (getItemViewType(position)) {
@@ -70,15 +98,15 @@ class MyBookAdapter:ExpandableItemAdapter() {
                 val folderVH = bookVH as GroupViewHolder
                 folderVH.changeIcon(item.isExpendable)
                 folderVH.title.text = folder.title
-                folderVH.itemView.setOnClickListener{
+                folderVH.itemView.setOnClickListener {
                     toggle(folder)
                     bookVH.changeIcon(folder.isExpendable)
                     notifyDataSetChanged()
                 }
-                folderVH.more.setOnClickListener{
-                    folderListener?.onMoreClick(folder,it,position)
+                folderVH.more.setOnClickListener {
+                    folderListener?.onMoreClick(folder, it, position)
                 }
-                folderVH.more.visibility = if(folder.id == -5)View.INVISIBLE else View.VISIBLE
+                folderVH.more.visibility = if (folder.id == -5) View.INVISIBLE else View.VISIBLE
             }
             TYPE_CHILD -> {
                 val book = item as Child
@@ -87,7 +115,7 @@ class MyBookAdapter:ExpandableItemAdapter() {
                 viewBinderHelperLeft.bind(bookVH.swipeLayoutLeft, book.bookId)
                 bookVH.bookTitle.text = book.bookName
                 bookVH.author.text = book.bookAuthor
-                bookVH.bookLastRead.text = if(book.lastRead!="")book.lastRead else "尚未閱讀本書"
+                bookVH.bookLastRead.text = if (book.lastRead != "") book.lastRead else "尚未閱讀本書"
                 bookVH.bookNewChapter.text = book.newChapter
                 Glide.with(bookVH.itemView).load("http:${book.bookUrl}")
                     .placeholder(R.drawable.ic_outline_image_search_24)
@@ -96,11 +124,11 @@ class MyBookAdapter:ExpandableItemAdapter() {
                     .centerInside()
                     .into(bookVH.bookImg)
 
-                bookVH.deleteBT.setOnClickListener{
+                bookVH.deleteBT.setOnClickListener {
                     bookVH.swipeLayoutRight.close(true)
                     listener?.onDeleteClick(book, it)
                 }
-                bookVH.pinningBT.setOnClickListener{
+                bookVH.pinningBT.setOnClickListener {
                     bookVH.swipeLayoutLeft.close(true)
                     listener?.onPinningClick(book, it)
                 }

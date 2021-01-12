@@ -1,8 +1,11 @@
 package com.example.leafnovel.ui.main.view
 
 
+import android.app.Activity
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
@@ -76,27 +79,49 @@ class BookDetailActivity : AppCompatActivity() {
     }
 
     private fun getIntentString() {
-        val bookIsStored = intent.getBooleanExtra("BOOK_IS_STORED",false)
-        var bookDetail : StoredBook? = null
-        if(bookIsStored) {
-            bookDetail = intent.getParcelableExtra<StoredBook>("BOOK_Detail")?:null
-            repository?.let {
-                viewModel = ViewModelProvider(
-                    this,
-                    BookDetailViewModelFactory(applicationContext, bookDetail!!, it)
-                ).get(BookDetailViewModel::class.java)
-            }
+        val bookIsStored = intent.getBooleanExtra("BOOK_IS_STORED", false)
+        var bookDetail: StoredBook? = null
+        if (bookIsStored) {
+            bookDetail = intent.getParcelableExtra<StoredBook>("BOOK_Detail") ?: null
+            viewModel?.isBookStored?.value = true
         } else {
-            val bookInfo : Book? = intent.getParcelableExtra("BOOK_INFO")
+            val bookInfo: Book? = intent.getParcelableExtra("BOOK_INFO")
             bookInfo?.let {
-            bookDetail = StoredBook(it.booktitle, it.author, "UU看書", "", "", it.bookUrl, false, -5, it.bookId)?:null
+                bookDetail =
+                    StoredBook(it.booktitle, it.author, "UU看書", "", "", it.bookUrl, false, -5, it.bookId) ?: null
             }
         }
-            bookDetail?.let {
-            viewModel = ViewModelProvider(
-                this, BookDetailViewModelFactory(applicationContext, it, repository!!)
-            ).get(BookDetailViewModel::class.java)
+
+        repository?.let { r ->
+            bookDetail?.let { bd ->
+                viewModel = ViewModelProvider(this, BookDetailViewModelFactory(applicationContext, bd, r))
+                    .get(BookDetailViewModel::class.java)
+                viewModel?.isBookStored?.value = bookIsStored
             }
+        }
+//        viewModel?.storedBook()
+//        val bookIsStored = intent.getBooleanExtra("BOOK_IS_STORED",false)
+//        var bookDetail : StoredBook? = null
+//        if(bookIsStored) {
+//            bookDetail = intent.getParcelableExtra<StoredBook>("BOOK_Detail")?:null
+//            repository?.let {
+//                viewModel = ViewModelProvider(
+//                    this,
+//                    BookDetailViewModelFactory(applicationContext, bookDetail!!, it)
+//                ).get(BookDetailViewModel::class.java)
+//            }
+//            viewModel?.isBookStored?.value = true
+//        } else {
+//            val bookInfo : Book? = intent.getParcelableExtra("BOOK_INFO")
+//            bookInfo?.let {
+//            bookDetail = StoredBook(it.booktitle, it.author, "UU看書", "", "", it.bookUrl, false, -5, it.bookId)?:null
+//            }
+//        }
+//            bookDetail?.let {
+//            viewModel = ViewModelProvider(
+//                this, BookDetailViewModelFactory(applicationContext, it, repository!!)
+//            ).get(BookDetailViewModel::class.java)
+//            }
     }
 
 
@@ -116,6 +141,7 @@ class BookDetailActivity : AppCompatActivity() {
             else -> super.onOptionsItemSelected(item)
         }
     }
+
     private fun setActbar() {
         setSupportActionBar(NovelDetailToolbar)
         supportActionBar?.apply {
@@ -123,5 +149,23 @@ class BookDetailActivity : AppCompatActivity() {
             setDisplayHomeAsUpEnabled(true)
             setHomeButtonEnabled(true)
         }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        val intent = Intent().apply {
+            putExtra("ISBOOKSTORED", viewModel?.isBookStored?.value ?: false)
+            putExtra("BOOKID", viewModel?.bookInformation?.value?.bookid)
+            Log.d(TAG, "onPause")
+            Log.d(
+                TAG,
+                "ISBOOKSTORED:${viewModel?.isBookStored?.value}\nBOOKID:${viewModel?.bookInformation?.value?.bookid}"
+            )
+        }
+        setResult(Activity.RESULT_OK, intent)
+    }
+
+    companion object {
+        const val TAG = "BookDetailActivity"
     }
 }

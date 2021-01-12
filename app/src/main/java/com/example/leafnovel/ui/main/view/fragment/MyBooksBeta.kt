@@ -1,5 +1,6 @@
 package com.example.leafnovel.ui.main.view.fragment
 
+import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
 import android.graphics.Color
@@ -11,6 +12,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -107,7 +109,9 @@ class MyBooksBeta : Fragment(), MyBookAdapter.OnItemClickListener, MyBookAdapter
                 )
             )
         }
-        this.startActivity(intent)
+//
+//        this.startActivity(intent)
+        myBookFragmentLaunchr.launch(intent)
     }
 
     override fun onDeleteClick(book:Child, view: View) {
@@ -369,4 +373,12 @@ class MyBooksBeta : Fragment(), MyBookAdapter.OnItemClickListener, MyBookAdapter
             }
         }
     }
+
+    private val myBookFragmentLaunchr = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){
+        activityResult->
+        if(activityResult.resultCode == Activity.RESULT_OK){
+            val result = activityResult.data?.getStringExtra("result")
+
+        }
+        }
 }
