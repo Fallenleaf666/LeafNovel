@@ -5,7 +5,9 @@ import android.os.AsyncTask
 import android.widget.Toast
 import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.leafnovel.bean.Child
 import com.example.leafnovel.bean.Group
 import com.example.leafnovel.customToast
 import com.example.leafnovel.data.model.StoredBook
@@ -28,6 +30,7 @@ class MyBooksViewModel(context: Context) : ViewModel() {
     private val repository: Repository
     val allsbBooks: LiveData<List<StoredBook>>
     val allsbBookFolders: LiveData<List<StoredBookFolder>>
+    val lastReadBookItem : MutableLiveData<Child> = MutableLiveData()
 
     init {
         val sbBooksDao = StoredBookDB.getInstance(context)?.storedbookDao()
@@ -99,6 +102,10 @@ class MyBooksViewModel(context: Context) : ViewModel() {
     override fun onCleared() {
         super.onCleared()
         parentJob.cancel()
+    }
+
+    fun updateStoredBookOnline():Deferred<ArrayList<Group>> = scope.async(Dispatchers.IO) {
+        repository.updateStoredBookOnline()
     }
 
 }

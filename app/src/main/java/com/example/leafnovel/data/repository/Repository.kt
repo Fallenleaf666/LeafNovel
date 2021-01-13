@@ -5,9 +5,11 @@ import com.example.leafnovel.data.api.NovelApi
 import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
 import androidx.room.Transaction
+import com.bumptech.glide.Glide
 import com.example.leafnovel.bean.Group
 import com.example.leafnovel.data.database.StoredBookDao
 import com.example.leafnovel.data.model.*
+import kotlinx.android.synthetic.main.fragment_book_introduce.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
@@ -30,7 +32,15 @@ class Repository constructor(private val sbBooksDao: StoredBookDao) {
         sbBooksDao.insert(storedBook)
     }
 
+//    @WorkerThread
+//    fun updateStoredBook(storedBook: StoredBook){
+//        sbBooksDao.insert(storedBook)
+//    }
 
+    @WorkerThread
+    fun getStoredBook(storedBookId: String):StoredBook{
+        return sbBooksDao.getStoredBook(storedBookId)
+    }
 
 
     @WorkerThread
@@ -178,6 +188,18 @@ class Repository constructor(private val sbBooksDao: StoredBookDao) {
     @WorkerThread
     fun removeFavoriteBook(bookId:String){
         return sbBooksDao.removeFavoriteBook(bookId)
+    }
+
+    @WorkerThread
+    fun updateStoredBookOnline(): ArrayList<Group> {
+        val favoriteBooks = sbBooksDao.getAllFavoriteBook()
+        for(book in favoriteBooks){
+            val oldBookInfo = sbBooksDao.getStoredBook(book.bookid)
+            val newBookInfo = NovelApi.requestNovelDetailForRefresh(oldBookInfo.bookid,oldBookInfo.bookname)
+//            val updateStoredBookInfo = StoredBookUpdateInfo(newBookInfo["newChapter"]?:oldBookInfo.newchapter)
+            sbBooksDao.updateStoredBook(oldBookInfo.bookid,newBookInfo["newChapter"]?:oldBookInfo.newchapter)
+        }
+        return sbBooksDao.getFolderWithBookBeta()
     }
 }
 

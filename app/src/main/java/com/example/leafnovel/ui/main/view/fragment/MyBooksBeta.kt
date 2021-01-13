@@ -7,6 +7,7 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.os.Handler
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -21,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.leafnovel.R
 import com.example.leafnovel.bean.*
+import com.example.leafnovel.checkNetConnect
 import com.example.leafnovel.customToast
 import com.example.leafnovel.data.model.StoredBook
 import com.example.leafnovel.data.model.StoredBookFolder
@@ -47,6 +49,7 @@ class MyBooksBeta : Fragment(), MyBookAdapter.OnItemClickListener, MyBookAdapter
     var currentChapter = 0
     var isLoading = false
     var lastVisibleItem = 0
+    private var lastClickBookItem: Item? = null
 
     private lateinit var mAdapter: MyBookAdapter
     private lateinit var viewModel: MyBooksViewModel
@@ -64,23 +67,38 @@ class MyBooksBeta : Fragment(), MyBookAdapter.OnItemClickListener, MyBookAdapter
 //            storedBookAdapter = activity?.applicationContext?.let { StoredBookAdapter(it) } ?: StoredBookAdapter()
         initUI()
         initUiLister()
-        loadingMore()
+//        loadingMore()
 
     }
 
-    private fun loadingMore() {
-        SB_recycler.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                super.onScrollStateChanged(recyclerView, newState)
-                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    updateNewChapter()
-                }
-            }
-        })
-    }
+//    private fun loadingMore() {
+//        SB_recycler.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+//            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+//                super.onScrollStateChanged(recyclerView, newState)
+//                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+//                    updateNewChapter()
+//                }
+//            }
+//        })
+//    }
 
     private fun updateNewChapter() {
 //        Handler().postDelayed({MyBookRefreshLayout.isRefreshing = false},2000)
+        context?.let {
+            if(checkNetConnect(it)){
+                CoroutineScope(Dispatchers.Main).launch{
+                    mAdapter.clear()
+                    val groupList = viewModel.updateStoredBookOnline().await()
+                    for (i in groupList.indices) {
+                        val folder = groupList[i]
+                        mAdapter.addItem(folder)
+                    }
+                    withContext(Dispatchers.Main) {
+                        mAdapter.notifyDataSetChanged()
+                    }
+                }
+            }
+        }
     }
 
     private fun initUiLister() {
@@ -95,11 +113,13 @@ class MyBooksBeta : Fragment(), MyBookAdapter.OnItemClickListener, MyBookAdapter
     private val refreshListener = SwipeRefreshLayout.OnRefreshListener {
 //        myList.shuffle()
 //        adapter.notifyDataSetChanged()
+        updateNewChapter()
         Handler().postDelayed({ MyBookRefreshLayout.isRefreshing = false }, 2000)
     }
 
 
     override fun onItemClick(sbBook: Child, view: View) {
+        viewModel.lastReadBookItem.value = sbBook
         val intent = Intent(context, BookDetailActivity::class.java).apply {
             putExtra("BOOK_IS_STORED", true)
             putExtra(
@@ -111,7 +131,7 @@ class MyBooksBeta : Fragment(), MyBookAdapter.OnItemClickListener, MyBookAdapter
         }
 //
 //        this.startActivity(intent)
-        myBookFragmentLaunchr.launch(intent)
+        myBookFragmentLauncher.launch(intent)
     }
 
     override fun onDeleteClick(book:Child, view: View) {
@@ -121,16 +141,6 @@ class MyBooksBeta : Fragment(), MyBookAdapter.OnItemClickListener, MyBookAdapter
 
     override fun onPinningClick(sbbook:Child, view: View) {
         launchAlertDialogForMoveItem(sbbook)
-//        Toast.makeText(context, "已將\"${sbBook.bookname}\"釘選", Toast.LENGTH_SHORT).show()
-//        val popupMenu = PopupMenu(context, view)
-//        popupMenu.inflate(R.menu.mybook_more_menu)
-//        popupMenu.setOnMenuItemClickListener { item: MenuItem ->
-//            when (item.itemId) {
-//                R.id.menuBookDelete -> viewModel.delete(sbBook)
-//            }
-//            true
-//        }
-//        popupMenu.show()
     }
 
 
@@ -159,7 +169,11 @@ class MyBooksBeta : Fragment(), MyBookAdapter.OnItemClickListener, MyBookAdapter
             }
         }
 
-        viewModel.allsbBooks.observe(viewLifecycleOwner, { storedBooks ->
+        viewModel.lastReadBookItem.observe(viewLifecycleOwner, { BookItem ->
+            lastClickBookItem = BookItem
+        })
+
+//        viewModel.allsbBooks.observe(viewLifecycleOwner, { storedBooks ->
 //            CoroutineScope(Dispatchers.IO).launch {
 //                mAdapter.clear()
 //                val groupList = viewModel.getFolderWithBook().await()
@@ -193,9 +207,9 @@ class MyBooksBeta : Fragment(), MyBookAdapter.OnItemClickListener, MyBookAdapter
 //                }
 //                mAdapter.addItem(folder)
 //            }
-        })
+//        })
 
-        viewModel.allsbBookFolders.observe(viewLifecycleOwner, { storedBookFolders -> })
+//        viewModel.allsbBookFolders.observe(viewLifecycleOwner, { storedBookFolders -> })
 //
 //        Handler().postDelayed({ //更新第0组
 //            val foldersName = mutableListOf<String>()
@@ -214,36 +228,26 @@ class MyBooksBeta : Fragment(), MyBookAdapter.OnItemClickListener, MyBookAdapter
 //            mAdapter.notifyDataSetChanged()
 //        }, 3000)
 
-        mAdapter.setExpandableToggleListener(object : ExpandableItemAdapter.ExpandableToggleListener {
-            override fun onExpand(item: Item) {
-//                Toast.makeText(context, (item as Group).title + " 展開", Toast.LENGTH_SHORT).show()
-            }
-
-            override fun onCollapse(item: Item) {
-//                Toast.makeText(context, (item as Group).title + " 收起", Toast.LENGTH_SHORT).show()
-            }
-        })
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
+//        mAdapter.setExpandableToggleListener(object : ExpandableItemAdapter.ExpandableToggleListener {
+//            override fun onExpand(item: Item) {
+//            }
+//
+//            override fun onCollapse(item: Item) {
+//            }
+//        })
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        if(mAdapter!=null){
-            mAdapter.saveStates(outState)
-        }
+            mAdapter?.saveStates(outState)
     }
 
 
     override fun onViewStateRestored(savedInstanceState: Bundle?) {
         super.onViewStateRestored(savedInstanceState)
-        if(mAdapter!=null){
             if (savedInstanceState != null) {
-                mAdapter.restoreStates(savedInstanceState)
+                mAdapter?.restoreStates(savedInstanceState)
             }
-        }
     }
 
     private fun launchAlertDialog() {
@@ -374,11 +378,27 @@ class MyBooksBeta : Fragment(), MyBookAdapter.OnItemClickListener, MyBookAdapter
         }
     }
 
-    private val myBookFragmentLaunchr = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){
-        activityResult->
-        if(activityResult.resultCode == Activity.RESULT_OK){
-            val result = activityResult.data?.getStringExtra("result")
+    private val myBookFragmentLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { activityResult ->
+            //當收藏狀態變化時
+            if(activityResult.resultCode == Activity.RESULT_OK){
+                val isBookStored = activityResult.data?.getBooleanExtra("ISBOOKSTORED", true)
+                val bookId = activityResult.data?.getStringExtra("BOOKID")
+                isBookStored?.let {
+                    if (!it) {
+                        removeBookItem(bookId)
+                    }
+                }
+            }
+        }
 
+    private fun removeBookItem(bookId: String?) {
+        bookId?.let { id ->
+            viewModel.lastReadBookItem.value?.let {
+                if (id == it.bookId) {
+                    mAdapter.removeChildItem(it)
+                }
+            }
         }
-        }
+    }
 }

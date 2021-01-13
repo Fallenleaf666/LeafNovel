@@ -151,6 +151,32 @@ class NovelApi {
             return bookMap
         }
 
+        fun requestNovelDetailForRefresh(bookId: String, bookTitle: String): MutableMap<String, String> {
+            val doc: Document = Jsoup.connect("https://tw.uukanshu.com/b/$bookId/")
+                .userAgent("Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.111 Safari/537.36")
+                .referrer("https://tw.uukanshu.com")
+                .get()
+            val nodeDoc = doc.select("dl.jieshao")
+            val novelState = nodeDoc.select("span.status-text").first().text()
+            val newChapter = nodeDoc.select("div.zuixin>a").first().text()
+//            val bookDescripe = nodeDoc.select("dd.jieshao_content>h3").first().text().replace(" www.uukanshu.com ", "")
+//                .replace("http://www.uukanshu.com", "").replace("－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－", "")
+//                .replace(bookTitle + "簡介：", "")
+            val novelState2 = nodeDoc.select("div.shijian").first()
+            novelState2.select("span#Span1").remove()
+            novelState2.select("a").remove()
+            val updateTime = novelState2.text().replace("更新時間：", "").replace(" ", "")
+            val imgUrl = nodeDoc.select("img[src$=.jpg]").attr("src")
+            val bookMap = mutableMapOf(
+                "novelState" to novelState,
+                "newChapter" to newChapter,
+//                "bookDescripe" to bookDescripe,
+                "updateTime" to updateTime,
+                "imgUrl" to imgUrl
+            )
+            return bookMap
+        }
+
 //        fun downloadBookChapter(bookDownloadInfo: BookDownloadInfo): ArrayList<StoredChapter> {
 //            val chapters = bookDownloadInfo.download
 //            val bookTitle = bookDownloadInfo.bookName

@@ -87,16 +87,13 @@ class BookIntroduceFragment : Fragment() {
                 LastReadText.text = it.chapterTitle
             }
         })
-//
-//        viewModel?.isBookStored?.observe(viewLifecycleOwner,{
-//                isBookStored->
-//            StoreBT.text = if(isBookStored)"已收藏" else "收藏"
-//            Log.d(TAG,"收藏狀態:${isBookStored}")
-//        })
+
 
         viewModel?.bookFavorite?.observe(viewLifecycleOwner,{
                 bookFavorite->
             StoreBT.text = if(bookFavorite != null)"已收藏" else "收藏"
+            viewModel?.isBookStored?.value = bookFavorite != null
+
             Log.d(TAG,"收藏狀態:${bookFavorite?.bookid}")
         })
     }

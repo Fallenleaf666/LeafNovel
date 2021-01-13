@@ -28,6 +28,7 @@ class BookDetailViewModel(context: Context, storedBook: StoredBook, repository: 
     val bookInformation: MutableLiveData<StoredBook> = MutableLiveData(storedBook)
     val bookChapterList: MutableLiveData<BookChsResults> = MutableLiveData()
     val isBookStored: MutableLiveData<Boolean> = MutableLiveData()
+    val isBookStoredStateChange: MutableLiveData<Boolean> = MutableLiveData(false)
     var bookFavorite: LiveData<BookFavorite>
 //    上次閱讀
     var bookLastReadInfo: LiveData<LastReadProgress>
@@ -102,6 +103,7 @@ class BookDetailViewModel(context: Context, storedBook: StoredBook, repository: 
                 )
 //                mRepository.insert(storedBook)
                 mRepository.addFavoriteBook(storedBook,BookFavorite(folderId,bI.bookid))
+                isBookStoredStateChange.postValue(true)
 //                withContext(Dispatchers.Main) {
 //                    Toast.makeText(mContext, "已將${bI.bookname}放入書櫃", Toast.LENGTH_SHORT).show()
 //                }
@@ -119,6 +121,7 @@ class BookDetailViewModel(context: Context, storedBook: StoredBook, repository: 
         scope.launch(Dispatchers.IO) {
             bookInformation.value?.let {
                 mRepository.removeFavoriteBook(it.bookid)
+                isBookStoredStateChange.postValue(true)
 //                withContext(Dispatchers.Main) {
 //                    Toast.makeText(mContext, "已將${bI.bookname}放入書櫃", Toast.LENGTH_SHORT).show()
 //                }

@@ -180,9 +180,13 @@ abstract class ItemAdapter : RecyclerView.Adapter<ItemViewHolder>() {
         position = findItemPosition(removeItem, TYPE_CHILD)
         removeItemFromList(removeItem)
         parentPosition = findItemParentPosition(removeItem)
-        getAllItem()[parentPosition].removeSubItem(removeItem)
-        notifyItemRemoved(position)
-        notifyItemRangeChanged(position, itemCount - position)
+        if(parentPosition != -1){
+            getAllItem()[parentPosition].removeSubItem(removeItem)
+        }
+        if(position != RecyclerView.NO_POSITION){
+            notifyItemRemoved(position)
+            notifyItemRangeChanged(position, itemCount - position)
+        }
     }
 
     private fun findItemPosition(childItem: Item, type: Int): Int {

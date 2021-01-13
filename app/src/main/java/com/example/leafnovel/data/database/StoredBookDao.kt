@@ -32,6 +32,13 @@ interface StoredBookDao{
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(storedBook: StoredBook)
 
+    @Query(value = "select * from storedbook where bookid = :storedBookId")
+    fun getStoredBook(storedBookId:String):StoredBook
+
+    @Query("UPDATE storedbook SET newchapter = :newChapter where bookid = :bookId")
+    fun updateStoredBook(bookId:String,newChapter:String)
+
+
     @Query(value = "select * from StoredBookFolder order by creattime desc")
     fun getAllStoredBookFolder() : LiveData<List<StoredBookFolder>>
 

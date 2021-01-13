@@ -151,18 +151,18 @@ class BookDetailActivity : AppCompatActivity() {
         }
     }
 
-    override fun onPause() {
-        super.onPause()
-        val intent = Intent().apply {
-            putExtra("ISBOOKSTORED", viewModel?.isBookStored?.value ?: false)
-            putExtra("BOOKID", viewModel?.bookInformation?.value?.bookid)
-            Log.d(TAG, "onPause")
-            Log.d(
-                TAG,
-                "ISBOOKSTORED:${viewModel?.isBookStored?.value}\nBOOKID:${viewModel?.bookInformation?.value?.bookid}"
-            )
+
+    override fun onBackPressed() {
+        viewModel?.isBookStoredStateChange?.value?.let {
+            if(it){
+                val intent = Intent().apply {
+                    putExtra("ISBOOKSTORED", viewModel?.isBookStored?.value ?: false)
+                    putExtra("BOOKID", viewModel?.bookInformation?.value?.bookid)
+                }
+                setResult(Activity.RESULT_OK, intent)
+            }
         }
-        setResult(Activity.RESULT_OK, intent)
+        super.onBackPressed()
     }
 
     companion object {
