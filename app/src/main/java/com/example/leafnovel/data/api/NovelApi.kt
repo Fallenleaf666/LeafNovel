@@ -1,7 +1,10 @@
 package com.example.leafnovel.data.api
 
 import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.example.leafnovel.data.model.*
+import kotlinx.coroutines.*
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
@@ -65,6 +68,7 @@ class NovelApi {
             }
             return booksResults
         }
+
 
         fun requestChapterList(id: String): BookChsResults {
             //    get dictery

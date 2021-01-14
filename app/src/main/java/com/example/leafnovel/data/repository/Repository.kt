@@ -10,10 +10,7 @@ import com.example.leafnovel.bean.Group
 import com.example.leafnovel.data.database.StoredBookDao
 import com.example.leafnovel.data.model.*
 import kotlinx.android.synthetic.main.fragment_book_introduce.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.Executor
@@ -136,6 +133,9 @@ class Repository constructor(private val sbBooksDao: StoredBookDao) {
     fun getSearchBooks(searchKey:String): BooksResults {
         return NovelApi.requestSearchNovel(searchKey)
     }
+
+
+
     @WorkerThread
     fun getSearchBookChaptersList(bookId:String): BookChsResults {
         return NovelApi.requestChapterList(bookId)

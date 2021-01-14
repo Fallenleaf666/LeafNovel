@@ -45,7 +45,8 @@ class Search : Fragment(), BookAdapter.OnItemClickListener {
         SF_searchView.apply {
             setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                 override fun onQueryTextSubmit(query: String): Boolean {
-                    viewModel.searchBooks(query)
+//                    viewModel.searchBooks(query)
+                    viewModel.queryBooks(query)
                     SF_searchView.clearFocus()
                     return false
                 }
