@@ -62,7 +62,7 @@
                             android:layout_marginTop="5dp">
 
                         <com.rishabhharit.roundedimageview.RoundedImageView
-                                android:layout_width="wrap_content"
+                                android:layout_width="62dp"
                                 android:layout_height="match_parent"
                                 tools:srcCompat="@android:drawable/ic_menu_report_image"
                                 android:id="@+id/MyBookImgView"

@@ -24,7 +24,9 @@
         <activity android:name=".ui.main.view.BookDetailActivity"
             android:theme="@style/NovelDetailTheme"
         />
-        <activity android:name=".ui.main.view.MainActivity">
+        <activity android:name=".ui.main.view.MainActivity"
+                  android:theme="@style/MainTheme"
+        >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 

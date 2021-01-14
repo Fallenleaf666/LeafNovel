@@ -6,6 +6,9 @@
     <color name="green">#6D7520</color>
     <color name="green2">#E2B7BD79</color>
     <color name="colorp">#F6F6F0</color>
+    <color name="searchOnFocus">#F6F6F0</color>
+    <color name="searchNoFocus">#939393</color>
+    <color name="searchLine">#4A4A4A</color>
     <color name="pgGray">#B0B7B8B2</color>
     <color name="selectChBg">#6D5A5A5A</color>
     <color name="selectChBg2">#6DC3C3C3</color>

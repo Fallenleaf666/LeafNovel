@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.SearchView
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.leafnovel.*
@@ -37,6 +38,44 @@ class Search : Fragment(), BookAdapter.OnItemClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initUI()
+        initUiListener()
+    }
+
+    private fun initUiListener() {
+        SF_searchView.apply {
+            setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+                override fun onQueryTextSubmit(query: String): Boolean {
+                    viewModel.searchBooks(query)
+                    SF_searchView.clearFocus()
+                    return false
+                }
+
+                override fun onQueryTextChange(p0: String?): Boolean {
+                    return false
+                }
+            })
+//            setOnFocusChangeListener{
+//                    _, isFocus->
+//                if(isFocus){
+//                    SearchCancelBT.setTextColor(ContextCompat.getColor(context, R.color.searchOnFocus))
+//                }else{
+//                    SearchCancelBT.setTextColor(ContextCompat.getColor(context, R.color.searchNoFocus))
+//                }
+//            }
+
+            setOnQueryTextFocusChangeListener{
+                    _, isFocus->
+                if(isFocus){
+                    SearchCancelBT.setTextColor(ContextCompat.getColor(context, R.color.searchOnFocus))
+                }else{
+                    SearchCancelBT.setTextColor(ContextCompat.getColor(context, R.color.searchNoFocus))
+                }
+            }
+        }
+
+        SearchCancelBT.setOnClickListener{
+            SF_searchView.clearFocus()
+        }
     }
 
     private fun initUI() {
@@ -53,19 +92,6 @@ class Search : Fragment(), BookAdapter.OnItemClickListener {
             })
         }
 
-        SF_searchView.apply {
-            setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-                override fun onQueryTextSubmit(query: String): Boolean {
-                    viewModel.searchBooks(query)
-                    SF_searchView.clearFocus()
-                    return false
-                }
-
-                override fun onQueryTextChange(p0: String?): Boolean {
-                    return false
-                }
-            })
-        }
     }
 
     override fun onItemClick(book: Book) {

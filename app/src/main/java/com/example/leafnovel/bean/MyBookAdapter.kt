@@ -119,7 +119,7 @@ class MyBookAdapter:ExpandableItemAdapter() {
                 bookVH.bookNewChapter.text = book.newChapter
                 Glide.with(bookVH.itemView).load("http:${book.bookUrl}")
                     .placeholder(R.drawable.ic_outline_image_search_24)
-                    .error(R.drawable.ic_baseline_broken_image_24)
+                    .error(R.drawable.ic_baseline_broken_image_gray_24)
                     .fallback(R.drawable.ic_baseline_image_24)
                     .centerInside()
                     .into(bookVH.bookImg)
