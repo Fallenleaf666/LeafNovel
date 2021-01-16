@@ -1,20 +1,12 @@
 package com.example.leafnovel.data.repository
 
-import android.util.Log
 import com.example.leafnovel.data.api.NovelApi
 import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
-import androidx.room.Transaction
-import com.bumptech.glide.Glide
 import com.example.leafnovel.bean.Group
 import com.example.leafnovel.data.database.StoredBookDao
 import com.example.leafnovel.data.model.*
-import kotlinx.android.synthetic.main.fragment_book_introduce.*
-import kotlinx.coroutines.*
-import java.text.SimpleDateFormat
 import java.util.*
-import java.util.concurrent.Executor
-import java.util.concurrent.ThreadPoolExecutor
 
 //  for room crud operation
 class Repository constructor(private val sbBooksDao: StoredBookDao) {
@@ -167,6 +159,7 @@ class Repository constructor(private val sbBooksDao: StoredBookDao) {
     @WorkerThread
     fun getBookFolders():List<StoredBookFolder>{
         return sbBooksDao.getBookFolders()
+//        return sbBooksDao.getAllBookFolders()
     }
 
     @WorkerThread

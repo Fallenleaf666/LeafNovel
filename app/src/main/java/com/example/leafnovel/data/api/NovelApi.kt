@@ -35,7 +35,10 @@ class NovelApi {
 
         fun requestSearchNovel(searchContent: String): BooksResults {
 //            val doc : Document = Jsoup.connect("https://t.uukanshu.com/search.aspx?k="+searchContent)
-            val doc: Document = Jsoup.connect("https://t.uukanshu.com/search.aspx")
+//            繁體
+//            val doc: Document = Jsoup.connect("https://t.uukanshu.com/search.aspx")
+//            簡體
+            val doc: Document = Jsoup.connect("https://sj.uukanshu.com/search.aspx")
                 .data("k", searchContent)
                 .userAgent("Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.111 Safari/537.36")
                 .referrer("https://t.uukanshu.com")
@@ -60,8 +63,11 @@ class NovelApi {
                     this.bookUrl = bookUrl
                     this.bookId = bookId
                     this.bookDescripe = bookDescribe
+//                    this.bookDescripe = toTraditional(bookDescribe)
                     this.author = author
+//                    this.author = toTraditional(author)
                     this.booktitle = bookTitle
+//                    this.booktitle = toTraditional(bookTitle)
                     this.updateTime = updateTime
                 }
                 booksResults.add(tempBook)

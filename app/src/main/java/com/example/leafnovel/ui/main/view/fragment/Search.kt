@@ -2,6 +2,7 @@ package com.example.leafnovel.ui.main.view.fragment
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -16,6 +17,7 @@ import com.example.leafnovel.data.model.Book
 import com.example.leafnovel.ui.main.viewmodel.SearchBookViewModel
 import com.example.leafnovel.ui.base.SearchBookViewModelFactory
 import com.example.leafnovel.ui.main.view.BookDetailActivity
+import com.github.houbb.opencc4j.util.ZhConverterUtil.toTraditional
 import kotlinx.android.synthetic.main.fragment_search.*
 
 class Search : Fragment(), BookAdapter.OnItemClickListener {
@@ -23,6 +25,7 @@ class Search : Fragment(), BookAdapter.OnItemClickListener {
         val newInstance: Search by lazy {
             Search()
         }
+        var TAG = "Search"
     }
 
     val bookAdapter = BookAdapter()
@@ -31,7 +34,6 @@ class Search : Fragment(), BookAdapter.OnItemClickListener {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
-//        val view = inflater.inflate(R.layout.fragment_search, container, false)
         return inflater.inflate(R.layout.fragment_search, container, false)
     }
 
@@ -39,13 +41,19 @@ class Search : Fragment(), BookAdapter.OnItemClickListener {
         super.onViewCreated(view, savedInstanceState)
         initUI()
         initUiListener()
+//        initOpencc4j()
+    }
+
+    private fun initOpencc4j() {
+        Thread{
+            toTraditional("初次啟動簡轉繁")
+        }
     }
 
     private fun initUiListener() {
         SF_searchView.apply {
             setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                 override fun onQueryTextSubmit(query: String): Boolean {
-//                    viewModel.searchBooks(query)
                     viewModel.queryBooks(query)
                     SF_searchView.clearFocus()
                     return false
@@ -55,14 +63,6 @@ class Search : Fragment(), BookAdapter.OnItemClickListener {
                     return false
                 }
             })
-//            setOnFocusChangeListener{
-//                    _, isFocus->
-//                if(isFocus){
-//                    SearchCancelBT.setTextColor(ContextCompat.getColor(context, R.color.searchOnFocus))
-//                }else{
-//                    SearchCancelBT.setTextColor(ContextCompat.getColor(context, R.color.searchNoFocus))
-//                }
-//            }
 
             setOnQueryTextFocusChangeListener{
                     _, isFocus->
@@ -90,6 +90,11 @@ class Search : Fragment(), BookAdapter.OnItemClickListener {
             viewModel = ViewModelProvider(this, SearchBookViewModelFactory(it)).get(SearchBookViewModel::class.java)
             viewModel.searchBooksResults.observe(viewLifecycleOwner, { searchBooks ->
                 bookAdapter.setItems(searchBooks, this)
+            })
+            viewModel.isHasSearchBooks.observe(viewLifecycleOwner, { isHasSearchBooks ->
+                isHasSearchBooks?.let {
+                    SearchNoDataView.visibility = if(isHasSearchBooks)View.INVISIBLE else View.VISIBLE
+                }
             })
         }
 

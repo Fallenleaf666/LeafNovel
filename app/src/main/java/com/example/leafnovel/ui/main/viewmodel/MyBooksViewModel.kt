@@ -70,17 +70,6 @@ class MyBooksViewModel(context: Context) : ViewModel() {
             id
         }
 
-//    suspend fun addFolder(sbBookFolder: StoredBookFolder): Deferred<Long> {
-//        async{
-//
-//        }
-//        scope.launch(Dispatchers.IO) {
-//            withContext(Dispatchers.Main) {
-//                Toast.makeText(mContext, "\"${sbBookFolder.foldername}\"建立成功！", Toast.LENGTH_SHORT).show()
-//            }
-//            repository.addBookFolder(sbBookFolder)
-//        }
-//    }
 
     fun deleteBookFolderAndUpdate(folderId: Long) = scope.launch(Dispatchers.IO) {
         repository.deleteBookFolderAndUpdate(folderId)

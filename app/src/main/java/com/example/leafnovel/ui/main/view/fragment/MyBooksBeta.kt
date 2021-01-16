@@ -107,12 +107,9 @@ class MyBooksBeta : Fragment(), MyBookAdapter.OnItemClickListener, MyBookAdapter
         AddBookFolderBT.setOnClickListener {
             launchAlertDialog()
         }
-
     }
 
     private val refreshListener = SwipeRefreshLayout.OnRefreshListener {
-//        myList.shuffle()
-//        adapter.notifyDataSetChanged()
         updateNewChapter()
         Handler().postDelayed({ MyBookRefreshLayout.isRefreshing = false }, 2000)
     }
@@ -345,7 +342,7 @@ class MyBooksBeta : Fragment(), MyBookAdapter.OnItemClickListener, MyBookAdapter
     private fun launchAlertDialogForMoveItem(sbbook:Child) {
         CoroutineScope(Dispatchers.IO).launch {
             val folderList = viewModel.getBookFolders().await().toMutableList()
-            folderList.add(StoredBookFolder("未分類", 0, -5))
+//            folderList.add(StoredBookFolder("未分類", 0, -5))
             val folderNameList = arrayListOf<String>()
             folderList.let {
                 for (i in it) {

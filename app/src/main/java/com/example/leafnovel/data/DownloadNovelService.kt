@@ -1,7 +1,12 @@
 package com.example.leafnovel.data
 
+import android.annotation.SuppressLint
 import android.app.IntentService
 import android.content.Intent
+import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.os.Message
 import android.util.Log
 import android.widget.Toast
 import com.example.leafnovel.R
@@ -12,9 +17,10 @@ import com.example.leafnovel.data.repository.Repository
 import com.example.leafnovel.notification.NotifyUtil
 import com.example.leafnovel.receiver.DownloadResultReceiver
 import kotlinx.coroutines.*
+import java.lang.Runnable
 import java.text.SimpleDateFormat
 import java.util.*
-import java.util.concurrent.Executors
+import java.util.concurrent.*
 import kotlin.collections.ArrayList
 import kotlin.coroutines.CoroutineContext
 import kotlin.system.measureTimeMillis
@@ -29,6 +35,9 @@ class DownloadNovelService : IntentService("DownloadNovelService") {
         const val DOWNLOAD_CHAPTER_RESULT_KEY = "DOWNLOAD_CHAPTER_RESULT_KEY"
         const val DOWNLOAD_OneThread_ACTION = "DOWNLOAD_OneThread_ACTION"
         const val DOWNLOAD_RESULT = "DOWNLOAD_RESULT"
+        const val NOW_PROGRESS = "NOW_PROGRESS"
+        const val MAX_PROGRESS = "MAX_PROGRESS"
+        const val CHAPTER_TITLE = "CHAPTER_TITLE"
         val CREATOR = "CREATOR"
     }
 
@@ -37,55 +46,59 @@ class DownloadNovelService : IntentService("DownloadNovelService") {
         get() = parentJob + Dispatchers.IO
     private val scope = CoroutineScope(coroutineContext)
 
+
     private var isDownloadComplete = false
+    lateinit var downloadNotify: NotifyUtil
     private val sbBooksDao = StoredBookDB.getInstance(this)?.storedbookDao()
     private val repository: Repository = sbBooksDao?.let { Repository(it) }!!
+    private val handler = object : Handler(Looper.getMainLooper()) {
+        override fun handleMessage(msg: Message) {
+            when (msg.what) {
+                //更新進度
+                1 -> {
+                    with(msg.data) {
+                        val nowProgress = getInt(NOW_PROGRESS, 0)
+                        val maxProgress = getInt(MAX_PROGRESS, 0)
+                        val chapterTitle = getString(CHAPTER_TITLE, "")
+                        updateProgress(nowProgress, maxProgress, chapterTitle)
+                    }
+                }
+                //下載完成
+                2 -> {
+                    downloadNotify.downloadCompleteNotify()
+                }
+            }
+            super.handleMessage(msg)
+        }
+    }
+
+    private fun updateProgress(nowProgress: Int, maxProgress: Int, chapterTitle: String) {
+        downloadNotify.updateNotifyProgress(nowProgress, maxProgress, chapterTitle)
+    }
+
     override fun onHandleIntent(intent: Intent?) {
-        val action: String? = intent?.action
         when (intent?.action) {
             DOWNLOAD_SINGLE_ACTION -> {
-                Toast.makeText(applicationContext, "請勿從後台關閉app以保持下載", Toast.LENGTH_SHORT).show()
+                scope.launch(Dispatchers.Main) {
+                    Toast.makeText(applicationContext, "請勿從後台關閉app以保持下載", Toast.LENGTH_SHORT).show()
+                }
                 val bookDownloadInfo = intent.getParcelableExtra<BookDownloadInfo>("bookDownloadInfo")
                 val smallIcon: Int = R.drawable.ic_launcher_background
                 val ticker = "開始下載小說章節"
-                val downloadNotify =
+                downloadNotify =
                     NotifyUtil(applicationContext, resources.getInteger(R.integer.DOWNLOAD_NOTIFICATION_CHANNEL))
-                val hasDownloadChapter: ArrayList<ChapterDownloadResult> = arrayListOf()
                 isDownloadComplete = false
-                downloadNotify.notifyProgress(
-                    null, smallIcon, ticker, resources.getString(R.string.app_chines_name), "下載中",
-                    sound = false, vibrate = false, lights = false, notificationHelper
-                )
-                val beforeTime = SimpleDateFormat("yyyy.MM.dd HH:mm:ss").format(Date(System.currentTimeMillis()))
-                Log.d(TAG, "-----------Start at ${beforeTime}-----------")
-                bookDownloadInfo?.let { downloadAction(it, hasDownloadChapter) }
-                Thread {
-                    var canBreak = false
-                    while (!isDownloadComplete) {
-                        bookDownloadInfo.let {
-                            if (hasDownloadChapter.size == bookDownloadInfo.download.size) {
-                                isDownloadComplete = true
-                                canBreak = true
-                            }
-                        }
-                        if (canBreak) {
-                            val afterTime = SimpleDateFormat("yyyy.MM.dd HH:mm:ss").format(Date(System.currentTimeMillis()))
-                            Log.d(TAG, "-----------after at ${afterTime}-----------")
-                            val resultIntent = Intent(applicationContext, DownloadResultReceiver::class.java).apply {
-                                this.action = DOWNLOAD_CHAPTER_RESULT_KEY
-                                putExtra(DOWNLOAD_RESULT, DownloadResultType.SUCCESS)
-                            }
-                            sendBroadcast(resultIntent)
-                            break
-                        }
-                        try {
-                            Thread.sleep(5 * 1000.toLong())
-                        } catch (e: InterruptedException) {
-                            e.printStackTrace()
-                        }
+                val time = measureTimeMillis {
+                    bookDownloadInfo?.let {
+                        downloadNotify.notifyProgress(
+                            null, smallIcon, ticker, resources.getString(R.string.app_chines_name), "下載中",
+                            sound = false, vibrate = false, lights = false, bookDownloadInfo.download.size
+                        )
+                        downloadAction(it)
                     }
                 }
-                Log.d(TAG, "-----------先執行後面句子-----------")
+                Log.d(TAG, "總共花費 ${time / 1000} s")
+                Log.d(TAG, "-----------任務結束-----------")
             }
             DOWNLOAD_PLURAL_ACTION -> {
                 val bookDownloadInfo = intent.getParcelableExtra<BookDownloadInfo>("bookDownloadInfo")
@@ -103,11 +116,10 @@ class DownloadNovelService : IntentService("DownloadNovelService") {
                     sound = false,
                     vibrate = false,
                     lights = false,
-                    notificationHelper
+                    bookDownloadInfo?.download?.size ?: 0
                 )
                 try {
                     Thread.sleep(5 * 1000.toLong())
-//                    downloadAction(bookDownloadInfo, hasDownloadChapter)
                 } catch (e: InterruptedException) {
                     e.printStackTrace()
                 }
@@ -135,7 +147,7 @@ class DownloadNovelService : IntentService("DownloadNovelService") {
                     sound = false,
                     vibrate = false,
                     lights = false,
-                    notificationHelper
+                    bookDownloadInfo?.download?.size ?: 0
                 )
 //                repository.downloadBookChapter(bookDownloadInfo)
 //                try {
@@ -163,63 +175,63 @@ class DownloadNovelService : IntentService("DownloadNovelService") {
             return isDownloadComplete
         }
     }
-//    private fun downloadAction(bookDownloadInfo: BookDownloadInfo) {
-//        val downloadChaptersList = bookDownloadInfo.download
-//        val bookName = bookDownloadInfo.bookName
-//        val bookId = bookDownloadInfo.bookId
-//        scope.launch {
-//            for(i in downloadChaptersList){
-//                val time = measureTimeMillis {
-//                    val chapterContentText = repository.getSearchBookChaptersContextBeta(i.chUrl,i.chtitle, bookName)
-//                    repository.saveChapter(StoredChapter(bookId, i.chtitle, chapterContentText, i.chIndex, 0, false))
-//                }
-//                Log.d(TAG, "$time ms ${i.chtitle} ${Thread.currentThread()}")
-//            }
-//        }
-//    }
 
-    private fun downloadAction(
-        bookDownloadInfo: BookDownloadInfo,
-        downloadChapterState: ArrayList<ChapterDownloadResult>
-    ) {
+    private fun downloadAction(bookDownloadInfo: BookDownloadInfo) {
         val downloadChaptersList = bookDownloadInfo.download
         val bookName = bookDownloadInfo.bookName
         val bookId = bookDownloadInfo.bookId
         val executor = Executors.newFixedThreadPool(5)
+        val completionService = ExecutorCompletionService<ChapterDownloadResult>(executor)
+        val allDownloadResults: MutableList<ChapterDownloadResult> = mutableListOf()
         for (i in downloadChaptersList) {
-            val task = Runnable {
+            completionService.submit {
                 val time = measureTimeMillis {
-                    Log.d(TAG, "${Thread.currentThread()}")
                     val chapterContentText = repository.getSearchBookChaptersContextBeta(i.chUrl, i.chtitle, bookName)
                     repository.saveChapter(StoredChapter(bookId, i.chtitle, chapterContentText, i.chIndex, 0, false))
-                    downloadChapterState.add(
-                        ChapterDownloadResult(
-                            i.chIndex,
-                            i.chtitle,
-                            i.chUrl,
-                            ChapterDownloadState.SUCCESS
-                        )
-                    )
                 }
-                Log.d(
-                    TAG,
-                    "-----------End at ${SimpleDateFormat("yyyy.MM.dd HH:mm:ss").format(Date(System.currentTimeMillis()))}-----------"
-                )
+                Log.d(TAG, "${i.chtitle} 耗時${time}s")
+
+                ChapterDownloadResult(i.chIndex, i.chtitle, i.chUrl, ChapterDownloadState.SUCCESS)
             }
-            executor.execute(task)
         }
+        executor.shutdown()
+        for (i in downloadChaptersList.indices) {
+            try {
+                val result = completionService.take().get()
+//                downloadNotify.updateNotifyProgress(i+1,downloadChaptersList.size,result.chtitle)
+                val msg: Message = Message()
+                val bundle: Bundle = Bundle()
+                msg.what = 1
+                bundle.putInt(NOW_PROGRESS, i + 1)
+                bundle.putInt(MAX_PROGRESS, downloadChaptersList.size)
+                bundle.putString(CHAPTER_TITLE, result.chtitle)
+                msg.data = bundle
+                handler.sendMessage(msg)
+//                Log.d(TAG, "進度 : ${i+1}/${downloadChaptersList.size} ${result.chtitle}")
+//                Log.d(TAG, "completionService : ${i} ${result.chIndex}${result.chtitle}")
+
+            } catch (e: InterruptedException) {
+                e.printStackTrace()
+            } catch (e2: ExecutionException) {
+                e2.printStackTrace()
+            }
+        }
+        val msg = Message()
+        msg.what = 2
+        handler.sendMessage(msg)
+//        downloadNotify.downloadCompleteNotify()
+//        while (!executor.awaitTermination(5, TimeUnit.NANOSECONDS)){
+//
+//        }
     }
 
-//    private suspend fun getSearchBookChaptersContext(bookName: String, bookChapter: BookChapter) =
-//        withContext(Dispatchers.IO) {
-//            repository.getSearchBookChaptersContextBeta(bookChapter.chUrl, bookChapter.chtitle, bookName)
-//        }
 
     override fun onDestroy() {
         super.onDestroy()
         parentJob.cancel()
         Log.d(TAG, "-----------服務結束-----------")
     }
+//    inner class ChapterDownloadResult(var index:Int,var title:String,var downloadUrl:String,var result:DownloadResultType)
 
 
     //                val intent = Intent(this, OtherActivity::class.java)
@@ -235,4 +247,7 @@ class DownloadNovelService : IntentService("DownloadNovelService") {
 //                bundle.putString(DOWNLOAD_CHAPTER_RESULT_KEY,"下載完成")
 //                msg.data = bundle
 //                messenger.send(msg)
+//
+//    val beforeTime = SimpleDateFormat("yyyy.MM.dd HH:mm:ss").format(Date(System.currentTimeMillis()))
+//    Log.d(TAG, "-----------開始下載時間 ${beforeTime}-----------")
 }

@@ -54,6 +54,7 @@ interface StoredBookDao{
     @Transaction
     fun deleteBookFolderAndUpdate(folderid: Long){
         deleteBookFolder(folderid)
+//        updateBookParentFolderBeta(folderid,System.currentTimeMillis())
         updateBookParentFolder(folderid)
     }
 
@@ -65,6 +66,9 @@ interface StoredBookDao{
 
     @Query("UPDATE storedbook SET parent = -5 where parent = :oldFolderId")
     fun updateBookParentFolder(oldFolderId:Long)
+
+    @Query("UPDATE BookFavorite SET parent = -5 , creattime = :creattime where parent = :oldFolderId")
+    fun updateBookParentFolderBeta(oldFolderId:Long,creattime:Long)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun saveChapter(storedChapter: StoredChapter)
@@ -112,7 +116,7 @@ interface StoredBookDao{
     fun getBooksByFolderId(folderId:Long):List<StoredBook>
 
     @Transaction
-    @Query("select BookFavorite.bookid ,StoredBook.* from BookFavorite inner join StoredBook on BookFavorite.bookid = StoredBook.bookid where BookFavorite.parent = :folderId")
+    @Query("select BookFavorite.bookid ,StoredBook.* from BookFavorite inner join StoredBook on BookFavorite.bookid = StoredBook.bookid where BookFavorite.parent = :folderId order by BookFavorite.creattime desc")
 //    @Query("select * from BookFavorite,StoredBook where BookFavorite.parent = :folderId")
 //    @Query("select * from BookFavorite,StoredBook where BookFavorite.parent = :folderId and BookFavorite.bookid = StoredBook.bookid ")
     fun getFavoriteBooksByFolderId(folderId:Long):List<BookFavoriteWithStoredBook>
@@ -120,12 +124,24 @@ interface StoredBookDao{
     @Query("select * from StoredBookFolder order by creattime desc")
     fun getBookFolders():List<StoredBookFolder>
 
+    @Query("select * from StoredBookFolder  where folderid = :id")
+    fun getSingleBookFolder(id:Long): StoredBookFolder?
+
+    @Transaction
+    fun getAllBookFolders():List<StoredBookFolder>{
+        if(getSingleBookFolder(-5) == null){
+            addBookFolder(StoredBookFolder("未分類",0,-5))
+        }
+        return getBookFolders()
+    }
+
     @Transaction
     fun getFolderWithBook():ArrayList<Group>{
         //之後可改成relation
-        val folderList = getAllStoredBookFolderNoLive().toMutableList()
+//        val folderList = getAllStoredBookFolderNoLive().toMutableList()
+        val folderList = getAllBookFolders().toMutableList()
         //      預設未分類
-        folderList.add(StoredBookFolder("未分類",0,-5))
+//        folderList.add(StoredBookFolder("未分類",0,-5))
         val folderIdList = arrayListOf<Long>()
         for(i in folderList.indices){
             folderIdList.add(folderList[i].folderid)
@@ -165,9 +181,10 @@ interface StoredBookDao{
     @Transaction
     fun getFolderWithBookBeta():ArrayList<Group>{
         //之後可改成relation
-        val folderList = getAllStoredBookFolderNoLive().toMutableList()
+//        val folderList = getAllStoredBookFolderNoLive().toMutableList()
+        val folderList = getAllBookFolders().toMutableList()
         //預設未分類
-        folderList.add(StoredBookFolder("未分類",0,-5))
+//        folderList.add(StoredBookFolder("未分類",0,-5))
         val folderIdList = arrayListOf<Long>()
         for(i in folderList.indices){
             folderIdList.add(folderList[i].folderid)

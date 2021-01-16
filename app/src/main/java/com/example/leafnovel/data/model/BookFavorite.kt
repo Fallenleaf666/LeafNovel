@@ -13,15 +13,17 @@ import kotlinx.android.parcel.Parcelize
 data class BookFavorite(
     @NonNull
     @ColumnInfo(name = "parent")
-    var parentfolderid: Long = -5,
+    var parentfolderid: Long,
     @NonNull
     @ColumnInfo(name = "bookid")
     var bookid: String,
     @PrimaryKey(autoGenerate = true)
     @NonNull
     @ColumnInfo(name = "id")
-    var id: Long = 0
+    var id: Long = 0,
+    @ColumnInfo(name = "creattime")
+    var creattime: Long
 ) : Parcelable {
-    constructor():this(-5, "")
+//    constructor():this(-3, "", creattime = System.currentTimeMillis())
 }
 

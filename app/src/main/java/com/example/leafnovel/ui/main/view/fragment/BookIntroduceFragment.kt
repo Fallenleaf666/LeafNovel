@@ -143,7 +143,7 @@ class BookIntroduceFragment : Fragment() {
     private fun launchAlertDialog() {
         CoroutineScope(Dispatchers.IO).launch {
             val folderList = viewModel?.getBookFolders()?.await()?.toMutableList()
-            folderList?.add(StoredBookFolder("未分類", 0, -5))
+//            folderList?.add(StoredBookFolder("未分類", 0, -5))
             val folderNameList = arrayListOf<String>()
             folderList?.let {
                 for (i in it) {

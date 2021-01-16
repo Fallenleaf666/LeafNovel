@@ -2,8 +2,6 @@ package com.example.leafnovel.ui.main.viewmodel
 
 import android.content.Context
 import android.content.Intent
-import android.util.Log
-import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -102,7 +100,7 @@ class BookDetailViewModel(context: Context, storedBook: StoredBook, repository: 
                     bOI["newChapter"] ?: "", "", bOI["imgUrl"] ?: "", false, -5, bI.bookid
                 )
 //                mRepository.insert(storedBook)
-                mRepository.addFavoriteBook(storedBook,BookFavorite(folderId,bI.bookid))
+                mRepository.addFavoriteBook(storedBook,BookFavorite(folderId, bI.bookid, creattime = System.currentTimeMillis()))
                 isBookStoredStateChange.postValue(true)
 //                withContext(Dispatchers.Main) {
 //                    Toast.makeText(mContext, "已將${bI.bookname}放入書櫃", Toast.LENGTH_SHORT).show()
@@ -136,7 +134,8 @@ class BookDetailViewModel(context: Context, storedBook: StoredBook, repository: 
                 val intent = Intent().apply {
                     setClass(mContext, DownloadNovelService()::class.java)
                     putExtra("bookDownloadInfo", bookInfo)
-                    action = DownloadNovelService.DOWNLOAD_SINGLE_ACTION
+//                    action = DownloadNovelService.DOWNLOAD_SINGLE_ACTION
+                    action = DownloadNovelService.DOWNLOAD_PLURAL_ACTION
                 }
                 mContext.startService(intent)
             }

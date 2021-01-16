@@ -26,7 +26,7 @@
             app:layout_constraintTop_toBottomOf="@+id/nav_host_container"
             app:itemTextColor="#CED1AA" app:itemRippleColor="#FFFFFF" app:itemIconSize="20dp"
             android:isScrollContainer="false"
-            android:background="#EE202205"
+            android:background="#E8767C26"
             app:layout_behavior="@string/hide_bottom_view_on_scroll_behavior"
             app:hideOnScroll="true"
             android:layout_gravity="bottom"/>

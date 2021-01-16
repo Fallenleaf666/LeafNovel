@@ -95,8 +95,14 @@ class BookDirectoryFragment : Fragment(), BookChapterAdapter.OnItemClickListener
             adapter.setItems(bookChResults, this)
         })
 //        追蹤儲存章節的變化
+        var lastTime = System.currentTimeMillis()
+        var nowTime :Long
         viewModel?.chaptersIndexSaved?.observe(viewLifecycleOwner,{ indexes->
-            adapter.setSavedIndex(indexes)
+            nowTime = System.currentTimeMillis()
+            if(nowTime -lastTime >= 1000){
+                adapter.setSavedIndex(indexes)
+            }
+            lastTime = nowTime
         })
         viewModel?.bookInformation?.observe(viewLifecycleOwner,{ bookInfo->
             bookId = bookInfo.bookid

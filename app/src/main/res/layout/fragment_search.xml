@@ -8,6 +8,29 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
         <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/constraintLayout" app:layout_constraintVertical_bias="0.438"
+                android:id="@+id/SearchNoDataView" android:visibility="invisible">
+
+            <ImageView
+                    android:src="@drawable/ic_searchnodata"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp" android:id="@+id/SearchNoDataImg"
+                    app:layout_constraintTop_toTopOf="parent" app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent" android:layout_marginTop="24dp"/>
+            <TextView
+                    android:text="查無小說\n請嘗試其他關鍵字！"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:id="@+id/SearchNoDataText"
+                    android:textSize="14sp" app:layout_constraintTop_toBottomOf="@+id/SearchNoDataImg"
+                    app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent" android:layout_marginTop="32dp"
+                    android:gravity="center_horizontal" android:lineSpacingExtra="8sp"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+        <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"

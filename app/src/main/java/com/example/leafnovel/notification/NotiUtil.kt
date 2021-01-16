@@ -240,36 +240,28 @@ class NotifyUtil(private val mContext: Context, private val NOTIFICATION_ID: Int
     fun notifyProgress(
         pendingIntent: PendingIntent?, smallIcon: Int,
         ticker: String, title: String?, content: String?, sound: Boolean, vibrate: Boolean, lights: Boolean,
-        notificationHelper: NotificationHelper
+        max:Int
     ) {
-        setCompatBuilder(pendingIntent, smallIcon, ticker, title, content, false, vibrate, lights)
-        Thread {
-            var nowProgress = 0
-            while (nowProgress <= 100) {
-                if (notificationHelper.onCall()) {
-                    break
-                }
+        setCompatBuilder(pendingIntent, smallIcon, ticker, title, content, false, false, false)
                 // 參數：1.最大進度， 2.當前進度， 3.是否精確顯示進度
-                cBuilder.setProgress(100, nowProgress, false)
+                cBuilder.setProgress(max, 0, false)
                 cBuilder.setOngoing(true)
-                // cBuilder.setProgress(0, 0, true);
                 sent()
-                try {
-                    Thread.sleep(1 * 100.toLong())
-                } catch (e: InterruptedException) {
-                    e.printStackTrace()
-                }
-                if (nowProgress == 100) {
-                    nowProgress = 0
-                }
-                nowProgress += 10
-            }
-//            下載完成後發送
-            cBuilder.setContentText("下載完成").setProgress(0, 0, false)
-            cBuilder.setOngoing(false)
-            cBuilder.setAutoCancel(true)
-            sent()
-        }.start()
+    }
+
+    fun updateNotifyProgress(nowProgress:Int,max :Int,title:String) {
+        // 參數：1.最大進度， 2.當前進度， 3.是否精確顯示進度
+        cBuilder.setContentText("$nowProgress/$max $title")
+        cBuilder.setProgress(max, nowProgress, false)
+        cBuilder.setOngoing(true)
+        sent()
+    }
+    //下載完成後發送
+    fun downloadCompleteNotify() {
+        cBuilder.setContentText("下載完成").setProgress(0, 0, false)
+        cBuilder.setOngoing(false)
+        cBuilder.setAutoCancel(true)
+        sent()
     }
 
     /**
