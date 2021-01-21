@@ -20,4 +20,6 @@
     <color name="fontMorning">#B5373535</color>
     <color name="fontNight">#C1E9EAF3</color>
     <color name="battery_warning_color">#D3F4879D</color>
+    <color name="color_shimmer">#E4E2E2</color>
+    <color name="color_background">#fff</color>
 </resources>

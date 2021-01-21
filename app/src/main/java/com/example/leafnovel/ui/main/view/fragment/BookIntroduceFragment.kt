@@ -2,25 +2,21 @@ package com.example.leafnovel.ui.main.view.fragment
 
 import android.app.Activity
 import android.app.AlertDialog
+import android.content.Context
 import android.content.Intent
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
+import android.os.Build
+import android.os.Build.VERSION_CODES
+import android.os.Build.VERSION_CODES.M
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.TextView
-import android.widget.Toast
-//import androidx.fragment.app.activityViewModels
-//import androidx.lifecycle.lifecycleScope
+import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
 import com.example.leafnovel.R
-import com.example.leafnovel.bean.Group
 import com.example.leafnovel.customToast
-import com.example.leafnovel.data.model.StoredBookFolder
 import com.example.leafnovel.ui.main.view.BookContentBetaActivity
 import com.example.leafnovel.ui.main.view.BookDetailActivity
 import com.example.leafnovel.ui.main.viewmodel.BookDetailViewModel
@@ -48,23 +44,27 @@ class BookIntroduceFragment : Fragment() {
 
         viewModel = parentActivity?.getActivityViewModel()
 
-
         setUi()
         setObserver()
         setUiListener()
     }
 
     private fun setUi() {
-        val storedBookInfo = viewModel?.bookInformation?.value
-        Book_titleView.text = storedBookInfo?.bookname
-        Book_authorView.text = storedBookInfo?.bookauthor
+        BookDetailShimmerLayout.startShimmer()
+//        val storedBookInfo = viewModel?.bookInformation?.value
+//        Book_titleView.text = storedBookInfo?.bookname
+//        Book_authorView.text = storedBookInfo?.bookauthor
     }
 
     private fun setObserver() {
         viewModel?.bookOtherInformation?.observe(viewLifecycleOwner,{bookInfo->
 //            NewChapterText.text = bookInfo["newChapter"]
+            val storedBookInfo = viewModel?.bookInformation?.value
+            Book_titleView.text = storedBookInfo?.bookname
+            Book_authorView.text = storedBookInfo?.bookauthor
+
             bookInfo["newChapter"]?.let{
-                NewChapterText.text = if(it.length<=9)it else it.subSequence(0,9).toString() + "..."
+                NewChapterText.text = viewModel?.checkIsStringOutOfBound(it)
             }
             UpdateTimeText.text = bookInfo["updateTime"]
             Book_DescripeView.text = bookInfo["bookDescripe"]
@@ -79,6 +79,16 @@ class BookIntroduceFragment : Fragment() {
                 .fallback(R.drawable.ic_baseline_image_24)
                 .into(Book_imgView)
             LoadProgressBar.visibility = View.INVISIBLE
+
+            BookDetailShimmerLayout.stopShimmer()
+            BookDetailShimmerLayout.setShimmer(null)
+            Book_titleView.background = null
+            Book_authorView.background = null
+            UpdateTimeText.background = null
+            NewChapterText.background = null
+            Book_stateText.background = null
+            Book_DescripeView.background = null
+            Book_imgView.background = null
         })
 
         viewModel?.bookLastReadInfo?.observe(viewLifecycleOwner,{
@@ -91,32 +101,49 @@ class BookIntroduceFragment : Fragment() {
 
         viewModel?.bookFavorite?.observe(viewLifecycleOwner,{
                 bookFavorite->
-            StoreBT.text = if(bookFavorite != null)"已收藏" else "收藏"
+            val isDbHasData = bookFavorite != null
+            FavoriteBT.tag = if(isDbHasData)"已收藏" else "收藏"
+            context?.let {
+                FavoriteBT.setImageDrawable(if(isDbHasData)ContextCompat.getDrawable(it,R.drawable.ic_bookmarkno)
+                else ContextCompat.getDrawable(it,R.drawable.ic_bookmark))
+            }
+
             viewModel?.isBookStored?.value = bookFavorite != null
 
             Log.d(TAG,"收藏狀態:${bookFavorite?.bookid}")
         })
     }
 
+    @SuppressWarnings("deprecation")
     override fun onAttach(activity: Activity) {
         super.onAttach(activity)
-        parentActivity = activity as BookDetailActivity
+        if(Build.VERSION.SDK_INT < 23){
+            parentActivity = activity as BookDetailActivity
+        }
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        if(context is Activity){
+            parentActivity = context as BookDetailActivity
+        }
     }
 
     private fun setUiListener() {
-        StoreBT.setOnClickListener {
-            if(StoreBT.text == "已收藏"){
+        FavoriteBT.setOnClickListener {
+            if(FavoriteBT.tag=="已收藏"){
                 viewModel?.removeFavoriteBook()
             }else{
                 launchAlertDialog()
             }
-//            viewModel?.isBookStored?.value?.let {
+            //            viewModel?.isBookStored?.value?.let {
 //                viewModel?.isBookStored?.value = !it
 //            }
 //            TODO 如果cancel就放到預設
 //            launchAlertDialog()
 //            viewModel?.storedBook()
         }
+
         LastReadText.setOnClickListener {
             val lastReadInfo = viewModel?.bookLastReadInfo?.value
             val bookInfo = viewModel?.bookInformation?.value
@@ -142,7 +169,8 @@ class BookIntroduceFragment : Fragment() {
 
     private fun launchAlertDialog() {
         CoroutineScope(Dispatchers.IO).launch {
-            val folderList = viewModel?.getBookFolders()?.await()?.toMutableList()
+//            val folderList = viewModel?.getBookFolders()?.await()?.toMutableList()
+            val folderList = viewModel?.getBookFolders()?.toMutableList()
 //            folderList?.add(StoredBookFolder("未分類", 0, -5))
             val folderNameList = arrayListOf<String>()
             folderList?.let {
@@ -167,6 +195,17 @@ class BookIntroduceFragment : Fragment() {
                                 }
                                 withContext(Dispatchers.Main) {
                                     customToast(activity,"已將書本放入${folderNameList[singleIndex]}").show()
+                                    dialog.dismiss()
+                                }
+                            }
+                            //取消時放入預設分類
+                        }.setOnCancelListener{dialog->
+                            CoroutineScope(Dispatchers.IO).launch {
+                                folderList?.let {
+                                    viewModel?.addFavoriteBook(folderList.last().folderid)
+                                }
+                                withContext(Dispatchers.Main) {
+                                    customToast(activity,"已將書本放入${folderNameList.last()}").show()
                                     dialog.dismiss()
                                 }
                             }

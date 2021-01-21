@@ -11,6 +11,7 @@ import com.example.leafnovel.customToast
 import com.example.leafnovel.data.model.Book
 import com.example.leafnovel.data.database.StoredBookDB
 import com.example.leafnovel.data.model.BooksResults
+import com.example.leafnovel.data.model.SearchResult
 import com.example.leafnovel.data.repository.Repository
 import com.example.leafnovel.ui.base.ToastCustomUtil
 import kotlinx.coroutines.*
@@ -39,12 +40,21 @@ class SearchBookViewModel(context: Context): ViewModel() {
         scope.launch(Dispatchers.IO) {
             if (checkNetConnect(mContext)) {
                 with(repository.getSearchBooks(searchKey)){
-                    searchBooksResults.postValue(this)
-                    isHasSearchBooks.postValue(this.size!=0)
+                    when(this.state){
+                        SearchResult.SUCCESS ->{
+                            searchBooksResults.postValue(this.booksResults)
+                            isHasSearchBooks.postValue(this.booksResults.size!=0)
+                        }
+                        SearchResult.FAIL ->{
+                            searchBooksResults.postValue(this.booksResults)
+                            customToast(mContext, mContext.getString(R.string.server_longtime_no_response)).show()
+                        }
+                    }
                 }
             } else {
                 withContext(Dispatchers.Main) {
                     customToast(mContext, mContext.getString(R.string.please_check_net_connect_state)).show()
+                    searchBooksResults.postValue(null)
                 }
             }
         }

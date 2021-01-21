@@ -65,27 +65,6 @@ class BookDetailViewModel(context: Context, storedBook: StoredBook, repository: 
                     bOI["newChapter"] ?: "", "", bOI["imgUrl"] ?: "", false, -5, bI.bookid
                 )
                 mRepository.insert(storedBook)
-//                withContext(Dispatchers.Main) {
-//                    Toast.makeText(mContext, "已將${bI.bookname}放入書櫃", Toast.LENGTH_SHORT).show()
-//                }
-            }
-        }
-    }
-
-
-    fun storedBookInfo(folderId:Long) {
-        scope.launch(Dispatchers.IO) {
-            val bI = bookInformation.value
-            val bOI = bookOtherInformation.value
-            if (bI != null && bOI != null) {
-                val storedBook = StoredBook(
-                    bI.bookname, bI.bookauthor, bI.booksource,
-                    bOI["newChapter"] ?: "", "", bOI["imgUrl"] ?: "", false, folderId, bI.bookid
-                )
-                mRepository.insert(storedBook)
-//                withContext(Dispatchers.Main) {
-//                    Toast.makeText(mContext, "已將${bI.bookname}放入書櫃", Toast.LENGTH_SHORT).show()
-//                }
             }
         }
     }
@@ -99,19 +78,12 @@ class BookDetailViewModel(context: Context, storedBook: StoredBook, repository: 
                     bI.bookname, bI.bookauthor, bI.booksource,
                     bOI["newChapter"] ?: "", "", bOI["imgUrl"] ?: "", false, -5, bI.bookid
                 )
-//                mRepository.insert(storedBook)
                 mRepository.addFavoriteBook(storedBook,BookFavorite(folderId, bI.bookid, creattime = System.currentTimeMillis()))
                 isBookStoredStateChange.postValue(true)
 //                withContext(Dispatchers.Main) {
 //                    Toast.makeText(mContext, "已將${bI.bookname}放入書櫃", Toast.LENGTH_SHORT).show()
 //                }
             }
-//            bookInformation.value?.let {
-//                mRepository.addFavoriteBook(BookFavorite(folderId,it.bookid))
-////                withContext(Dispatchers.Main) {
-////                    Toast.makeText(mContext, "已將${bI.bookname}放入書櫃", Toast.LENGTH_SHORT).show()
-////                }
-//            }
         }
     }
 
@@ -120,29 +92,11 @@ class BookDetailViewModel(context: Context, storedBook: StoredBook, repository: 
             bookInformation.value?.let {
                 mRepository.removeFavoriteBook(it.bookid)
                 isBookStoredStateChange.postValue(true)
-//                withContext(Dispatchers.Main) {
-//                    Toast.makeText(mContext, "已將${bI.bookname}放入書櫃", Toast.LENGTH_SHORT).show()
-//                }
             }
         }
     }
 
-    fun downLoadChapter(bookInfo: BookDownloadInfo?) {
-//        Toast.makeText(mContext, "開始下載", Toast.LENGTH_SHORT).show()
-        scope.launch(Dispatchers.IO) {
-            bookInfo?.let {
-                val intent = Intent().apply {
-                    setClass(mContext, DownloadNovelService()::class.java)
-                    putExtra("bookDownloadInfo", bookInfo)
-//                    action = DownloadNovelService.DOWNLOAD_SINGLE_ACTION
-                    action = DownloadNovelService.DOWNLOAD_PLURAL_ACTION
-                }
-                mContext.startService(intent)
-            }
-        }
-    }
-
-    fun downLoadOneThreadChapter(bookInfo: BookDownloadInfo?) {
+    fun downloadChapter(bookInfo: BookDownloadInfo?) {
 //        Toast.makeText(mContext, "開始下載", Toast.LENGTH_SHORT).show()
         scope.launch(Dispatchers.IO) {
             bookInfo?.let {
@@ -157,8 +111,17 @@ class BookDetailViewModel(context: Context, storedBook: StoredBook, repository: 
     }
 
 
-    fun getBookFolders():Deferred<List<StoredBookFolder>> = scope.async(Dispatchers.IO) {
+//    fun getBookFolders():Deferred<List<StoredBookFolder>> = scope.async(Dispatchers.IO) {
+//        mRepository.getBookFolders()
+//    }
+
+    suspend fun getBookFolders():List<StoredBookFolder> = withContext(Dispatchers.IO){
         mRepository.getBookFolders()
+    }
+
+    //超過9個字符則將後面省略
+    fun checkIsStringOutOfBound(s:String):String{
+        return if(s.length<=9)s else s.subSequence(0,9).toString() + "..."
     }
 
     override fun onCleared() {

@@ -2,14 +2,14 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
             android:id="@+id/chapterDownload"
-            android:contentDescription="多執行續下載此章節"
-            android:title="多執行續下載此章節" />
+            android:contentDescription="下載此章節"
+            android:title="下載此章節" />
     <item
-            android:id="@+id/chapterOneThreadDownload"
-            android:contentDescription="單執行續下載此章節"
-            android:title="單執行續下載此章節" />
+            android:id="@+id/selectSpecialChapters"
+            android:contentDescription="選取特定範圍章節"
+            android:title="選取特定範圍章節" />
     <item
-            android:id="@+id/chapterMoreDownload"
-            android:contentDescription="下載從此往上...回章節"
-            android:title="下載從此往上...回章節" />
+            android:id="@+id/selectAllChapters"
+            android:contentDescription="選取所有章節"
+            android:title="選取所有章節" />
 </menu>

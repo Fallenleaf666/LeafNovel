@@ -66,6 +66,11 @@ class DownloadNovelService : IntentService("DownloadNovelService") {
                 //下載完成
                 2 -> {
                     downloadNotify.downloadCompleteNotify()
+                    val resultIntent = Intent(this@DownloadNovelService, DownloadResultReceiver::class.java).apply {
+                        this.action = DOWNLOAD_CHAPTER_RESULT_KEY
+                        putExtra(DOWNLOAD_RESULT, DownloadResultType.SUCCESS)
+                    }
+                    sendBroadcast(resultIntent)
                 }
             }
             super.handleMessage(msg)
@@ -100,69 +105,6 @@ class DownloadNovelService : IntentService("DownloadNovelService") {
                 Log.d(TAG, "總共花費 ${time / 1000} s")
                 Log.d(TAG, "-----------任務結束-----------")
             }
-            DOWNLOAD_PLURAL_ACTION -> {
-                val bookDownloadInfo = intent.getParcelableExtra<BookDownloadInfo>("bookDownloadInfo")
-
-                val smallIcon: Int = R.drawable.ic_launcher_background
-                val ticker = "開始下載小說章節"
-                val downloadNotify = NotifyUtil(this, resources.getInteger(R.integer.DOWNLOAD_NOTIFICATION_CHANNEL))
-                isDownloadComplete = false
-                downloadNotify.notifyProgress(
-                    null,
-                    smallIcon,
-                    ticker,
-                    resources.getString(R.string.app_chines_name),
-                    "下載中",
-                    sound = false,
-                    vibrate = false,
-                    lights = false,
-                    bookDownloadInfo?.download?.size ?: 0
-                )
-                try {
-                    Thread.sleep(5 * 1000.toLong())
-                } catch (e: InterruptedException) {
-                    e.printStackTrace()
-                }
-                isDownloadComplete = true
-                val resultIntent = Intent(this, DownloadResultReceiver::class.java).apply {
-                    this.action = DOWNLOAD_CHAPTER_RESULT_KEY
-                    putExtra(DOWNLOAD_RESULT, DownloadResultType.SUCCESS)
-                }
-                sendBroadcast(resultIntent)
-            }
-
-            DOWNLOAD_OneThread_ACTION -> {
-                val bookDownloadInfo = intent.getParcelableExtra<BookDownloadInfo>("bookDownloadInfo")
-
-                val smallIcon: Int = R.drawable.ic_launcher_background
-                val ticker = "開始下載小說章節"
-                val downloadNotify = NotifyUtil(this, resources.getInteger(R.integer.DOWNLOAD_NOTIFICATION_CHANNEL))
-                isDownloadComplete = false
-                downloadNotify.notifyProgress(
-                    null,
-                    smallIcon,
-                    ticker,
-                    resources.getString(R.string.app_chines_name),
-                    "下載中",
-                    sound = false,
-                    vibrate = false,
-                    lights = false,
-                    bookDownloadInfo?.download?.size ?: 0
-                )
-//                repository.downloadBookChapter(bookDownloadInfo)
-//                try {
-//                    Thread.sleep(5 * 1000.toLong())
-//                    downloadAction(bookDownloadInfo)
-//                } catch (e: InterruptedException) {
-//                    e.printStackTrace()
-//                }
-                isDownloadComplete = true
-                val resultIntent = Intent(this, DownloadResultReceiver::class.java).apply {
-                    this.action = DOWNLOAD_CHAPTER_RESULT_KEY
-                    putExtra(DOWNLOAD_RESULT, DownloadResultType.SUCCESS)
-                }
-                sendBroadcast(resultIntent)
-            }
         }
     }
 
@@ -170,11 +112,6 @@ class DownloadNovelService : IntentService("DownloadNovelService") {
         SUCCESS, FAIL, STOP, DEFAULT
     }
 
-    private val notificationHelper = object : NotificationHelper {
-        override fun onCall(): Boolean {
-            return isDownloadComplete
-        }
-    }
 
     private fun downloadAction(bookDownloadInfo: BookDownloadInfo) {
         val downloadChaptersList = bookDownloadInfo.download
@@ -195,20 +132,20 @@ class DownloadNovelService : IntentService("DownloadNovelService") {
             }
         }
         executor.shutdown()
+
+        var msg: Message
+        var bundle: Bundle
         for (i in downloadChaptersList.indices) {
             try {
                 val result = completionService.take().get()
-//                downloadNotify.updateNotifyProgress(i+1,downloadChaptersList.size,result.chtitle)
-                val msg: Message = Message()
-                val bundle: Bundle = Bundle()
+                msg = Message()
+                bundle = Bundle()
                 msg.what = 1
                 bundle.putInt(NOW_PROGRESS, i + 1)
                 bundle.putInt(MAX_PROGRESS, downloadChaptersList.size)
                 bundle.putString(CHAPTER_TITLE, result.chtitle)
                 msg.data = bundle
                 handler.sendMessage(msg)
-//                Log.d(TAG, "進度 : ${i+1}/${downloadChaptersList.size} ${result.chtitle}")
-//                Log.d(TAG, "completionService : ${i} ${result.chIndex}${result.chtitle}")
 
             } catch (e: InterruptedException) {
                 e.printStackTrace()
@@ -216,13 +153,10 @@ class DownloadNovelService : IntentService("DownloadNovelService") {
                 e2.printStackTrace()
             }
         }
-        val msg = Message()
+        msg = Message()
         msg.what = 2
         handler.sendMessage(msg)
-//        downloadNotify.downloadCompleteNotify()
-//        while (!executor.awaitTermination(5, TimeUnit.NANOSECONDS)){
-//
-//        }
+//        while (!executor.awaitTermination(5, TimeUnit.NANOSECONDS)){ }
     }
 
 
@@ -231,7 +165,6 @@ class DownloadNovelService : IntentService("DownloadNovelService") {
         parentJob.cancel()
         Log.d(TAG, "-----------服務結束-----------")
     }
-//    inner class ChapterDownloadResult(var index:Int,var title:String,var downloadUrl:String,var result:DownloadResultType)
 
 
     //                val intent = Intent(this, OtherActivity::class.java)
@@ -248,6 +181,5 @@ class DownloadNovelService : IntentService("DownloadNovelService") {
 //                msg.data = bundle
 //                messenger.send(msg)
 //
-//    val beforeTime = SimpleDateFormat("yyyy.MM.dd HH:mm:ss").format(Date(System.currentTimeMillis()))
-//    Log.d(TAG, "-----------開始下載時間 ${beforeTime}-----------")
+
 }

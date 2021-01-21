@@ -2,6 +2,9 @@ package com.example.leafnovel.ui.main.view.fragment
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.os.Message
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -12,8 +15,10 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.leafnovel.*
+import com.example.leafnovel.data.DownloadNovelService
 import com.example.leafnovel.ui.main.adapter.BookAdapter
 import com.example.leafnovel.data.model.Book
+import com.example.leafnovel.receiver.DownloadResultReceiver
 import com.example.leafnovel.ui.main.viewmodel.SearchBookViewModel
 import com.example.leafnovel.ui.base.SearchBookViewModelFactory
 import com.example.leafnovel.ui.main.view.BookDetailActivity
@@ -55,6 +60,9 @@ class Search : Fragment(), BookAdapter.OnItemClickListener {
             setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                 override fun onQueryTextSubmit(query: String): Boolean {
                     viewModel.queryBooks(query)
+                    bookAdapter.isShimmer = BookAdapter.IsShimmer.ACT
+                    SearchNoDataView.visibility = View.INVISIBLE
+                    bookAdapter.notifyDataSetChanged()
                     SF_searchView.clearFocus()
                     return false
                 }
@@ -89,7 +97,11 @@ class Search : Fragment(), BookAdapter.OnItemClickListener {
         context?.let {
             viewModel = ViewModelProvider(this, SearchBookViewModelFactory(it)).get(SearchBookViewModel::class.java)
             viewModel.searchBooksResults.observe(viewLifecycleOwner, { searchBooks ->
-                bookAdapter.setItems(searchBooks, this)
+                searchBooks?.let {
+                    bookAdapter.setItems(searchBooks, this)
+                }?:bookAdapter.setItems(null,null)
+                bookAdapter.isShimmer = BookAdapter.IsShimmer.STOP
+                bookAdapter.notifyDataSetChanged()
             })
             viewModel.isHasSearchBooks.observe(viewLifecycleOwner, { isHasSearchBooks ->
                 isHasSearchBooks?.let {

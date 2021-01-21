@@ -15,7 +15,7 @@ import com.example.leafnovel.R
 import com.example.leafnovel.data.model.ChapterIndex
 import kotlinx.android.synthetic.main.row_bookchapter.view.*
 
-class BookChapterAdapter : RecyclerView.Adapter<BookChapterAdapter.BookChViewHolder>() {
+class BookChapterInContentAdapter : RecyclerView.Adapter<BookChapterInContentAdapter.BookChViewHolder>() {
     private val items = ArrayList<BookChapter>()
     private var listener: OnItemClickListener? = null
 
@@ -23,6 +23,8 @@ class BookChapterAdapter : RecyclerView.Adapter<BookChapterAdapter.BookChViewHol
     private var savedChapterIndexes: List<ChapterIndex>? = null
     private var isPostiveOrder: Boolean = true
     private var indexesList: ArrayList<Int> = ArrayList()
+    private var setMoreVisible = true
+    private var isSmallfontSize = false
 
 
     var tracker: SelectionTracker<BookChapter>? = null
@@ -34,61 +36,6 @@ class BookChapterAdapter : RecyclerView.Adapter<BookChapterAdapter.BookChViewHol
         items.clear()
         items.addAll(bookChs)
         listener = itemClickListener
-        notifyDataSetChanged()
-    }
-//    fun updateItem(bookChs: ArrayList<BookChapter>) {
-//        items.clear()
-//        items.addAll(bookChs)
-//        listener = itemClickListener
-//        notifyDataSetChanged()
-//    }
-
-    fun getSpecialItems(startIndex: Int, endIndex: Int): List<BookChapter> {
-        var start = startIndex
-        var end = endIndex
-        if(startIndex<endIndex){
-            start = endIndex
-            end = startIndex
-        }
-        val tempList = ArrayList<BookChapter>()
-        for (i in start downTo end) {
-            tempList.add(items[i])
-        }
-        return tempList.toList()
-    }
-
-//    正反序還沒確定
-    fun setSavedIndex(indexes: List<ChapterIndex>) {
-//    savedChapterIndexes = indexes
-//    for (i in indexes) {
-//        i.index?.let { notifyItemChanged(it) }
-//    }
-    savedChapterIndexes = if(isPostiveOrder){ indexes }else{
-        indexes.map { ChapterIndex( it.index?.let { mIndex->items.size -1 - mIndex })}
-    }
-    savedChapterIndexes?.let {
-        for (i in it) {
-            i.index?.let {i2->
-                notifyItemChanged(i2)
-            }
-        }
-    }
-    }
-
-    fun reversedItems(isReverseOrder: Boolean) {
-        isPostiveOrder = !isReverseOrder
-        items.reverse()
-        thisPosition = items.size - 1 - (thisPosition?:0)
-        if (isReverseOrder) {
-            if (items[0].chIndex == 0) {
-                items.reverse()
-            }
-        } else {
-            if (items[0].chIndex != 0) {
-                items.reverse()
-            }
-        }
-//        thisPosition?.let { lastPositionChange(items.size - 1 - it) }
         notifyDataSetChanged()
     }
 
@@ -116,6 +63,8 @@ class BookChapterAdapter : RecyclerView.Adapter<BookChapterAdapter.BookChViewHol
 
         init {
             view.setOnClickListener(this)
+            downloadChapter.visibility = View.GONE
+            savedStat.visibility = View.GONE
         }
 
         override fun onClick(p0: View?) {
@@ -131,31 +80,17 @@ class BookChapterAdapter : RecyclerView.Adapter<BookChapterAdapter.BookChViewHol
             }
         }
 
-        fun getItemDetails(): ItemDetailsLookup.ItemDetails<BookChapter> =
-            object : ItemDetailsLookup.ItemDetails<BookChapter>() {
-                override fun getPosition(): Int {
-                    return adapterPosition
-                }
-
-                override fun getSelectionKey(): BookChapter? {
-                    return items[position]
-                }
-            }
-
-        fun setChapterBackground(isActivated: Boolean = false) {
+        fun setChapterBackground() {
             chapterRow.setBackgroundResource(R.drawable.item_chapter_background)
-            itemView.isActivated = isActivated
         }
 
-        fun setSavedChapterBackground(resId: Int) {
-            savedStat.setImageResource(resId)
+        fun setFontSize() {
+            title.textSize = 12f
         }
-
     }
 
     interface OnItemClickListener {
         fun onItemClick(bookCh: BookChapter, position: Int)
-        fun onMoreClick(bookCh: BookChapter, position: Int, view: View)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BookChViewHolder {
@@ -163,37 +98,15 @@ class BookChapterAdapter : RecyclerView.Adapter<BookChapterAdapter.BookChViewHol
     }
 
     override fun onBindViewHolder(holder: BookChViewHolder, position: Int) {
-        tracker?.let {
-            holder.setChapterBackground(it.isSelected(items[position]))
-        }
         holder.title.text = items[position].chtitle
         holder.index.text = position.toString()
 
-        tracker?.let {
-            if (!it.hasSelection()) {
-                if (position == getThisPosition()) {
-//            holder.chapterRow.setBackgroundColor(R.color.selectChBg)
-                    holder.chapterRow.setBackgroundResource(R.color.selectChBg)
-                } else {
-//            holder.chapterRow.setBackgroundResource(R.color.unselectChBg)
-                    holder.chapterRow.setBackgroundColor(Color.TRANSPARENT)
-                }
-            }
+        if (position == getThisPosition()) {
+            holder.chapterRow.setBackgroundResource(R.color.selectChBg)
+        } else {
+            holder.chapterRow.setBackgroundColor(Color.TRANSPARENT)
         }
-
-        holder.downloadChapter.setOnClickListener {
-            listener?.onMoreClick(items[position], position, it)
-        }
-        savedChapterIndexes?.let {
-            if (it.contains(ChapterIndex(position))) {
-//                holder.savedStat.setImageResource(R.drawable.chapter_saved_stat)
-                holder.setSavedChapterBackground(R.drawable.chapter_saved_stat)
-            } else {
-                holder.setSavedChapterBackground(R.drawable.chapter_saved_stat_unsaved)
-//                holder.savedStat.setImageResource(R.drawable.chapter_saved_stat_unsaved)
-            }
-        }
-
+        holder.setFontSize()
     }
 
     override fun getItemCount(): Int = items.size

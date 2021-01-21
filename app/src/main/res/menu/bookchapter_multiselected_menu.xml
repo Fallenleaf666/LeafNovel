@@ -7,11 +7,4 @@
             app:showAsAction="always"
             android:title="@string/multiselecte_download"
             android:icon="@drawable/ic_baseline_cloud_download_24"/>
-
-    <item
-            android:id="@+id/action_multi_selected_Onedownload"
-            app:showAsAction="always"
-            android:title="@string/multiselecte_download"
-            android:icon="@drawable/ic_baseline_brightness_4_24"/>
-
 </menu>

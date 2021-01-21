@@ -1,18 +1,20 @@
 package com.example.leafnovel.data.api
 
+import android.content.Intent
+import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.os.Message
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import com.example.leafnovel.data.DownloadNovelService
 import com.example.leafnovel.data.model.*
-import kotlinx.coroutines.*
+import com.example.leafnovel.receiver.DownloadResultReceiver
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
-import java.util.concurrent.Executor
-import java.util.concurrent.LinkedBlockingQueue
-import java.util.concurrent.ThreadPoolExecutor
-import java.util.concurrent.TimeUnit
+import java.io.IOException
+import java.lang.Exception
 
 
 class NovelApi {
@@ -33,46 +35,50 @@ class NovelApi {
         }
         const val TAG = "NovelApi"
 
-        fun requestSearchNovel(searchContent: String): BooksResults {
+        fun requestSearchNovel(searchContent: String): WebSearchBookResult {
 //            val doc : Document = Jsoup.connect("https://t.uukanshu.com/search.aspx?k="+searchContent)
 //            繁體
 //            val doc: Document = Jsoup.connect("https://t.uukanshu.com/search.aspx")
 //            簡體
-            val doc: Document = Jsoup.connect("https://sj.uukanshu.com/search.aspx")
-                .data("k", searchContent)
-                .userAgent("Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.111 Safari/537.36")
-                .referrer("https://t.uukanshu.com")
-//                .timeout(5000)
-                .get()
-            val listBox: Element = doc.getElementById("bookList")
-            val searchBooks: Elements = listBox.getElementsByTag("li")
+            try{
+                val doc: Document = Jsoup.connect("https://sj.uukanshu.com/search.aspx")
+                    .data("k", searchContent)
+                    .userAgent("Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.111 Safari/537.36")
+                    .referrer("https://t.uukanshu.com")
+//                    .timeout(5000)
+                    .get()
+                val listBox: Element = doc.getElementById("bookList")
+                val searchBooks: Elements = listBox.getElementsByTag("li")
 
-            val booksResults = BooksResults()
-            for (i in searchBooks) {
+                val booksResults = BooksResults()
+                for (i in searchBooks) {
 //                val bookNum = i.getElementsByClass("book_num").text()
-                val tempDoc = i.getElementsByClass("name")
-                val bookTitle = tempDoc.attr("title")
-                val bookId = tempDoc.attr("href").split("=")[1]
-                val bookUrl = tempDoc.attr("href")
-                val author = i.getElementsByClass("aut").text().split(" ")[0]
-                val bookDescribe = i.getElementsByTag("p").first().getElementsByTag("a").first().text()?:"此書無簡介"
-                val updateTime = i.getElementsByTag("p").first().getElementsByTag("span").first().text()
+                    val tempDoc = i.getElementsByClass("name")
+                    val bookTitle = tempDoc.attr("title")
+                    val bookId = tempDoc.attr("href").split("=")[1]
+                    val bookUrl = tempDoc.attr("href")
+                    val author = i.getElementsByClass("aut").text().split(" ")[0]
+                    val bookDescribe = i.getElementsByTag("p").first().getElementsByTag("a").first().text()?:"此書無簡介"
+                    val updateTime = i.getElementsByTag("p").first().getElementsByTag("span").first().text()
 
-                val tempBook = Book()
-                tempBook.apply {
-                    this.bookUrl = bookUrl
-                    this.bookId = bookId
-                    this.bookDescripe = bookDescribe
+                    val tempBook = Book()
+                    tempBook.apply {
+                        this.bookUrl = bookUrl
+                        this.bookId = bookId
+                        this.bookDescripe = bookDescribe
 //                    this.bookDescripe = toTraditional(bookDescribe)
-                    this.author = author
+                        this.author = author
 //                    this.author = toTraditional(author)
-                    this.booktitle = bookTitle
+                        this.booktitle = bookTitle
 //                    this.booktitle = toTraditional(bookTitle)
-                    this.updateTime = updateTime
+                        this.updateTime = updateTime
+                    }
+                    booksResults.add(tempBook)
                 }
-                booksResults.add(tempBook)
+                return WebSearchBookResult(SearchResult.SUCCESS,booksResults,SearchSource.UU)
+            }catch (e: IOException){
+                return WebSearchBookResult(SearchResult.FAIL,BooksResults(),SearchSource.UU)
             }
-            return booksResults
         }
 
 

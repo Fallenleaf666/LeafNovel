@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/dialogviewbg"
+>
+
+    <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content" app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0" android:id="@+id/linearLayout14" android:layout_margin="28dp"
+            android:gravity="center_horizontal">
+        <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+            <TextView
+                    android:text="下載章節區間"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center_horizontal|center_vertical" android:textColor="@color/fontMorning"
+                    android:id="@+id/DialogSelectChapterTitle" android:layout_gravity="center_horizontal"/>
+        </LinearLayout>
+        <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+            <EditText
+                    android:layout_width="80dp"
+                    android:layout_height="match_parent"
+                    android:inputType="number"
+                    android:id="@+id/DialogSelectChapterStartIndexView"
+                    android:hint="1"
+                    android:textColor="@color/fontMorning" android:textSize="24sp"
+                    app:backgroundTint="@color/fontMorning"
+                    android:layout_marginTop="15dp" android:layout_marginBottom="12dp" android:maxLength="5"
+                    android:maxLines="1" android:gravity="center_horizontal"/>
+
+            <ImageView
+                    android:layout_width="40dp"
+                    android:layout_height="match_parent" android:src="@drawable/ic_baseline_chevron_right_24"
+                    android:id="@+id/imageView5" android:layout_gravity="center_horizontal"/>
+            <EditText
+                    android:layout_width="80dp"
+                    android:layout_height="match_parent"
+                    android:inputType="number"
+                    android:gravity="center_horizontal"
+                    android:id="@+id/DialogSelectChapterEndIndexView"
+                    android:hint="1000"
+                    android:textColor="@color/fontMorning" android:textSize="24sp"
+                    app:backgroundTint="@color/fontMorning"
+                    android:layout_marginTop="15dp" android:layout_marginBottom="12dp" android:maxLength="5"
+                    android:maxLines="1"/>
+        </LinearLayout>
+    </LinearLayout>
+    <Button
+            android:text="確定"
+            android:layout_width="75dp"
+            android:layout_height="30dp" android:id="@+id/DialogSelectChapterCompleteBT"
+            app:layout_constraintEnd_toEndOf="@+id/linearLayout14"
+            android:background="@drawable/send_button_background"
+            android:textColor="#E4F4EFEF" android:textSize="18sp"
+            app:layout_constraintTop_toBottomOf="@+id/linearLayout14" android:layout_marginTop="2dp"
+            app:layout_constraintBottom_toBottomOf="parent" android:layout_marginBottom="10dp"/>
+</androidx.constraintlayout.widget.ConstraintLayout>

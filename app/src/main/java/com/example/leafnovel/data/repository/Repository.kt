@@ -122,7 +122,7 @@ class Repository constructor(private val sbBooksDao: StoredBookDao) {
 //    }
 
     @WorkerThread
-    fun getSearchBooks(searchKey:String): BooksResults {
+    fun getSearchBooks(searchKey:String): WebSearchBookResult {
         return NovelApi.requestSearchNovel(searchKey)
     }
 

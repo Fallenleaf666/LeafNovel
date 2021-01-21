@@ -19,6 +19,7 @@
     <string name="next_chapter">下一章</string>
     <string name="last_chapter">上一章</string>
     <string name="db_no_data">DB Has No Data</string>
+    <string name="server_longtime_no_response">伺服器長時間無回應，請確認當前連線訊號品質！</string>
     <string-array name="email_problem_type">
         <item>Bug回報</item>
         <item>意見提供</item>

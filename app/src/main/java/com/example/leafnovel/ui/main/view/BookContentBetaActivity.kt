@@ -34,6 +34,7 @@ import com.example.leafnovel.data.model.ChapterContentBeta
 import com.example.leafnovel.data.model.LastReadProgress
 import com.example.leafnovel.ui.base.BookContentViewModelFactory
 import com.example.leafnovel.ui.main.adapter.BookChapterAdapter
+import com.example.leafnovel.ui.main.adapter.BookChapterInContentAdapter
 import com.example.leafnovel.ui.main.adapter.ChapterContentAdapter
 import com.example.leafnovel.ui.main.viewmodel.BookContentBetaViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -47,7 +48,8 @@ import kotlin.collections.ArrayList
 import kotlin.math.abs
 
 
-class BookContentBetaActivity : AppCompatActivity(), BookChapterAdapter.OnItemClickListener{
+//class BookContentBetaActivity : AppCompatActivity(), BookChapterAdapter.OnItemClickListener{
+class BookContentBetaActivity : AppCompatActivity(), BookChapterInContentAdapter.OnItemClickListener{
     companion object {
         const val TAG = "BookContentBetaActivity5"
     }
@@ -61,7 +63,8 @@ class BookContentBetaActivity : AppCompatActivity(), BookChapterAdapter.OnItemCl
     var isHiddenTitle = false
 
     //目錄適配器
-    val adapter = BookChapterAdapter()
+//    val adapter = BookChapterAdapter()
+    val adapter = BookChapterInContentAdapter()
 
     //內文適配器
     val chapterContentAdapter = ChapterContentAdapter(this)
@@ -204,9 +207,9 @@ class BookContentBetaActivity : AppCompatActivity(), BookChapterAdapter.OnItemCl
         DrawerLayout.closeDrawer(GravityCompat.START)
     }
 
-    override fun onMoreClick(bookCh: BookChapter, position: Int, view: View) {
-    //TODO("Not yet implemented")
-    }
+//    override fun onMoreClick(bookCh: BookChapter, position: Int, view: View) {
+//    //TODO("Not yet implemented")
+//    }
 
     private fun setUI() {
         //內文
@@ -222,12 +225,19 @@ class BookContentBetaActivity : AppCompatActivity(), BookChapterAdapter.OnItemCl
             adapter = chapterContentAdapter
             addItemDecoration(decoration)
         }
+
         //目錄
         BookChRecyclerView.apply {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(this@BookContentBetaActivity)
             adapter = this@BookContentBetaActivity.adapter
         }
+
+        //將下載狀態及更多功能隱藏
+//        adapter.setMoreVisible(false)
+        //縮小字體
+//        adapter.setFontSizeSmall(true)
+
         //取得字體大小，預設為16sp
         val fontSize = preference.getFloat(getString(R.string.novel_fontsize), 16F)
         chapterContentAdapter.setFontSize(fontSize)
@@ -483,6 +493,11 @@ class BookContentBetaActivity : AppCompatActivity(), BookChapterAdapter.OnItemCl
                 when (StyleSettingView.visibility) {
                     View.VISIBLE -> StyleSettingView.visibility = View.GONE
                 }
+                viewModel.nowLookAtIndex.value?.let {
+                    BookChRecyclerView.scrollToPosition(if(it <= (adapter.itemCount-1)-5)it+5 else it)
+                    adapter.lastPositionChange(it)
+                }
+
                 DrawerLayout.openDrawer(GravityCompat.START)
                 return@OnNavigationItemSelectedListener true
             }

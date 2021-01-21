@@ -4,51 +4,60 @@
                                                    xmlns:tools="http://schemas.android.com/tools"
                                                    android:layout_width="match_parent"
                                                    android:layout_height="110dp">
-
-    <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" android:layout_marginBottom="2dp"
-            app:layout_constraintEnd_toEndOf="parent">
-        <ImageView
-                android:layout_width="200dp"
-                android:layout_height="match_parent" tools:srcCompat="@android:drawable/ic_menu_report_image"
-                android:id="@+id/BookImgView"
-                android:layout_weight="1" android:layout_marginStart="10dp"
-                app:srcCompat="@android:drawable/ic_menu_report_image" android:visibility="gone"/>
+    <com.facebook.shimmer.ShimmerFrameLayout
+            android:id="@+id/BookShimmerLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent">
         <LinearLayout
-                android:orientation="vertical"
+                android:orientation="horizontal"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" android:layout_weight="1" android:layout_marginStart="20dp"
-                android:layout_marginTop="8dp" android:layout_marginBottom="3dp" android:layout_marginEnd="20dp">
-            <TextView
-                    android:text="叫我龍傲天"
+                android:layout_height="match_parent"
+                app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent" android:layout_marginBottom="2dp"
+                app:layout_constraintEnd_toEndOf="parent">
+            <ImageView
+                    android:layout_width="200dp"
+                    android:layout_height="match_parent" tools:srcCompat="@android:drawable/ic_menu_report_image"
+                    android:id="@+id/BookImgView"
+                    android:layout_weight="1" android:layout_marginStart="10dp"
+                    app:srcCompat="@android:drawable/ic_menu_report_image" android:visibility="gone"/>
+            <LinearLayout
+                    android:orientation="vertical"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" android:id="@+id/BookName" android:layout_weight="1"
-                    android:textColor="#1E1508" android:layout_marginTop="4dp" android:textSize="15sp"
-                    android:gravity="center_vertical"/>
-            <TextView
-                    android:text="匿名"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" android:id="@+id/BookAuthor" android:layout_weight="1"
-                    android:textSize="10sp" android:textColor="#65481E"
-                    android:layout_marginTop="3dp" android:layout_marginStart="2dp" android:gravity="center_vertical"/>
-            <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" android:id="@+id/BookDescripe" android:layout_weight="1"
-                    tools:text="龍傲天死后在一個靈氣復蘇的平行世界重生，卻發現自身只有百分之十五的基因變異…" android:maxLines="2"
-                    android:layout_marginTop="2dp" android:lineSpacingExtra="3sp" android:textSize="12sp"
-                    android:gravity="center_vertical"/>
-            <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" android:id="@+id/update_time" android:layout_weight="1"
-                    android:visibility="gone"/>
-            <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" android:id="@+id/LastReadChapter" android:layout_weight="1"
-                    android:visibility="gone"/>
+                    android:layout_height="match_parent" android:layout_weight="1" android:layout_marginStart="20dp"
+                    android:layout_marginTop="8dp" android:layout_marginBottom="3dp" android:layout_marginEnd="20dp">
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" android:id="@+id/BookName" android:layout_weight="1"
+                        android:textColor="#1E1508" android:layout_marginTop="4dp" android:textSize="15sp"
+                        android:gravity="center_vertical" android:background="@color/color_shimmer" tools:text="叫我龍傲天"
+                        android:text="        "/>
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" android:id="@+id/BookAuthor" android:layout_weight="1"
+                        android:textSize="10sp" android:textColor="#65481E"
+                        android:layout_marginTop="3dp" android:layout_marginStart="2dp"
+                        android:gravity="center_vertical" android:background="@color/color_shimmer" tools:text="匿名"
+                        android:text="    "/>
+                <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" android:id="@+id/BookDescripe" android:layout_weight="1"
+                        android:maxLines="2"
+                        android:layout_marginTop="2dp" android:lineSpacingExtra="3sp" android:textSize="12sp"
+                        android:gravity="center_vertical" android:background="@color/color_shimmer"
+                        android:text="\n  "
+                        tools:text="龍傲天死后在一個靈氣復蘇的平行世界重生，卻發現自身只有百分之十五的基因變異…"/>
+                <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" android:id="@+id/update_time" android:layout_weight="1"
+                        android:visibility="gone"/>
+                <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" android:id="@+id/LastReadChapter" android:layout_weight="1"
+                        android:visibility="gone"/>
+            </LinearLayout>
         </LinearLayout>
-    </LinearLayout>
+    </com.facebook.shimmer.ShimmerFrameLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

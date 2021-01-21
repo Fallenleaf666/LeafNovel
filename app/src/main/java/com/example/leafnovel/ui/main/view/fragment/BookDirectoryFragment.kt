@@ -1,15 +1,17 @@
 package com.example.leafnovel.ui.main.view.fragment
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.*
+import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.appcompat.view.ActionMode
-import android.widget.Button
-import android.widget.PopupMenu
-import android.widget.Switch
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.selection.SelectionPredicates
 import androidx.recyclerview.selection.SelectionTracker
@@ -17,6 +19,7 @@ import androidx.recyclerview.selection.StorageStrategy
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.leafnovel.R
+import com.example.leafnovel.customToast
 import com.example.leafnovel.data.model.BookChapter
 import com.example.leafnovel.data.model.BookDownloadInfo
 import com.example.leafnovel.ui.main.adapter.BookChapterAdapter
@@ -26,6 +29,10 @@ import com.example.leafnovel.ui.main.view.BookContentBetaActivity
 import com.example.leafnovel.ui.main.view.BookDetailActivity
 import com.example.leafnovel.ui.main.viewmodel.BookDetailViewModel
 import kotlinx.android.synthetic.main.fragment_book_directory.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.lang.Exception
 
 class BookDirectoryFragment : Fragment(), BookChapterAdapter.OnItemClickListener ,ActionMode.Callback{
     private var viewModel : BookDetailViewModel? = null
@@ -134,15 +141,17 @@ class BookDirectoryFragment : Fragment(), BookChapterAdapter.OnItemClickListener
             SelectionPredicates.createSelectAnything()).build()
         adapter.tracker = tracker
 
-        tracker?.addObserver(object :SelectionTracker.SelectionObserver<Long>(){
+        tracker?.addObserver(object : SelectionTracker.SelectionObserver<Long>() {
             override fun onSelectionChanged() {
                 super.onSelectionChanged()
                 tracker?.let {
                     selectedBookChapterItems = it.selection.toMutableList()
-                    if(selectedBookChapterItems.isEmpty()){
+                    if (selectedBookChapterItems.isEmpty()) {
                         actionMode?.finish()
-                }else{
-                        if(actionMode == null) actionMode = parentActivity?.startSupportActionMode(this@BookDirectoryFragment)
+
+                    } else {
+                        if (actionMode == null) actionMode =
+                            parentActivity?.startSupportActionMode(this@BookDirectoryFragment)
                         actionMode?.title = "已選取${selectedBookChapterItems.size}篇章節"
                     }
                 }
@@ -157,23 +166,12 @@ class BookDirectoryFragment : Fragment(), BookChapterAdapter.OnItemClickListener
     }
 
     override fun onActionItemClicked(p0: ActionMode?, item: MenuItem?): Boolean {
-        when(item?.itemId){
-            R.id.action_multi_selected_download->{
-//                Toast.makeText(context,selectedBookChapterItems.toString(),Toast.LENGTH_LONG).show()
-//                if(actionMode == null) actionMode = parentActivity?.startSupportActionMode(this@BookDirectoryFragment)
-                if(bookId!="" && bookName!=""){
+        when (item?.itemId) {
+            R.id.action_multi_selected_download -> {
+                if (bookId != "" && bookName != "") {
                     tracker?.let {
-                        val bookTransInfo = BookDownloadInfo(bookName,bookId, it.selection.toList())
-                        viewModel?.downLoadChapter(bookTransInfo)
-                    }
-                }
-                actionMode?.finish()
-            }
-            R.id.action_multi_selected_Onedownload->{
-                if(bookId!="" && bookName!=""){
-                    tracker?.let {
-                        val bookTransInfo = BookDownloadInfo(bookName,bookId, it.selection.toList())
-                        viewModel?.downLoadOneThreadChapter(bookTransInfo)
+                        val bookTransInfo = BookDownloadInfo(bookName, bookId, it.selection.toList())
+                        viewModel?.downloadChapter(bookTransInfo)
                     }
                 }
                 actionMode?.finish()
@@ -212,16 +210,18 @@ class BookDirectoryFragment : Fragment(), BookChapterAdapter.OnItemClickListener
 
     override fun onItemClick(bookCh: BookChapter,position:Int) {
 //        val intent = Intent(activity, BookContentActivity::class.java).apply {
-        val intent = Intent(activity, BookContentBetaActivity::class.java).apply {
-            putExtra("BOOK_INDEX", bookCh.chIndex)
-            putExtra("BOOK_ID", viewModel?.bookInformation?.value?.bookid)
-            putExtra("BOOK_CH_ID", bookCh.chIndex)
-            putExtra("BOOK_CH_URL", bookCh.chUrl)
-            putExtra("BOOK_CH_TITLE", bookCh.chtitle)
-            putExtra("BOOK_TITLE", viewModel?.bookInformation?.value?.bookname)
-            putParcelableArrayListExtra("NOVEL_CHAPTERS", viewModel?.bookChapterList?.value)
+        if (actionMode == null) {
+            val intent = Intent(activity, BookContentBetaActivity::class.java).apply {
+                putExtra("BOOK_INDEX", bookCh.chIndex)
+                putExtra("BOOK_ID", viewModel?.bookInformation?.value?.bookid)
+                putExtra("BOOK_CH_ID", bookCh.chIndex)
+                putExtra("BOOK_CH_URL", bookCh.chUrl)
+                putExtra("BOOK_CH_TITLE", bookCh.chtitle)
+                putExtra("BOOK_TITLE", viewModel?.bookInformation?.value?.bookname)
+                putParcelableArrayListExtra("NOVEL_CHAPTERS", viewModel?.bookChapterList?.value)
+            }
+            this.startActivity(intent)
         }
-        this.startActivity(intent)
     }
 
     override fun onMoreClick(bookCh: BookChapter, position: Int,view:View) {
@@ -229,32 +229,25 @@ class BookDirectoryFragment : Fragment(), BookChapterAdapter.OnItemClickListener
         popupMenu.inflate(R.menu.chapter_more_menu)
         popupMenu.setOnMenuItemClickListener { item: MenuItem ->
             when (item.itemId) {
-//                R.id.chapterDownload -> {
-//                    if(bookId!="" && bookName!=""){
-//                        val chapterDownloadInfo = BookChapter(bookCh.chIndex, bookCh.chtitle, bookCh.chUrl)
-//                    val bookTransInfo = BookDownloadInfo(bookName,bookId, listOf(chapterDownloadInfo))
-//                        viewModel?.downLoadChapter(bookTransInfo)
-//                    }
-//                }
                 R.id.chapterDownload -> {
-                    if(bookId!="" && bookName!=""){
-                        tracker?.let {
-                            val bookTransInfo = BookDownloadInfo(bookName,bookId, it.selection.toList())
-                            viewModel?.downLoadChapter(bookTransInfo)
-                        }
+                    if (bookId != "" && bookName != "") {
+                        val chapterDownloadInfo = BookChapter(bookCh.chIndex, bookCh.chtitle, bookCh.chUrl)
+                        val bookTransInfo = BookDownloadInfo(bookName, bookId, listOf(chapterDownloadInfo))
+                        viewModel?.downloadChapter(bookTransInfo)
                     }
+//                    if(bookId!="" && bookName!=""){
+//                        tracker?.let {
+//                            val bookTransInfo = BookDownloadInfo(bookName,bookId, it.selection.toList())
+//                            viewModel?.downLoadChapter(bookTransInfo)
+//                        }
+//                    }
                 }
-                R.id.chapterOneThreadDownload -> {
-                    if(bookId!="" && bookName!=""){
-                        tracker?.let {
-                            val bookTransInfo = BookDownloadInfo(bookName,bookId, it.selection.toList())
-                            viewModel?.downLoadOneThreadChapter((bookTransInfo))
-                        }
-                    }
+                R.id.selectSpecialChapters -> {
+                    launchAlertDialogSelectChaptersRange(position)
                 }
-                R.id.chapterMoreDownload -> {
-                    val chList = adapter.getSpecialItems(adapter.itemCount-1,0)
-                    for(i in chList){
+                R.id.selectAllChapters -> {
+                    val chList = adapter.getSpecialItems(adapter.itemCount - 1, 0)
+                    for (i in chList) {
                         adapter.tracker?.select(i)
                     }
                 }
@@ -264,4 +257,54 @@ class BookDirectoryFragment : Fragment(), BookChapterAdapter.OnItemClickListener
         popupMenu.show()
     }
 
+    private fun launchAlertDialogSelectChaptersRange(position: Int) {
+        context?.let { mContext ->
+            val dialogView = LayoutInflater.from(mContext).inflate(R.layout.dialogview_select_chapters_range, null)
+            val builder = AlertDialog.Builder(mContext).apply {
+                setView(dialogView)
+            }
+            val addBt = dialogView.findViewById<Button>(R.id.DialogSelectChapterCompleteBT)
+            val start = dialogView.findViewById<TextView>(R.id.DialogSelectChapterStartIndexView)
+            val end = dialogView.findViewById<TextView>(R.id.DialogSelectChapterEndIndexView)
+
+            val listSize = adapter.itemCount
+
+            val dialog = builder.create().apply {
+                window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            }
+
+            start.text = "1"
+            end.hint = "$listSize"
+            end.text = "${position + 1}"
+
+            addBt.setOnClickListener {
+                try {
+                    when {
+                        start.text.isEmpty() -> {
+                            start.error = "請填入範圍"
+                        }
+                        end.text.isEmpty() -> {
+                            end.error = "請填入範圍"
+                        }
+                        start.text.toString().toInt() !in 1..listSize -> {
+                            start.error = "無效範圍"
+                        }
+                        end.text.toString().toInt() !in 1..listSize -> {
+                            end.error = "無效範圍"
+                        }
+                        else -> {
+                                val chList = adapter.getSpecialItems(end.text.toString().toInt() - 1, start.text.toString().toInt() - 1)
+                                for (i in chList) {
+                                    adapter.tracker?.select(i)
+                                }
+                                dialog.cancel()
+                        }
+                    }
+                } catch (e: NumberFormatException) {
+                    customToast(activity, "請勿輸入數字以外符號！").show()
+                }
+            }
+            dialog.show()
+        }
+    }
 }
