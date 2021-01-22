@@ -20,9 +20,8 @@ class BookChapterAdapter : RecyclerView.Adapter<BookChapterAdapter.BookChViewHol
     private var listener: OnItemClickListener? = null
 
     private var thisPosition: Int? = null
-    private var savedChapterIndexes: List<ChapterIndex>? = null
+    private var savedChapterIndexes: MutableList<ChapterIndex> = mutableListOf()
     private var isPostiveOrder: Boolean = true
-    private var indexesList: ArrayList<Int> = ArrayList()
 
 
     var tracker: SelectionTracker<BookChapter>? = null
@@ -57,28 +56,48 @@ class BookChapterAdapter : RecyclerView.Adapter<BookChapterAdapter.BookChViewHol
         return tempList.toList()
     }
 
-//    正反序還沒確定
+    //    正反序還沒確定
     fun setSavedIndex(indexes: List<ChapterIndex>) {
 //    savedChapterIndexes = indexes
 //    for (i in indexes) {
 //        i.index?.let { notifyItemChanged(it) }
 //    }
-    savedChapterIndexes = if(isPostiveOrder){ indexes }else{
-        indexes.map { ChapterIndex( it.index?.let { mIndex->items.size -1 - mIndex })}
-    }
-    savedChapterIndexes?.let {
-        for (i in it) {
-            i.index?.let {i2->
-                notifyItemChanged(i2)
+//    savedChapterIndexes = if(isPostiveOrder){ indexes }else{
+//        indexes.map { ChapterIndex( it.index?.let { mIndex->items.size -1 - mIndex })}
+//    }
+        with(savedChapterIndexes){
+            clear()
+            addAll(indexes)
+            let {
+                for (i in it) {
+                    i.index?.let { i2 ->
+                        if(isPostiveOrder){
+                            notifyItemChanged(i2)
+                        }else{
+                            notifyItemChanged(itemCount - 1 - i2)
+                        }
+                    }
+                }
             }
         }
     }
+
+    fun setSingleSavedIndex(index: ChapterIndex) {
+        savedChapterIndexes.add(index)
+        index.index?.let {
+            val adapterIndex = if (isPostiveOrder) {
+                    it
+                } else {
+                    items.size - 1 - it
+                }
+            notifyItemChanged(adapterIndex)
+        }
     }
 
     fun reversedItems(isReverseOrder: Boolean) {
         isPostiveOrder = !isReverseOrder
         items.reverse()
-        thisPosition = items.size - 1 - (thisPosition?:0)
+        thisPosition = items.size - 1 - (thisPosition ?: 0)
         if (isReverseOrder) {
             if (items[0].chIndex == 0) {
                 items.reverse()
@@ -184,8 +203,9 @@ class BookChapterAdapter : RecyclerView.Adapter<BookChapterAdapter.BookChViewHol
         holder.downloadChapter.setOnClickListener {
             listener?.onMoreClick(items[position], position, it)
         }
-        savedChapterIndexes?.let {
-            if (it.contains(ChapterIndex(position))) {
+        savedChapterIndexes.let {
+//            if (it.contains(ChapterIndex(position))) {
+            if (it.contains(ChapterIndex(items[position].chIndex))) {
 //                holder.savedStat.setImageResource(R.drawable.chapter_saved_stat)
                 holder.setSavedChapterBackground(R.drawable.chapter_saved_stat)
             } else {

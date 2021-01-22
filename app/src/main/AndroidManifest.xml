@@ -17,7 +17,7 @@
         <activity
                 android:name=".ui.main.view.BookContentActivity"
                 android:configChanges="uiMode"
-                android:theme="@style/NovelCotentTheme">
+                android:theme="@style/NovelContentTheme">
         </activity>
         <activity android:name=".ui.main.view.BookDirectoryActivity">
         </activity>
@@ -34,7 +34,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".ui.main.view.BookContentBetaActivity"
-                  android:theme="@style/NovelCotentTheme"/>
+                  android:theme="@style/NovelContentTheme"/>
         <service android:name=".data.DownloadNovelService"/>
         <receiver android:name=".receiver.DownloadResultReceiver">
                  <intent-filter>

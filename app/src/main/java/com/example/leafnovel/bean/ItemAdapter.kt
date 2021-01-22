@@ -87,10 +87,8 @@ abstract class ItemAdapter : RecyclerView.Adapter<ItemViewHolder>() {
     }
 
     fun removeItem(removeGroup: Item) {
-        var oldPosition = -1
+        var oldPosition = findItemPosition(removeGroup, TYPE_GROUP)
         var newPosition = -1
-
-        oldPosition = findItemPosition(removeGroup, TYPE_GROUP)
 //      清除struct的item
         val iterator: MutableIterator<Item> = getAllItem().iterator()
         while (iterator.hasNext()) {
@@ -189,7 +187,7 @@ abstract class ItemAdapter : RecyclerView.Adapter<ItemViewHolder>() {
         }
     }
 
-    private fun findItemPosition(childItem: Item, type: Int): Int {
+    fun findItemPosition(childItem: Item, type: Int): Int {
         when (type) {
             TYPE_GROUP -> {
                 for (i in 0 until itemCount) {
@@ -228,6 +226,12 @@ abstract class ItemAdapter : RecyclerView.Adapter<ItemViewHolder>() {
             if (TextUtils.equals(it.uniqueId, childItem.uniqueId)) {
                 iterator.remove()
             }
+        }
+    }
+
+    fun findAllGroupItemPosition(): List<Item> {
+        return getAllItem().filter {
+            it.getType() == TYPE_GROUP
         }
     }
 

@@ -2,12 +2,16 @@ package com.example.leafnovel.ui.main.view.fragment
 
 import android.app.Activity
 import android.app.AlertDialog
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.os.Handler
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.*
 import android.widget.*
 import androidx.fragment.app.Fragment
@@ -20,8 +24,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.leafnovel.R
 import com.example.leafnovel.customToast
+import com.example.leafnovel.data.DownloadNovelService
 import com.example.leafnovel.data.model.BookChapter
 import com.example.leafnovel.data.model.BookDownloadInfo
+import com.example.leafnovel.receiver.DownloadResultReceiver
 import com.example.leafnovel.ui.main.adapter.BookChapterAdapter
 import com.example.leafnovel.ui.main.adapter.multiselection.BookChapterItemDetailLookup
 import com.example.leafnovel.ui.main.adapter.multiselection.BookChapterItemKeyProvider
@@ -41,6 +47,7 @@ class BookDirectoryFragment : Fragment(), BookChapterAdapter.OnItemClickListener
     var bookName :String = ""
     var mutiSelectBT :Button? = null
     var orderSwitchBT :Switch? = null
+    var isFirstTransfer = true
 
     private var selectedBookChapterItems:MutableList<BookChapter> = mutableListOf()
     private var actionMode:ActionMode?=null
@@ -64,7 +71,8 @@ class BookDirectoryFragment : Fragment(), BookChapterAdapter.OnItemClickListener
 
     private fun setUiListener() {
         mutiSelectBT?.setOnClickListener{
-            Toast.makeText(parentActivity, "開始下載", Toast.LENGTH_SHORT).show()
+//            Toast.makeText(parentActivity, "開始下載", Toast.LENGTH_SHORT).show()
+            customToast(parentActivity, "開始下載").show()
         }
         orderSwitchBT?.setOnCheckedChangeListener{
                 _,isChecked->
@@ -100,23 +108,58 @@ class BookDirectoryFragment : Fragment(), BookChapterAdapter.OnItemClickListener
     private fun setObserver() {
         viewModel?.bookChapterList?.observe(viewLifecycleOwner,{ bookChResults->
             adapter.setItems(bookChResults, this)
+            Handler().postDelayed({
+                viewModel?.bookLastReadInfo?.value?.let {
+                    la->
+                    orderSwitchBT?.isChecked?.let {
+                        var position = if(it)adapter.itemCount - la.chapterIndex -1 else la.chapterIndex
+                        if(position + 5 < adapter.itemCount) position += 5
+                        BookDirectoryRecycler.scrollToPosition(position)
+                    }
+                }
+            },300)
         })
 //        追蹤儲存章節的變化
-        var lastTime = System.currentTimeMillis()
-        var nowTime :Long
+//        var lastTime = System.currentTimeMillis()
+//        var nowTime :Long
+        var time = 0
         viewModel?.chaptersIndexSaved?.observe(viewLifecycleOwner,{ indexes->
-            nowTime = System.currentTimeMillis()
-            if(nowTime -lastTime >= 1000){
-                adapter.setSavedIndex(indexes)
+            indexes?.let {
+                if(isFirstTransfer){
+//                    nowTime = System.currentTimeMillis()
+//                    if(nowTime -lastTime >= 1000){
+                        adapter.setSavedIndex(indexes)
+                    isFirstTransfer = false
+//                    }
+//                    lastTime = nowTime
+                }else{
+                    adapter.setSingleSavedIndex(indexes.last())
+                    Handler().postDelayed({
+
+                    },3000)
+                    time += 1
+                    Log.d("aaaa","setSavedIndex${ time}篇")
+                }
             }
-            lastTime = nowTime
         })
         viewModel?.bookInformation?.observe(viewLifecycleOwner,{ bookInfo->
             bookId = bookInfo.bookid
             bookName = bookInfo.bookname
         })
         viewModel?.bookLastReadInfo?.observe(viewLifecycleOwner,{ bookLastReadInfo->
-            bookLastReadInfo?.let { adapter.lastPositionChange(bookLastReadInfo.chapterIndex) }
+            bookLastReadInfo?.let {
+                adapter.lastPositionChange(bookLastReadInfo.chapterIndex)
+            }
+            Handler().postDelayed({
+                viewModel?.bookLastReadInfo?.value?.let {
+                        la->
+                    orderSwitchBT?.isChecked?.let {
+                        var position = if(it)adapter.itemCount - la.chapterIndex -1 else la.chapterIndex
+                        if(position + 5 < adapter.itemCount) position += 5
+                        BookDirectoryRecycler.scrollToPosition(position)
+                    }
+                }
+            },300)
         })
 
     }
@@ -172,12 +215,34 @@ class BookDirectoryFragment : Fragment(), BookChapterAdapter.OnItemClickListener
                     tracker?.let {
                         val bookTransInfo = BookDownloadInfo(bookName, bookId, it.selection.toList())
                         viewModel?.downloadChapter(bookTransInfo)
+                        context?.registerReceiver(downloadReceiver, IntentFilter("DOWNLOAD_CHAPTER_RESULT_KEY"))
                     }
                 }
                 actionMode?.finish()
             }
         }
         return true
+    }
+
+    private var downloadReceiver = object :DownloadResultReceiver(){
+        override fun onReceive(p0: Context?, intent: Intent?) {
+            val action :String? = intent?.action
+            action?.let {
+                when(it){
+                    DOWNLOAD_CHAPTER_RESULT_KEY -> {
+                        val messenger = intent.getSerializableExtra(DOWNLOAD_RESULT)
+                        if(messenger == DownloadNovelService.DownloadResultType.SUCCESS){
+                            p0?.let {p0->
+                                viewModel?.chaptersIndexSaved?.value?.let {list->
+                                    adapter.setSavedIndex(list)
+                                    context?.unregisterReceiver(this)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     override fun onCreateActionMode(mode: ActionMode?, menu: Menu?): Boolean {
@@ -306,5 +371,10 @@ class BookDirectoryFragment : Fragment(), BookChapterAdapter.OnItemClickListener
             }
             dialog.show()
         }
+    }
+
+    override fun onStop() {
+        super.onStop()
+            context?.unregisterReceiver(downloadReceiver)
     }
 }

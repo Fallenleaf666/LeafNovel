@@ -1,6 +1,5 @@
 package com.example.leafnovel.ui.main.view
 
-import android.app.ActionBar
 import android.app.Activity
 import android.content.Context
 import android.content.SharedPreferences
@@ -16,9 +15,7 @@ import android.widget.LinearLayout
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.lifecycle.ViewModelProvider
@@ -27,13 +24,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.leafnovel.R
-import com.example.leafnovel.checkNetConnect
 import com.example.leafnovel.data.api.NovelApi
+import com.example.leafnovel.data.model.AccurateReadProgress
 import com.example.leafnovel.data.model.BookChapter
 import com.example.leafnovel.data.model.ChapterContentBeta
 import com.example.leafnovel.data.model.LastReadProgress
 import com.example.leafnovel.ui.base.BookContentViewModelFactory
-import com.example.leafnovel.ui.main.adapter.BookChapterAdapter
 import com.example.leafnovel.ui.main.adapter.BookChapterInContentAdapter
 import com.example.leafnovel.ui.main.adapter.ChapterContentAdapter
 import com.example.leafnovel.ui.main.viewmodel.BookContentBetaViewModel
@@ -88,7 +84,11 @@ class BookContentBetaActivity : AppCompatActivity(), BookChapterInContentAdapter
     var decorationHeight = 0
     var recyclerViewHeight = 0
 
+    var accurateReadProgress = AccurateReadProgress(0,0)
+
     var isGetPageHeight = false
+
+    var isFirstChapter = true
 
     var contentViewHeightList = mutableListOf<Int>()
 
@@ -113,6 +113,25 @@ class BookContentBetaActivity : AppCompatActivity(), BookChapterInContentAdapter
         setReceiver()
         setUiListener()
         initBottomNavigationView()
+    }
+
+    private fun scrollToLastReadPosition() {
+        //如果是從上次閱讀進入，則滑動至上次位置
+        Handler().post {
+            val lastReadHeight = intent.getIntExtra("BOOK_LAST_READ_HEIGHT", 0)
+            val lastReadChapterHeight = intent.getIntExtra("BOOK_LAST_READ_CHAPTER_HEIGHT", 0)
+            if (lastReadHeight != 0 && lastReadChapterHeight != 0) {
+                val layoutManager = (ChapterContentRecycleView.layoutManager as LinearLayoutManager)
+                val firstChapterHeight = layoutManager.findViewByPosition(0)?.height ?: 0
+                if (firstChapterHeight != 0 && firstChapterHeight == lastReadChapterHeight) {
+//                    ChapterContentRecycleView.smoothScrollBy(0, lastReadHeight)
+                    ChapterContentRecycleView.scrollBy(0, lastReadHeight)
+                }else if (firstChapterHeight != 0 && firstChapterHeight != lastReadChapterHeight){
+//                    ChapterContentRecycleView.smoothScrollBy(0, (firstChapterHeight * (lastReadHeight.toFloat()/lastReadChapterHeight)).toInt())
+                    ChapterContentRecycleView.scrollBy(0, (firstChapterHeight * (lastReadHeight.toFloat()/lastReadChapterHeight)).toInt())
+                }
+            }
+        }
     }
 
     private fun setData() {
@@ -161,6 +180,12 @@ class BookContentBetaActivity : AppCompatActivity(), BookChapterInContentAdapter
                 ((getItemHeight(chapterContent, chapterContentAdapter.getFontSize()) + decorationHeight)/pageHeight)+1
             }"
             SwipToRefreshView.isRefreshing = false
+
+            //如果剛進頁面時是上次閱讀的章節，則拖拉至該進度
+            if(bookChId == chapterContent.chIndex && isFirstChapter){
+                scrollToLastReadPosition()
+                isFirstChapter = false
+            }
 //            if(DrawerLayout.isDrawerOpen(GravityCompat.START)){
 //                DrawerLayout.closeDrawer(GravityCompat.START)
 //            }
@@ -308,6 +333,10 @@ class BookContentBetaActivity : AppCompatActivity(), BookChapterInContentAdapter
                 if (firstVisibleIndex == 0) {
                     nowLength = totalScrollY
                     readProgress = nowLength
+                    accurateReadProgress.apply {
+                        chapterHeight = tempHeight[firstVisibleIndex] ?: 0
+                        readHeight = nowLength
+                    }
                     NowLookProgressiew.text = "${nowLength/pageHeight + 1}/${totalLength + 1}"
                 } else {
                     tempValue = 0
@@ -320,6 +349,10 @@ class BookContentBetaActivity : AppCompatActivity(), BookChapterInContentAdapter
                     }
                     nowLength = totalScrollY - tempValue
                     readProgress = nowLength / totalLength
+                    accurateReadProgress.apply {
+                        chapterHeight = tempHeight[firstVisibleIndex] ?: 0
+                        readHeight = nowLength
+                    }
                     NowLookProgressiew.text = "${nowLength/pageHeight + 1}/${totalLength + 1}"
                 }
             }
@@ -346,6 +379,10 @@ class BookContentBetaActivity : AppCompatActivity(), BookChapterInContentAdapter
                         endY = e.y
                         if(abs(startX - endX) < minScrollDistance && abs(startY - endY ) < minScrollDistance && rv.scrollState == 0){
                             FunctionMenu.visibility = View.VISIBLE
+                            viewModel.nowLookAtIndex.value?.let {
+                                BookChRecyclerView.scrollToPosition(if(it <= (adapter.itemCount-1)-5)it+5 else it)
+                                adapter.lastPositionChange(it)
+                            }
                         }
                     }
                 }
@@ -406,6 +443,7 @@ class BookContentBetaActivity : AppCompatActivity(), BookChapterInContentAdapter
         })
 
         SwipToRefreshView.setOnRefreshListener(refreshListener)
+
     }
 
     fun bgColorSelected(view: View) {
@@ -493,10 +531,6 @@ class BookContentBetaActivity : AppCompatActivity(), BookChapterInContentAdapter
                 when (StyleSettingView.visibility) {
                     View.VISIBLE -> StyleSettingView.visibility = View.GONE
                 }
-                viewModel.nowLookAtIndex.value?.let {
-                    BookChRecyclerView.scrollToPosition(if(it <= (adapter.itemCount-1)-5)it+5 else it)
-                    adapter.lastPositionChange(it)
-                }
 
                 DrawerLayout.openDrawer(GravityCompat.START)
                 return@OnNavigationItemSelectedListener true
@@ -547,9 +581,13 @@ class BookContentBetaActivity : AppCompatActivity(), BookChapterInContentAdapter
             val chapter = chapterContentAdapter.getChapterItemByPosition(firstVisibleIndex)
             allChapters?.let {
                 viewModel.saveReadProgress(
+//                    LastReadProgress(
+//                        bookId, chapter.chTitle, chapter.chIndex,
+//                        chapter.chUrl, readProgress.toFloat()
+//                    )
                     LastReadProgress(
                         bookId, chapter.chTitle, chapter.chIndex,
-                        chapter.chUrl, readProgress.toFloat()
+                        chapter.chUrl, accurateReadProgress.readHeight, accurateReadProgress.chapterHeight
                     )
                 )
             }

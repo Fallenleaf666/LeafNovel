@@ -10,6 +10,7 @@ import android.widget.RemoteViews
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import com.example.leafnovel.`interface`.NotificationHelper
+import com.example.leafnovel.customToast
 
 
 @SuppressLint("NewApi")
@@ -228,7 +229,8 @@ class NotifyUtil(private val mContext: Context, private val NOTIFICATION_ID: Int
         val sdk = Build.VERSION.SDK_INT
         if (sdk < Build.VERSION_CODES.JELLY_BEAN) {
             notifyNormalSingline(pendingIntent, smallIcon, ticker, title, content, sound, vibrate, lights)
-            Toast.makeText(mContext, "手機版本低於Android 4.1.2，不支持多行通知！！", Toast.LENGTH_SHORT).show()
+//            Toast.makeText(mContext, "手機版本低於Android 4.1.2，不支持多行通知！！", Toast.LENGTH_SHORT).show()
+            customToast(mContext, "手機版本低於Android 4.1.2，不支持多行通知！！").show()
         } else {
             setCompatBuilder(pendingIntent, smallIcon, ticker, title, content, sound, vibrate, lights)
             notification = cBuilder.setStyle(NotificationCompat.BigTextStyle().bigText(content)).build()

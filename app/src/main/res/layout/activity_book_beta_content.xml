@@ -239,7 +239,7 @@
                     android:layout_height="wrap_content"
                     android:minHeight="?attr/actionBarSize" android:id="@+id/ToolBar"
                     app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" style="@style/NovelCotentTheme"
+                    app:layout_constraintTop_toTopOf="parent" style="@style/NovelContentTheme"
                     android:background="?attr/colorPrimary"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
         <ProgressBar

@@ -206,7 +206,7 @@ class BookContentActivity : AppCompatActivity(), BookChapterAdapter.OnItemClickL
 
     //記得改寫成mvvm
     override fun onItemClick(bookCh: BookChapter, position: Int) {
-        Toast.makeText(this, "Item ${bookCh.chtitle} clicked", Toast.LENGTH_SHORT).show()
+//        Toast.makeText(this, "Item ${bookCh.chtitle} clicked", Toast.LENGTH_SHORT).show()
         CoroutineScope(Dispatchers.IO).launch {
             val chapterContents = NovelApi.requestChapterText(bookCh.chUrl, bookCh.chtitle, bookTitle)
             allChapters?.let {
@@ -596,8 +596,10 @@ class BookContentActivity : AppCompatActivity(), BookChapterAdapter.OnItemClickL
         super.onPause()
         allChapters?.let {
             Log.d("BCA資料庫","$bookId")
-            viewModel.saveReadProgress(LastReadProgress(bookId,it[nowChapterReadIndex].chtitle,nowChapterReadIndex,
-                it[nowChapterReadIndex].chUrl,0f))
+            viewModel.saveReadProgress(LastReadProgress(
+                bookId, it[nowChapterReadIndex].chtitle, nowChapterReadIndex,
+                it[nowChapterReadIndex].chUrl, 0, 0
+            ))
         }
     }
 

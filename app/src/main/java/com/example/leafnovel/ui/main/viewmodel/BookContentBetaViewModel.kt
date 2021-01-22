@@ -12,6 +12,7 @@ import com.example.leafnovel.R
 import com.example.leafnovel.`interface`.BatteryChangeHelper
 import com.example.leafnovel.`interface`.SystemTimeHelper
 import com.example.leafnovel.checkNetConnect
+import com.example.leafnovel.customToast
 import com.example.leafnovel.data.database.StoredBookDB
 import com.example.leafnovel.data.api.NovelApi
 import com.example.leafnovel.data.model.*
@@ -99,11 +100,7 @@ class BookContentBetaViewModel(
                 chapterContent.postValue(tempChapterContent)
             } else {
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(
-                        mContext,
-                        mContext.getString(R.string.please_check_net_connect_state),
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    customToast(mContext, mContext.getString(R.string.please_check_net_connect_state)).show()
                 }
             }
         }
@@ -230,11 +227,9 @@ class BookContentBetaViewModel(
                 if (hasTarget && (hasNetConnect || hasDbData)) {
                     when (targetChapter) {
                         Target.NEXT ->
-                            Toast.makeText(mContext, mContext.getString(R.string.next_chapter), Toast.LENGTH_SHORT)
-                                .show()
+                            customToast(mContext,mContext.getString(R.string.next_chapter)).show()
                         Target.LAST ->
-                            Toast.makeText(mContext, mContext.getString(R.string.last_chapter), Toast.LENGTH_SHORT)
-                                .show()
+                            customToast(mContext,mContext.getString(R.string.last_chapter)).show()
                         Target.ASSIGN -> {
                         }
                     }
@@ -261,11 +256,9 @@ class BookContentBetaViewModel(
                 } else if (!hasTarget) {
                     when (targetChapter) {
                         Target.NEXT ->
-                            Toast.makeText(mContext, mContext.getString(R.string.no_next_chapter), Toast.LENGTH_SHORT)
-                                .show()
+                            customToast(mContext,mContext.getString(R.string.no_next_chapter)).show()
                         Target.LAST ->
-                            Toast.makeText(mContext, mContext.getString(R.string.no_last_chapter), Toast.LENGTH_SHORT)
-                                .show()
+                            customToast(mContext,mContext.getString(R.string.no_last_chapter)).show()
                         Target.ASSIGN -> {
                         }
                     }
@@ -280,11 +273,7 @@ class BookContentBetaViewModel(
                             )
                         )
                     }
-                    Toast.makeText(
-                        mContext,
-                        mContext.getString(R.string.please_check_net_connect_state),
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    customToast(mContext,mContext.getString(R.string.please_check_net_connect_state)).show()
                 }
                 isLoadMore.postValue(false)
             }

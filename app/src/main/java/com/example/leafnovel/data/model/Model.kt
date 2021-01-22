@@ -85,3 +85,14 @@ data class ChapterDownloadResult(
 enum class ChapterDownloadState {
     SUCCESS,FAIL,STOP
 }
+
+data class FolderState(
+    var folderId:Long,
+    var isExpand:Boolean
+)
+
+@Parcelize
+data class AccurateReadProgress(
+    var chapterHeight:Int,
+    var readHeight:Int,
+): Parcelable

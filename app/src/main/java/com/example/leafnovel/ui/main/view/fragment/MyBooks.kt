@@ -102,7 +102,7 @@ class MyBooks : Fragment(), StoredBookAdapter.OnItemClickListener {
     }
 
     override fun onPinningClick(sbBook: StoredBook, view: View) {
-        Toast.makeText(context, "已將\"${sbBook.bookname}\"釘選", Toast.LENGTH_SHORT).show()
+//        Toast.makeText(context, "已將\"${sbBook.bookname}\"釘選", Toast.LENGTH_SHORT).show()
 //        val popupMenu = PopupMenu(context, view)
 //        popupMenu.inflate(R.menu.mybook_more_menu)
 //        popupMenu.setOnMenuItemClickListener { item: MenuItem ->

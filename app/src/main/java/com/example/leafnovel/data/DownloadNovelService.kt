@@ -11,6 +11,7 @@ import android.util.Log
 import android.widget.Toast
 import com.example.leafnovel.R
 import com.example.leafnovel.`interface`.NotificationHelper
+import com.example.leafnovel.customToast
 import com.example.leafnovel.data.database.StoredBookDB
 import com.example.leafnovel.data.model.*
 import com.example.leafnovel.data.repository.Repository
@@ -71,6 +72,12 @@ class DownloadNovelService : IntentService("DownloadNovelService") {
                         putExtra(DOWNLOAD_RESULT, DownloadResultType.SUCCESS)
                     }
                     sendBroadcast(resultIntent)
+
+                    val resultIntent2 = Intent().apply {
+                        this.action = DOWNLOAD_CHAPTER_RESULT_KEY
+                        putExtra(DOWNLOAD_RESULT, DownloadResultType.SUCCESS)
+                    }
+                    sendBroadcast(resultIntent2)
                 }
             }
             super.handleMessage(msg)
@@ -85,7 +92,8 @@ class DownloadNovelService : IntentService("DownloadNovelService") {
         when (intent?.action) {
             DOWNLOAD_SINGLE_ACTION -> {
                 scope.launch(Dispatchers.Main) {
-                    Toast.makeText(applicationContext, "請勿從後台關閉app以保持下載", Toast.LENGTH_SHORT).show()
+//                    Toast.makeText(applicationContext, "請勿從後台關閉app以保持下載", Toast.LENGTH_SHORT).show()
+                    customToast(applicationContext, "請勿從後台關閉app以保持下載").show()
                 }
                 val bookDownloadInfo = intent.getParcelableExtra<BookDownloadInfo>("bookDownloadInfo")
                 val smallIcon: Int = R.drawable.ic_launcher_background
@@ -102,8 +110,8 @@ class DownloadNovelService : IntentService("DownloadNovelService") {
                         downloadAction(it)
                     }
                 }
-                Log.d(TAG, "總共花費 ${time / 1000} s")
-                Log.d(TAG, "-----------任務結束-----------")
+//                Log.d(TAG, "總共花費 ${time / 1000} s")
+//                Log.d(TAG, "-----------任務結束-----------")
             }
         }
     }
@@ -126,7 +134,7 @@ class DownloadNovelService : IntentService("DownloadNovelService") {
                     val chapterContentText = repository.getSearchBookChaptersContextBeta(i.chUrl, i.chtitle, bookName)
                     repository.saveChapter(StoredChapter(bookId, i.chtitle, chapterContentText, i.chIndex, 0, false))
                 }
-                Log.d(TAG, "${i.chtitle} 耗時${time}s")
+//                Log.d(TAG, "${i.chtitle} 耗時${time}s")
 
                 ChapterDownloadResult(i.chIndex, i.chtitle, i.chUrl, ChapterDownloadState.SUCCESS)
             }

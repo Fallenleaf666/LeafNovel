@@ -19,9 +19,10 @@ class LastReadProgress(
     @NonNull
     var chapterUrl: String,
     @NonNull
-    var readProgress: Float = 0f,
+    var readHeight: Int = 0,
+    var chapterHeight: Int,
 ) : Parcelable {
-    constructor():this("","",0,"",0f)
+    constructor():this("", "", 0, "", 0, 0)
 }
 
 

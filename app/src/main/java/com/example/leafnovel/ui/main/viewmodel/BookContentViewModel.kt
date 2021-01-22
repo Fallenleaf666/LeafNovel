@@ -124,7 +124,8 @@ class BookContentViewModel(
         }
         launch(Dispatchers.Main) {
             if (hasNext) {
-                Toast.makeText(mContext, "下一章", Toast.LENGTH_SHORT).show()
+//                Toast.makeText(mContext, "下一章", Toast.LENGTH_SHORT).show()
+                customToast(mContext, "下一章").show()
                 val tempChapter = ChapterContent(tempBookChTitle, tempChapterContents, tempChUrl)
                 chapterContent.postValue(tempChapter)
                 allChapterContent.postValue(arrayListOf(tempChapter))
@@ -134,7 +135,8 @@ class BookContentViewModel(
 //                    tempChapterReadEndIndex.value = it - 1
                 }
             } else {
-                Toast.makeText(mContext, "已經沒有下一章囉", Toast.LENGTH_SHORT).show()
+//                Toast.makeText(mContext, "已經沒有下一章囉", Toast.LENGTH_SHORT).show()
+                customToast(mContext, "已經沒有下一章囉").show()
             }
             isRefresh.postValue(false)
         }
@@ -160,7 +162,8 @@ class BookContentViewModel(
         }
         launch(Dispatchers.Main) {
             if (hasNext) {
-                Toast.makeText(mContext, "上一章", Toast.LENGTH_SHORT).show()
+//                Toast.makeText(mContext, "上一章", Toast.LENGTH_SHORT).show()
+                customToast(mContext, "上一章").show()
                 val tempChapter = ChapterContent(tempBookChTitle, tempChapterContents, tempChUrl)
                 chapterContent.postValue(tempChapter)
                 allChapterContent.postValue(arrayListOf(tempChapter))
@@ -170,7 +173,8 @@ class BookContentViewModel(
 //                    tempChapterReadEndIndex.value = it + 1
                 }
             } else {
-                Toast.makeText(mContext, "已經沒有上一章囉", Toast.LENGTH_SHORT).show()
+//                Toast.makeText(mContext, "已經沒有上一章囉", Toast.LENGTH_SHORT).show()
+                customToast(mContext, "已經沒有上一章囉").show()
             }
             isRefresh.postValue(false)
         }
@@ -213,9 +217,11 @@ class BookContentViewModel(
                 Log.d(TAG, "------------------------loadNextChapter(MAIN)---------------------------")
                 Log.d(TAG, "MAIN viewModel loadChapterContent ${loadChapterContent.value?.chTitle}")
                 if (hasNext) {
-                    Toast.makeText(mContext, "下一章", Toast.LENGTH_SHORT).show()
+//                    Toast.makeText(mContext, "下一章", Toast.LENGTH_SHORT).show()
+                    customToast(mContext, "下一章").show()
                 } else {
-                    Toast.makeText(mContext, "已經沒有下一章囉", Toast.LENGTH_SHORT).show()
+//                    Toast.makeText(mContext, "已經沒有下一章囉", Toast.LENGTH_SHORT).show()
+                    customToast(mContext, "已經沒有下一章囉").show()
                 }
                 isLoadMore.postValue(false)
             }

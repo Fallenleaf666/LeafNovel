@@ -16,6 +16,7 @@ import androidx.fragment.app.Fragment
 import com.example.leafnovel.HardWareInformationUtil
 import com.example.leafnovel.R
 import com.example.leafnovel.checkNetConnect
+import com.example.leafnovel.customToast
 import com.example.leafnovel.data.database.StoredBookDB
 import com.example.leafnovel.data.model.StoredBook
 import com.example.leafnovel.data.repository.Repository
@@ -75,7 +76,10 @@ class MySetting : Fragment() {
             CoroutineScope(Dispatchers.IO).launch {
                 repository?.deleteAllChapter()
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(context, "已刪除本地儲存", Toast.LENGTH_SHORT).show()
+//                    Toast.makeText(context, "已刪除本地儲存", Toast.LENGTH_SHORT).show()
+                    context?.let {
+                        customToast(it, "已刪除本地儲存").show()
+                    }
                 }
             }
         }
@@ -85,7 +89,10 @@ class MySetting : Fragment() {
                 preference?.edit()?.putBoolean(getString(R.string.novel_loadmore), isChecked)?.apply()
                 withContext(Dispatchers.Main) {
                     val notify = if (isChecked) "已開啟自動載入" else "已經關閉自動載入"
-                    Toast.makeText(context, notify, Toast.LENGTH_SHORT).show()
+//                    Toast.makeText(context, notify, Toast.LENGTH_SHORT).show()
+                    context?.let {
+                        customToast(it, notify).show()
+                    }
                 }
             }
         }
@@ -96,7 +103,10 @@ class MySetting : Fragment() {
                     preference?.edit()?.putBoolean(getString(R.string.novel_uimode), isChecked)?.apply()
                     withContext(Dispatchers.Main) {
                         val notify = if (isChecked) "已開啟夜間模式" else "已經關閉夜間模式"
-                        Toast.makeText(context, notify, Toast.LENGTH_SHORT).show()
+                        context?.let {
+                            customToast(it, notify).show()
+                        }
+//                        Toast.makeText(context, notify, Toast.LENGTH_SHORT).show()
                     }
                 }
 //            }else{
@@ -108,7 +118,10 @@ class MySetting : Fragment() {
                     preference?.edit()?.putBoolean(getString(R.string.novel_title_hide), isChecked)?.apply()
                     withContext(Dispatchers.Main) {
                         val notify = if (isChecked) "隱藏標題顯示" else "取消標題隱藏"
-                        Toast.makeText(context, notify, Toast.LENGTH_SHORT).show()
+                        context?.let {
+                            customToast(it, notify).show()
+                        }
+//                        Toast.makeText(context, notify, Toast.LENGTH_SHORT).show()
                     }
                 }
         }
@@ -121,7 +134,10 @@ class MySetting : Fragment() {
             CoroutineScope(Dispatchers.IO).launch {
                 repository?.deleteAll()
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(context, "已刪除所有收藏", Toast.LENGTH_SHORT).show()
+                    context?.let {
+                        customToast(it,"已刪除所有收藏").show()
+                    }
+//                    Toast.makeText(context, "已刪除所有收藏", Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -133,7 +149,10 @@ class MySetting : Fragment() {
                 )
                 repository?.insert(storedBook)
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(context, "已將書本加入書櫃", Toast.LENGTH_SHORT).show()
+//                    Toast.makeText(context, "已將書本加入書櫃", Toast.LENGTH_SHORT).show()
+                    context?.let {
+                        customToast(it,"已將書本加入書櫃").show()
+                    }
                 }
             }
         }
@@ -178,7 +197,10 @@ class MySetting : Fragment() {
                 if (checkNetConnect(mContext)) {
                     sendEmail(sendBody.text.toString(), problemType)
                 } else {
-                    Toast.makeText(context, getString(R.string.please_check_net_connect_state), Toast.LENGTH_SHORT).show()
+//                    Toast.makeText(context, getString(R.string.please_check_net_connect_state), Toast.LENGTH_SHORT).show()
+                    context?.let {
+                        customToast(it, getString(R.string.please_check_net_connect_state)).show()
+                    }
                 }
             }
             dialog.show()

@@ -2,10 +2,7 @@ package com.example.leafnovel.data.model
 
 import android.os.Parcelable
 import androidx.annotation.NonNull
-import androidx.annotation.Nullable
-import androidx.room.ColumnInfo
 import androidx.room.Entity
-import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import kotlinx.android.parcel.Parcelize
 
@@ -13,10 +10,14 @@ import kotlinx.android.parcel.Parcelize
 @Entity
 data class StoredBookFolder(
     @NonNull
-    var foldername:String,
+    var foldername: String,
     @NonNull
-    var creattime:Long,
+    var creattime: Long,
     @NonNull
     @PrimaryKey(autoGenerate = true)
-    var folderid:Long = 0) : Parcelable
+    var folderid: Long = 0,
+    var isexpend: Boolean
+) : Parcelable{
+    constructor(folderName:String,createTime:Long):this(foldername = folderName,creattime = createTime,isexpend = false)
+}
 

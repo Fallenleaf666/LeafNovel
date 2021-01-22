@@ -55,7 +55,7 @@
         <item name="android:textColor">@color/colorp</item>
     </style>
 
-    <style name="NovelCotentTheme" parent="MyAppTheme">
+    <style name="NovelContentTheme" parent="MyAppTheme">
         <item name="android:textSize">10sp</item>
         <item name="android:textColorPrimary">@color/colorp</item>
         <item name="android:textColorSecondary">@color/colorp</item>

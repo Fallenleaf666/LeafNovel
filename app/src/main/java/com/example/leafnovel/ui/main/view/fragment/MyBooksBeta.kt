@@ -7,7 +7,6 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.os.Handler
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -18,7 +17,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.leafnovel.R
 import com.example.leafnovel.bean.*
@@ -225,13 +223,13 @@ class MyBooksBeta : Fragment(), MyBookAdapter.OnItemClickListener, MyBookAdapter
 //            mAdapter.notifyDataSetChanged()
 //        }, 3000)
 
-//        mAdapter.setExpandableToggleListener(object : ExpandableItemAdapter.ExpandableToggleListener {
-//            override fun onExpand(item: Item) {
-//            }
-//
-//            override fun onCollapse(item: Item) {
-//            }
-//        })
+        mAdapter.setExpandableToggleListener(object : ExpandableItemAdapter.ExpandableToggleListener {
+            override fun onExpand(item: Item) {
+            }
+
+            override fun onCollapse(item: Item) {
+            }
+        })
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -265,7 +263,10 @@ class MyBooksBeta : Fragment(), MyBookAdapter.OnItemClickListener, MyBookAdapter
                     customToast(activity,"請輸入至少1個字元！").show()
                 } else {
                     CoroutineScope(Dispatchers.IO).launch{
-                        val id = viewModel.addFolder(StoredBookFolder(name.text.toString(), System.currentTimeMillis()))
+                        val id = viewModel.addFolder(StoredBookFolder(
+                            name.text.toString(),
+                            System.currentTimeMillis()
+                        ))
                         dialog.cancel()
                         mAdapter.addItemToPosition(Group().apply {
                             this.id = id.await().toInt()
@@ -381,10 +382,14 @@ class MyBooksBeta : Fragment(), MyBookAdapter.OnItemClickListener, MyBookAdapter
             if(activityResult.resultCode == Activity.RESULT_OK){
                 val isBookStored = activityResult.data?.getBooleanExtra("ISBOOKSTORED", true)
                 val bookId = activityResult.data?.getStringExtra("BOOKID")
+                val lastReadChapter = activityResult.data?.getStringExtra("LASTREADCHAPTER")
                 isBookStored?.let {
                     if (!it) {
                         removeBookItem(bookId)
                     }
+                }
+                lastReadChapter?.let{
+                    updateBookItem(bookId,it)
                 }
             }
         }
@@ -397,5 +402,22 @@ class MyBooksBeta : Fragment(), MyBookAdapter.OnItemClickListener, MyBookAdapter
                 }
             }
         }
+    }
+
+    private fun updateBookItem(bookId: String?,lastReadChapter:String) {
+        bookId?.let { id ->
+            viewModel.lastReadBookItem.value?.let {
+                val tempBook = it
+                tempBook.lastRead = lastReadChapter
+                if (id == it.bookId) {
+                    mAdapter.updateChildItem(tempBook)
+                }
+            }
+        }
+    }
+
+    override fun onPause() {
+        viewModel.updateBookFolderState(mAdapter.findAllGroupItemPosition())
+        super.onPause()
     }
 }

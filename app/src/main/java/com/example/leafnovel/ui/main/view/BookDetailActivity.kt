@@ -2,6 +2,7 @@ package com.example.leafnovel.ui.main.view
 
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -13,6 +14,7 @@ import androidx.lifecycle.ViewModelProvider
 
 import com.example.leafnovel.R
 import com.example.leafnovel.checkNetConnect
+import com.example.leafnovel.customToast
 import com.example.leafnovel.data.model.StoredBook
 import com.example.leafnovel.data.database.StoredBookDB
 import com.example.leafnovel.data.model.Book
@@ -23,6 +25,7 @@ import com.example.leafnovel.ui.main.viewmodel.BookDetailViewModel
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.android.synthetic.main.activity_book_detail.*
+import kotlinx.android.synthetic.main.fragment_book_directory.*
 
 
 class BookDetailActivity : AppCompatActivity() {
@@ -48,7 +51,8 @@ class BookDetailActivity : AppCompatActivity() {
         } else {
 //            no netView
 //            LoadProgressBar.visibility = View.INVISIBLE
-            Toast.makeText(this, "哎呀似乎還沒連線呢！", Toast.LENGTH_SHORT).show()
+//            Toast.makeText(this, "哎呀似乎還沒連線呢！", Toast.LENGTH_SHORT).show()
+            customToast(this as Activity, "哎呀似乎還沒連線呢！").show()
         }
     }
 
@@ -151,17 +155,18 @@ class BookDetailActivity : AppCompatActivity() {
         }
     }
 
-
     override fun onBackPressed() {
+        val intent = Intent()
         viewModel?.isBookStoredStateChange?.value?.let {
             if(it){
-                val intent = Intent().apply {
+                intent.apply {
                     putExtra("ISBOOKSTORED", viewModel?.isBookStored?.value ?: false)
-                    putExtra("BOOKID", viewModel?.bookInformation?.value?.bookid)
                 }
-                setResult(Activity.RESULT_OK, intent)
             }
         }
+        intent.putExtra("BOOKID", viewModel?.bookInformation?.value?.bookid)
+        intent.putExtra("LASTREADCHAPTER", viewModel?.bookLastReadInfo?.value?.chapterTitle)
+        setResult(Activity.RESULT_OK, intent)
         super.onBackPressed()
     }
 

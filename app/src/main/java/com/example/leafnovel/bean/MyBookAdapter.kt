@@ -1,6 +1,7 @@
 package com.example.leafnovel.bean
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -229,4 +230,10 @@ class MyBookAdapter:ExpandableItemAdapter() {
         viewBinderHelperLeft.restoreStates(outState)
     }
 
+    fun updateChildItem(updateItem: Child) {
+        val position = findItemPosition(updateItem, TYPE_CHILD)
+        if(position != RecyclerView.NO_POSITION){
+            notifyItemChanged(position,updateItem)
+        }
+    }
 }

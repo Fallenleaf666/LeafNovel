@@ -9,9 +9,11 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.leafnovel.bean.Child
 import com.example.leafnovel.bean.Group
+import com.example.leafnovel.bean.Item
 import com.example.leafnovel.customToast
 import com.example.leafnovel.data.model.StoredBook
 import com.example.leafnovel.data.database.StoredBookDB
+import com.example.leafnovel.data.model.FolderState
 import com.example.leafnovel.data.model.StoredBookFolder
 import com.example.leafnovel.data.repository.Repository
 import kotlinx.coroutines.*
@@ -95,6 +97,14 @@ class MyBooksViewModel(context: Context) : ViewModel() {
 
     fun updateStoredBookOnline():Deferred<ArrayList<Group>> = scope.async(Dispatchers.IO) {
         repository.updateStoredBookOnline()
+    }
+
+    fun updateBookFolderState(folderItemList: List<Item>) = scope.launch(Dispatchers.IO) {
+        val folderStateList = mutableListOf<FolderState>()
+        folderItemList.map{
+            folderStateList.add(FolderState(it.id.toLong(),it.isExpendable))
+        }
+        repository.updateBookFolderState(folderStateList.toList())
     }
 
 }

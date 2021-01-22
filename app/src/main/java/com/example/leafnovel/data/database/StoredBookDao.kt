@@ -130,7 +130,7 @@ interface StoredBookDao{
     @Transaction
     fun getAllBookFolders():List<StoredBookFolder>{
         if(getSingleBookFolder(-5) == null){
-            addBookFolder(StoredBookFolder("未分類",0,-5))
+            addBookFolder(StoredBookFolder("未分類", 0, -5, false))
         }
         return getBookFolders()
     }
@@ -193,7 +193,11 @@ interface StoredBookDao{
         for(j in folderList.indices){
             val folder = Group().apply {
                 id = folderList[j].folderid.toInt()
-                isExpendable = j == 0
+                if(folderList.size == 1){
+                    isExpendable = true
+                }else{
+                    isExpendable = folderList[j].isexpend
+                }
                 title = folderList[j].foldername
             }
             val storedBookList = getFavoriteBooksByFolderId(folderList[j].folderid)
@@ -215,4 +219,13 @@ interface StoredBookDao{
         return folderWithBook
     }
 
+    @Query("UPDATE StoredBookFolder SET isexpend = :isExpand where folderid = :folderId")
+    fun updateBookFolderStateQuery(folderId: Long, isExpand: Boolean)
+
+    @Transaction
+    fun updateBookFolderState(folderStateList: List<FolderState>) {
+        for(i in folderStateList){
+            updateBookFolderStateQuery(i.folderId,i.isExpand)
+        }
+    }
 }

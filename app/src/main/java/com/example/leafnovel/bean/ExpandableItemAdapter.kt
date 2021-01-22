@@ -69,4 +69,5 @@ abstract class ExpandableItemAdapter: ItemAdapter() {
             collapse(item)
         }
     }
+
 }

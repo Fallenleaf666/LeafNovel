@@ -194,5 +194,9 @@ class Repository constructor(private val sbBooksDao: StoredBookDao) {
         }
         return sbBooksDao.getFolderWithBookBeta()
     }
+
+    fun updateBookFolderState(folderStateList: List<FolderState>) {
+        sbBooksDao.updateBookFolderState(folderStateList)
+    }
 }
 
