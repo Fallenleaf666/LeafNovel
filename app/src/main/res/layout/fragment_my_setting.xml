@@ -150,7 +150,8 @@
                 </androidx.constraintlayout.widget.ConstraintLayout>
                 <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content" android:id="@+id/TexxtSizeSettingView">
+                        android:layout_height="wrap_content" android:id="@+id/TexxtSizeSettingView"
+                        android:visibility="gone">
 
                     <ImageView
                             android:src="@drawable/ic_baseline_font_download_24"
@@ -201,7 +202,7 @@
                         android:layout_marginStart="15dp" android:layout_marginTop="9dp" android:textStyle="bold"/>
                 <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent">
+                        android:layout_height="match_parent" android:visibility="gone">
 
                     <ImageView
                             android:src="@drawable/ic_baseline_event_note_24"
@@ -317,7 +318,8 @@
             <LinearLayout
                     android:orientation="vertical"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent" android:layout_marginTop="20dp" android:background="#F2F3F3EC">
+                    android:layout_height="match_parent" android:layout_marginTop="20dp" android:background="#F2F3F3EC"
+                    android:visibility="gone">
                 <TextView
                         android:text="測試工具"
                         android:layout_width="match_parent"

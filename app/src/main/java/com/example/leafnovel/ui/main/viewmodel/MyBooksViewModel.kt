@@ -85,7 +85,7 @@ class MyBooksViewModel(context: Context) : ViewModel() {
         repository.getFolderWithBook()
     }
 
-    fun updateBookParentFolder(oldFolderId:Long) = scope.async(Dispatchers.IO) {
+    fun updateBookParentFolderAsync(oldFolderId:Long) = scope.async(Dispatchers.IO) {
         repository.updateBookParentFolder(oldFolderId)
     }
 
@@ -95,7 +95,7 @@ class MyBooksViewModel(context: Context) : ViewModel() {
         parentJob.cancel()
     }
 
-    fun updateStoredBookOnline():Deferred<ArrayList<Group>> = scope.async(Dispatchers.IO) {
+    fun updateStoredBookOnlineAsync():Deferred<ArrayList<Group>> = scope.async(Dispatchers.IO) {
         repository.updateStoredBookOnline()
     }
 

@@ -375,6 +375,8 @@ class BookDirectoryFragment : Fragment(), BookChapterAdapter.OnItemClickListener
 
     override fun onStop() {
         super.onStop()
+        try{
             context?.unregisterReceiver(downloadReceiver)
+        }catch (e:Exception){ }
     }
 }

@@ -130,13 +130,15 @@ class DownloadNovelService : IntentService("DownloadNovelService") {
         val allDownloadResults: MutableList<ChapterDownloadResult> = mutableListOf()
         for (i in downloadChaptersList) {
             completionService.submit {
-                val time = measureTimeMillis {
-                    val chapterContentText = repository.getSearchBookChaptersContextBeta(i.chUrl, i.chtitle, bookName)
+//                val time = measureTimeMillis {}
+                val chapterContentText = repository.getSearchBookChaptersContextBeta(i.chUrl, i.chtitle, bookName)
+                if (chapterContentText != "error") {
                     repository.saveChapter(StoredChapter(bookId, i.chtitle, chapterContentText, i.chIndex, 0, false))
+                    ChapterDownloadResult(i.chIndex, i.chtitle, i.chUrl, ChapterDownloadState.SUCCESS)
+                } else {
+                    ChapterDownloadResult(i.chIndex, i.chtitle, i.chUrl, ChapterDownloadState.FAIL)
                 }
 //                Log.d(TAG, "${i.chtitle} 耗時${time}s")
-
-                ChapterDownloadResult(i.chIndex, i.chtitle, i.chUrl, ChapterDownloadState.SUCCESS)
             }
         }
         executor.shutdown()

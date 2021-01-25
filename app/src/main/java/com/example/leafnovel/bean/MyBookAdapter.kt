@@ -16,6 +16,7 @@ import com.chauthai.swipereveallayout.ViewBinderHelper
 import com.example.leafnovel.R
 import com.example.leafnovel.data.model.StoredBook
 import com.rishabhharit.roundedimageview.RoundedImageView
+import kotlinx.android.synthetic.main.fragment_my_books.*
 import kotlinx.android.synthetic.main.row_mybook.view.*
 import kotlinx.android.synthetic.main.row_mybook_folder.view.*
 
@@ -235,5 +236,9 @@ class MyBookAdapter:ExpandableItemAdapter() {
         if(position != RecyclerView.NO_POSITION){
             notifyItemChanged(position,updateItem)
         }
+    }
+
+    fun checkHasFavoriteBook():Boolean{
+        return !(getAllItem().size == 1 && getAllItem()[0].getSubItems().size == 0)
     }
 }

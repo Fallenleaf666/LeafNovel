@@ -9,29 +9,35 @@ import android.util.Log
 import com.example.leafnovel.data.DownloadNovelService
 import com.example.leafnovel.data.model.*
 import com.example.leafnovel.receiver.DownloadResultReceiver
+import com.github.houbb.opencc4j.util.ZhConverterUtil.toTraditional
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
 import java.io.IOException
 import java.lang.Exception
+import kotlin.system.measureTimeMillis
 
 
 class NovelApi {
     companion object {
         fun requestChapterText(url: String, bookChTitle: String, bookTitle: String): String{
-            val doc: Document = Jsoup.connect("https://tw.uukanshu.com$url").get()
-            val contentBox: Element = doc.getElementById("contentbox")
-            contentBox.children().select("div.ad_content").remove()
+            try{
+                val doc: Document = Jsoup.connect("https://tw.uukanshu.com$url").get()
+                val contentBox: Element = doc.getElementById("contentbox")
+                contentBox.children().select("div.ad_content").remove()
 //            println("處理前")
 //            println(contentBox)
 //            println("處理中")
 //            println(contentBox)
-            val rawtext = contentBox.text()
-            val dataText = allToHelfText(rawtext, bookChTitle, bookTitle)
+                val rawtext = contentBox.text()
+                val dataText = allToHelfText(rawtext, bookChTitle, bookTitle)
 //            println("處理後")
 //            print(dataText)
-            return dataText
+                return dataText
+            }catch (e :IOException){
+                return "error"
+            }
         }
         const val TAG = "NovelApi"
 
@@ -65,13 +71,14 @@ class NovelApi {
                     tempBook.apply {
                         this.bookUrl = bookUrl
                         this.bookId = bookId
-                        this.bookDescripe = bookDescribe
-//                    this.bookDescripe = toTraditional(bookDescribe)
-                        this.author = author
-//                    this.author = toTraditional(author)
-                        this.booktitle = bookTitle
-//                    this.booktitle = toTraditional(bookTitle)
+                        //簡體轉繁體
+                        this.bookDescripe = toTraditional(bookDescribe)
+                        this.author = toTraditional(author)
+                        this.booktitle = toTraditional(bookTitle)
                         this.updateTime = updateTime
+//                        this.author = author
+//                        this.booktitle = bookTitle
+//                        this.bookDescripe = bookDescribe
                     }
                     booksResults.add(tempBook)
                 }
@@ -83,14 +90,14 @@ class NovelApi {
 
 
         fun requestChapterList(id: String): BookChsResults {
-            //    get dictery
-//    val doc : Document = Jsoup.connect("https://tw.uukanshu.com/b/141809/").get()
+            //get dictery
+            //val doc : Document = Jsoup.connect("https://tw.uukanshu.com/b/141809/").get()
             val doc: Document = Jsoup.connect("https://tw.uukanshu.com/b/$id/").get()
-//    get chlisttag
+            //get chlisttag
             val chapterList: Element? = doc.getElementById("chapterList")
             val chapters: Elements = chapterList!!.getElementsByTag("li")
 
-//    get chapters
+            //get chapters
             val chList: MutableList<Elements> = mutableListOf()
             for (i in chapters) {
                 val c = i.getElementsByTag("a")
@@ -103,7 +110,7 @@ class NovelApi {
             val bookChsResults = BookChsResults()
             var title: String
             var partHref: String
-//    從網站上讀取的是倒序
+            //從網站上讀取的是倒序
             for (i in chList.size - 1 downTo 0) {
                 title= chList[i].text()
                 partHref = chList[i].attr("href")

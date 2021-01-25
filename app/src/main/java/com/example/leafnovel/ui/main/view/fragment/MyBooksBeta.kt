@@ -6,7 +6,6 @@ import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
-import android.os.Handler
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -81,12 +80,11 @@ class MyBooksBeta : Fragment(), MyBookAdapter.OnItemClickListener, MyBookAdapter
 //    }
 
     private fun updateNewChapter() {
-//        Handler().postDelayed({MyBookRefreshLayout.isRefreshing = false},2000)
         context?.let {
             if(checkNetConnect(it)){
                 CoroutineScope(Dispatchers.Main).launch{
                     mAdapter.clear()
-                    val groupList = viewModel.updateStoredBookOnline().await()
+                    val groupList = viewModel.updateStoredBookOnlineAsync().await()
                     for (i in groupList.indices) {
                         val folder = groupList[i]
                         mAdapter.addItem(folder)
@@ -94,7 +92,12 @@ class MyBooksBeta : Fragment(), MyBookAdapter.OnItemClickListener, MyBookAdapter
                     withContext(Dispatchers.Main) {
                         mAdapter.notifyDataSetChanged()
                     }
+                    MyBookRefreshLayout.isRefreshing = false
+
                 }
+            }else{
+                customToast(it,getString(R.string.please_check_net_connect_state)).show()
+                MyBookRefreshLayout.isRefreshing = false
             }
         }
     }
@@ -109,7 +112,7 @@ class MyBooksBeta : Fragment(), MyBookAdapter.OnItemClickListener, MyBookAdapter
 
     private val refreshListener = SwipeRefreshLayout.OnRefreshListener {
         updateNewChapter()
-        Handler().postDelayed({ MyBookRefreshLayout.isRefreshing = false }, 2000)
+//      Handler().postDelayed({ MyBookRefreshLayout.isRefreshing = false }, 2000)
     }
 
 
@@ -132,6 +135,7 @@ class MyBooksBeta : Fragment(), MyBookAdapter.OnItemClickListener, MyBookAdapter
     override fun onDeleteClick(book:Child, view: View) {
         viewModel.deleteBookById(book.bookId)
         mAdapter.removeChildItem(book)
+        setHasFavoriteBookView(mAdapter.checkHasFavoriteBook())
     }
 
     override fun onPinningClick(sbbook:Child, view: View) {
@@ -159,6 +163,9 @@ class MyBooksBeta : Fragment(), MyBookAdapter.OnItemClickListener, MyBookAdapter
                 val folder = groupList[i]
                 mAdapter.addItem(folder)
             }
+
+            setHasFavoriteBookView(mAdapter.checkHasFavoriteBook())
+
             withContext(Dispatchers.Main) {
                 mAdapter.notifyDataSetChanged()
             }
@@ -204,24 +211,6 @@ class MyBooksBeta : Fragment(), MyBookAdapter.OnItemClickListener, MyBookAdapter
 //            }
 //        })
 
-//        viewModel.allsbBookFolders.observe(viewLifecycleOwner, { storedBookFolders -> })
-//
-//        Handler().postDelayed({ //更新第0组
-//            val foldersName = mutableListOf<String>()
-//            for(i in storedBookFolders){
-//                foldersName.add(i.foldername)
-//            }
-//            foldersName.add("未分類")
-//            val mGroup = mAdapter.getItem(0) as Group
-//            val child = Child()
-//            mGroup.clearSubItems()
-//            mGroup.title = "哈囉"
-//            child.group = mGroup
-//            child.position = 0
-//            mGroup.addSubItem(child)
-//            mAdapter.setItem(mGroup)
-//            mAdapter.notifyDataSetChanged()
-//        }, 3000)
 
         mAdapter.setExpandableToggleListener(object : ExpandableItemAdapter.ExpandableToggleListener {
             override fun onExpand(item: Item) {
@@ -326,6 +315,7 @@ class MyBooksBeta : Fragment(), MyBookAdapter.OnItemClickListener, MyBookAdapter
                         val folder = mAdapter.getItem(0xfa01,bookFolder.id)
                         viewModel.deleteBookFolderAndUpdate(bookFolder.id.toLong())
                         mAdapter.removeItem(bookFolder)
+
                         withContext(Dispatchers.Main){
                             mAdapter.notifyDataSetChanged()
                         }
@@ -399,6 +389,7 @@ class MyBooksBeta : Fragment(), MyBookAdapter.OnItemClickListener, MyBookAdapter
             viewModel.lastReadBookItem.value?.let {
                 if (id == it.bookId) {
                     mAdapter.removeChildItem(it)
+                    setHasFavoriteBookView(mAdapter.checkHasFavoriteBook())
                 }
             }
         }
@@ -419,5 +410,13 @@ class MyBooksBeta : Fragment(), MyBookAdapter.OnItemClickListener, MyBookAdapter
     override fun onPause() {
         viewModel.updateBookFolderState(mAdapter.findAllGroupItemPosition())
         super.onPause()
+    }
+
+    private fun setHasFavoriteBookView(hasBook:Boolean){
+        if(!hasBook){
+            NoFavoriteBookView.visibility = View.VISIBLE
+        }else{
+            NoFavoriteBookView.visibility = View.INVISIBLE
+        }
     }
 }

@@ -24,10 +24,12 @@
             app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/nav_host_container"
-            app:itemTextColor="#CED1AA" app:itemRippleColor="#FFFFFF" app:itemIconSize="20dp"
+            app:itemTextColor="@drawable/bottom_navigation_item_color" app:itemRippleColor="#FFFFFF"
+            app:itemIconSize="20dp"
             android:isScrollContainer="false"
-            android:background="#E8767C26"
+            android:background="#F3171711"
             app:layout_behavior="@string/hide_bottom_view_on_scroll_behavior"
             app:hideOnScroll="true"
-            android:layout_gravity="bottom"/>
+            android:layout_gravity="bottom" app:itemIconTint="@drawable/bottom_navigation_item_color"
+    />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

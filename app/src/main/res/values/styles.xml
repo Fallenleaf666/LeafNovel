@@ -150,4 +150,10 @@
         <item name="android:windowFullscreen">true</item>
     </style>
 
+    <style name="CustomBottomNavigation" parent="Widget.MaterialComponents.BottomNavigationView.Colored">
+        <item name="android:background">#E8767C26</item>
+        <item name="itemTextColor">@drawable/bottom_navigation_item_color</item>
+        <item name="itemIconTint">@drawable/bottom_navigation_item_color</item>
+    </style>
+
 </resources>

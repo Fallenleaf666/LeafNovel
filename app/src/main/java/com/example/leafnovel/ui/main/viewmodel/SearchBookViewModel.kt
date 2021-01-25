@@ -1,6 +1,7 @@
 package com.example.leafnovel.ui.main.viewmodel
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
@@ -14,10 +15,15 @@ import com.example.leafnovel.data.model.BooksResults
 import com.example.leafnovel.data.model.SearchResult
 import com.example.leafnovel.data.repository.Repository
 import com.example.leafnovel.ui.base.ToastCustomUtil
+import com.github.houbb.opencc4j.util.ZhConverterUtil
 import kotlinx.coroutines.*
 import kotlin.coroutines.CoroutineContext
+import kotlin.system.measureTimeMillis
 
 class SearchBookViewModel(context: Context): ViewModel() {
+    companion object{
+        const val TAG = "SearchBookViewModel"
+    }
     val searchBooksResults = MutableLiveData<ArrayList<Book>>()
     val isHasSearchBooks = MutableLiveData<Boolean?>()
 //    var searchString: MutableLiveData<String> = MutableLiveData<String>("")
@@ -33,6 +39,13 @@ class SearchBookViewModel(context: Context): ViewModel() {
     init {
         val sbBooksDao = StoredBookDB.getInstance(context)?.storedbookDao()
         repository = sbBooksDao?.let { Repository(it) }!!
+        scope.launch(Dispatchers.IO) {
+            var s ="这是一个测试字串，因为初次使用会等待较久时间"
+//            val time = measureTimeMillis {
+                s = ZhConverterUtil.toTraditional(s)
+//            }
+//            Log.d(TAG,"time${time} ${s}")
+        }
     }
 
     
