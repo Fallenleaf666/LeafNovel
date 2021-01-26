@@ -64,7 +64,8 @@ class NovelApi {
                     val bookId = tempDoc.attr("href").split("=")[1]
                     val bookUrl = tempDoc.attr("href")
                     val author = i.getElementsByClass("aut").text().split(" ")[0]
-                    val bookDescribe = i.getElementsByTag("p").first().getElementsByTag("a").first().text()?:"此書無簡介"
+                    var bookDescribe = i.getElementsByTag("p").first().getElementsByTag("a").first().text()
+                    bookDescribe = clearString(bookDescribe)
                     val updateTime = i.getElementsByTag("p").first().getElementsByTag("span").first().text()
 
                     val tempBook = Book()
@@ -82,7 +83,9 @@ class NovelApi {
                     }
                     booksResults.add(tempBook)
                 }
-                return WebSearchBookResult(SearchResult.SUCCESS,booksResults,SearchSource.UU)
+                booksResults.sortBy { it.booktitle.length }
+
+                return WebSearchBookResult(SearchResult.SUCCESS, booksResults, SearchSource.UU)
             }catch (e: IOException){
                 return WebSearchBookResult(SearchResult.FAIL,BooksResults(),SearchSource.UU)
             }
@@ -105,12 +108,12 @@ class NovelApi {
                     chList.add(c)
             }
             val chNum = chList.size
-            println("總共 $chNum 章")
+//            println("總共 $chNum 章")
 
             val bookChsResults = BookChsResults()
             var title: String
             var partHref: String
-            //從網站上讀取的是倒序
+            //將網站上讀取的倒序轉為正序
             for (i in chList.size - 1 downTo 0) {
                 title= chList[i].text()
                 partHref = chList[i].attr("href")
@@ -155,9 +158,10 @@ class NovelApi {
             val nodeDoc = doc.select("dl.jieshao")
             val novelState = nodeDoc.select("span.status-text").first().text()
             val newChapter = nodeDoc.select("div.zuixin>a").first().text()
-            val bookDescripe = nodeDoc.select("dd.jieshao_content>h3").first().text().replace(" www.uukanshu.com ", "")
+            var bookDescripe = nodeDoc.select("dd.jieshao_content>h3").first().text().replace(" www.uukanshu.com ", "")
                 .replace("http://www.uukanshu.com", "").replace("－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－", "")
                 .replace(bookTitle + "簡介：", "")
+            bookDescripe = clearStringForDetail(bookDescripe)
             val novelState2 = nodeDoc.select("div.shijian").first()
             novelState2.select("span#Span1").remove()
             novelState2.select("a").remove()
@@ -198,6 +202,34 @@ class NovelApi {
                 "imgUrl" to imgUrl
             )
             return bookMap
+        }
+
+        //清理簡介的內容
+        private fun clearString(s: String?): String {
+            var clearString = s ?: "該小說無簡介內容"
+            if (clearString == "" || clearString == " ") {
+                clearString = "該小說無簡介內容"
+            } else if (clearString[0] == ';') {
+                clearString = clearString.substring(1, clearString.length)
+            }else if(clearString[0] == '　'&& clearString[1] == '　'){
+                clearString = clearString.substring(2, clearString.length)
+            }
+            clearString = clearString.replace(" ", "").replace("　　", "")
+            return clearString
+        }
+
+        //清理簡介的內容，用在小說詳細介紹頁面用
+        private fun clearStringForDetail(s: String?): String {
+            var clearString = s ?: "該小說無簡介內容"
+            if (clearString == "" || clearString == " ") {
+                clearString = "該小說無簡介內容"
+            } else if (clearString[0] == ';') {
+                clearString = clearString.substring(1, clearString.length)
+            }else if(clearString[0] == '　'&& clearString[1] == '　'){
+                clearString = clearString.substring(2, clearString.length)
+            }
+            clearString = clearString.replace("。", "。\n\n").replace("　　", "").replace(" ", "")
+            return clearString
         }
 
 //        fun downloadBookChapter(bookDownloadInfo: BookDownloadInfo): ArrayList<StoredChapter> {
