@@ -41,9 +41,9 @@
 ---
 ### 使用庫及開發工具
 - ****Jsoup****
-- ****Coroutuine****
+- ****Coroutines****
 - ****Room****
-- ****IntelliJ****
+- ****intellij idea****
 
 ---
 
