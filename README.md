@@ -1,13 +1,4 @@
----
-title: LeafNovel
-# tags: Templates, Talk
-# description: View the slide with "Slide Mode".
----
-
 # LeafNovel 
-
-[![hackmd-github-sync-badge](https://hackmd.io/cbRQrP0UQ0OlV0fU5v6WmA/badge)](https://hackmd.io/cbRQrP0UQ0OlV0fU5v6WmA)
-
 
 有鑿於平時就有看小說的習慣，加上閱讀時總被突然出現的廣告所影響，因此嘗試使用Kotlin編寫這款app，落葉小說是一款提供讀者可以方便閱讀小說的app，支援多執行續下載，可快速將小說章節下載到本地端，方便離線閱讀，日夜模式，字體大小編輯，紀錄上回閱讀進度，提供小書分類資料夾，方便對小說個人化分類
 
