@@ -13,8 +13,8 @@
 ---
 
 ## app畫面預覽
-|<img src="https://github.com/Fallenleaf666/LeafNovel/blob/master/screenshot/picture/myBook.png" width="200"/>|<img src="https://github.com/Fallenleaf666/LeafNovel/blob/master/screenshot/picture/search.png" width="200"/>|<img src="https://github.com/Fallenleaf666/LeafNovel/blob/master/screenshot/picture/bookIntroduce.png" width="200"/>|<img src="https://github.com/Fallenleaf666/LeafNovel/blob/master/screenshot/picture/bookDcitionary.png" width="200"/>|<img src="https://github.com/Fallenleaf666/LeafNovel/blob/master/screenshot/picture/bookDownload.png" width="200"/>|
-|<img src="https://github.com/Fallenleaf666/LeafNovel/blob/master/screenshot/picture/readView.png" width="200"/>|<img src="https://github.com/Fallenleaf666/LeafNovel/blob/master/screenshot/picture/readInterface.png" width="200"/>|<img src="https://github.com/Fallenleaf666/LeafNovel/blob/master/screenshot/picture/readISettingnterface.png" width="200"/>||<img src="https://github.com/Fallenleaf666/LeafNovel/blob/master/screenshot/picture/setting.png" width="200"/>|
+|<img src="https://github.com/Fallenleaf666/LeafNovel/blob/master/screenshot/picture/myBook.png" width="200"/>|<img src="https://github.com/Fallenleaf666/LeafNovel/blob/master/screenshot/picture/search.png" width="200"/>|<img src="https://github.com/Fallenleaf666/LeafNovel/blob/master/screenshot/picture/bookIntroduce.png" width="200"/>|<img src="https://github.com/Fallenleaf666/LeafNovel/blob/master/screenshot/picture/bookDcitionary.png" width="200"/>|
+<img src="https://github.com/Fallenleaf666/LeafNovel/blob/master/screenshot/picture/bookDownload.png" width="200"/>|<img src="https://github.com/Fallenleaf666/LeafNovel/blob/master/screenshot/picture/readView.png" width="200"/>|<img src="https://github.com/Fallenleaf666/LeafNovel/blob/master/screenshot/picture/readISettingnterface.png" width="200"/>|<img src="https://github.com/Fallenleaf666/LeafNovel/blob/master/screenshot/picture/setting.png" width="200"/>|
 
 ---
 
