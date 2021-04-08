@@ -70,7 +70,7 @@ LeafNovel為一款提供讀者方便閱讀小說的app，期望能帶給讀者�
 |取消收藏|將小說從書櫃中移除。|<img src="https://github.com/Fallenleaf666/LeafNovel/blob/master/screenshot/cancelFavoriteBook.gif" width="500"/>|
 |小說閱讀狀態欄位|顯示目前閱讀章節名稱.閱讀進度，電池狀態，當前時間。|圖片尚未放入<img src="" width="500"/>|
 |跳至下個章節|閱讀時點擊畫面進入設定模式，點擊畫面兩側的箭頭符號，便可以進行章節的上/下回跳轉。|<img src="https://github.com/Fallenleaf666/LeafNovel/blob/master/screenshot/changeToNextChapter.gif" width="500"/>|
-|日夜模式|可切換日夜主題配色，因應不同環境，讓眼睛能以較低的負擔進行閱讀。。|<img src="https://github.com/Fallenleaf666/LeafNovel/blob/master/screenshot/dayNightChange.gif" width="500"/>|
+|日夜模式|可切換日夜主題配色，因應不同環境，讓眼睛能以較低的負擔進行閱讀。|<img src="https://github.com/Fallenleaf666/LeafNovel/blob/master/screenshot/dayNightChange.gif" width="500"/>|
 |閱讀設定|可調整字體大小及螢幕亮度。<br>註：因操作影片為畫面截圖，故無法顯示亮度變化|<img src="https://github.com/Fallenleaf666/LeafNovel/blob/master/screenshot/fontstyleChange.gif" width="500"/>|
 |背景更換|用戶可以自由選擇閱讀時的背景顏色，增加閱讀體驗。|<img src="https://github.com/Fallenleaf666/LeafNovel/blob/master/screenshot/backgroundChange.gif" width="500"/>|
 |目錄跳轉|用戶在閱讀時，點擊螢幕顯示功能頁面，而後點擊目錄，便會出現側邊章節列表，點擊便可進行章節跳轉。|<img src="https://github.com/Fallenleaf666/LeafNovel/blob/master/screenshot/directoryChangeChapter.gif" width="500"/>|
