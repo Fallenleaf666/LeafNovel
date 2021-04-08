@@ -1,12 +1,13 @@
 # LeafNovel 
 
-鑿於平時就有看小說的習慣，加上閱讀時總被突然出現的廣告所干擾，因此嘗試使用Kotlin編寫這款app，落葉小說是一款提供讀者可以方便閱讀小說的app，支援多執行續下載，可快速將小說章節下載到本地端，方便離線閱讀，日夜模式，字體大小編輯，紀錄上回閱讀進度，提供小書分類資料夾，方便對小說個人化分類。
+## 簡介
+隨著Kotlin成為Google認定的Android主流開發語言後，便想說嘗試使用它來開發一個SideProject，從實做中去熟悉Kotlin這個語言，並嘗試使用MVVM的架構去進行開發。
 
-未來預計新增書友評論區，會員書櫃雲端紀錄，增加小說來源，追蹤作者新書。
+鑿於平時就有看小說的習慣，加上閱讀時總被突然出現的廣告所干擾，非常破壞閱讀體驗，以此為動機便著手開始開發這款LeafNovel。
 
----
+LeafNovel為一款提供讀者方便閱讀小說的app，期望能帶給讀者舒適愉快的閱讀體驗。
 
-隨著Kotlin成為Google認定的Android主流開發語言後，便想說嘗試使用它來開發一個SideProject，從而初步瞭解Kotlin這個語言，並嘗試套用MVVM的架構去進行開發。
+未來預計新增書友評論區、同步會員書櫃雲端紀錄、增加小說來源、追蹤作者新書、合成語音唸書等......功能，期待LeafNovel日後能越加完善。
 
 
 
@@ -69,7 +70,7 @@
 |取消收藏|將小說從書櫃中移除。|<img src="https://github.com/Fallenleaf666/LeafNovel/blob/master/screenshot/cancelFavoriteBook.gif" width="500"/>||
 |小說閱讀狀態欄位|顯示目前閱讀章節名稱.閱讀進度，電池狀態，當前時間。|<img src="" width="500"/>||
 |跳至下個章節|閱讀時點擊畫面進入設定模式，點擊畫面兩側的箭頭符號，便可以進行章節的上/下回跳轉。|<img src="https://github.com/Fallenleaf666/LeafNovel/blob/master/screenshot/changeToNextChapter.gif" width="500"/>||
-|日夜模式|可切換日夜主題配色，因應不同環境。|<img src="https://github.com/Fallenleaf666/LeafNovel/blob/master/screenshot/dayNightChange.gif" width="500"/>||
+|日夜模式|可切換日夜主題配色，因應不同環境，讓眼睛能以較低的負擔進行閱讀。。|<img src="https://github.com/Fallenleaf666/LeafNovel/blob/master/screenshot/dayNightChange.gif" width="500"/>||
 |閱讀設定|可調整字體大小及螢幕亮度。<br>註：因操作影片為畫面截圖，故無法顯示亮度變化|<img src="https://github.com/Fallenleaf666/LeafNovel/blob/master/screenshot/fontstyleChange.gif" width="500"/>||
 |背景更換|用戶可以自由選擇閱讀時的背景顏色，增加閱讀體驗。|<img src="https://github.com/Fallenleaf666/LeafNovel/blob/master/screenshot/backgroundChange.gif" width="500"/>||
 |目錄跳轉|用戶在閱讀時，點擊螢幕顯示功能頁面，而後點擊目錄，便會出現側邊章節列表，點擊便可進行章節跳轉。|<img src="https://github.com/Fallenleaf666/LeafNovel/blob/master/screenshot/directoryChangeChapter.gif" width="500"/>||
@@ -81,16 +82,3 @@
 |問題回報|可反應使用app時遇到的問題至開發者信箱，並自動附上手機型號以便排錯。|<img src="https://github.com/Fallenleaf666/LeafNovel/blob/master/screenshot/sendResponseMessage.gif" width="500"/>||
 |上次閱讀|自動記錄上次的閱讀進度，下次即可直接從該進度開始閱讀。|<img src="https://github.com/Fallenleaf666/LeafNovel/blob/master/screenshot/recordLastRead.gif" width="500"/>||
 |分類擴展|可擴展收縮分類收藏，隱藏部分藏書。|<img src="https://github.com/Fallenleaf666/LeafNovel/blob/master/screenshot/extendFolder.gif" width="500"/>||
-
-
----
-
-
-## 製作遇到的困難
-
--  
-
-
-## :tada: 感想
-
-
