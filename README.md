@@ -68,7 +68,7 @@ LeafNovel為一款提供讀者方便閱讀小說的app，期望能帶給讀者�
 |編輯分類資料夾|更改分類資料夾名稱。|<img src="https://github.com/Fallenleaf666/LeafNovel/blob/master/screenshot/editClassFolder.gif" width="500"/>|
 |刪除分類資料夾|將不需要的分類資料夾刪除，內部的書本將會移至未分類資料夾中。|<img src="https://github.com/Fallenleaf666/LeafNovel/blob/master/screenshot/deleteClassFolder.gif" width="500"/>|
 |取消收藏|將小說從書櫃中移除。|<img src="https://github.com/Fallenleaf666/LeafNovel/blob/master/screenshot/cancelFavoriteBook.gif" width="500"/>|
-|小說閱讀狀態欄位|顯示目前閱讀章節名稱.閱讀進度，電池狀態，當前時間。|<img src="" width="500"/>|
+|小說閱讀狀態欄位|顯示目前閱讀章節名稱.閱讀進度，電池狀態，當前時間。|圖片尚未放入<img src="" width="500"/>|
 |跳至下個章節|閱讀時點擊畫面進入設定模式，點擊畫面兩側的箭頭符號，便可以進行章節的上/下回跳轉。|<img src="https://github.com/Fallenleaf666/LeafNovel/blob/master/screenshot/changeToNextChapter.gif" width="500"/>|
 |日夜模式|可切換日夜主題配色，因應不同環境，讓眼睛能以較低的負擔進行閱讀。。|<img src="https://github.com/Fallenleaf666/LeafNovel/blob/master/screenshot/dayNightChange.gif" width="500"/>|
 |閱讀設定|可調整字體大小及螢幕亮度。<br>註：因操作影片為畫面截圖，故無法顯示亮度變化|<img src="https://github.com/Fallenleaf666/LeafNovel/blob/master/screenshot/fontstyleChange.gif" width="500"/>|
