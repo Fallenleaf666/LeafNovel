@@ -63,10 +63,10 @@ LeafNovel為一款提供讀者方便閱讀小說的app，期望能帶給讀者�
 |小說查詢|可於搜尋欄位中輸入書名或作者，查詢關聯小說。 <br> 這裡使用了FB的shimmer庫，可以在載入小說列表時，呈現類似載入中的閃爍動畫|<img src="https://github.com/Fallenleaf666/LeafNovel/blob/master/screenshot/searchBook.gif" width="500"/>|
 |新增收藏|將小說放入個人書櫃中。|<img src="https://github.com/Fallenleaf666/LeafNovel/blob/master/screenshot/addFavoriteBook.gif" width="500"/>|
 |移除收藏|將小說從書櫃中移除。|<img src="https://github.com/Fallenleaf666/LeafNovel/blob/master/screenshot/deleteFavoriteBook.gif" width="500"/>|
-|小說刷新|書櫃下拉可更新當前小說最新章節資訊。|<img src="https://github.com/Fallenleaf666/LeafNovel/blob/master/screenshot/refreshUpdate.gif" width="500"/>|
+|小說刷新|書櫃下拉便可刷新小說當前最新章節資訊。|<img src="https://github.com/Fallenleaf666/LeafNovel/blob/master/screenshot/refreshUpdate.gif" width="500"/>|
 |新增分類資料夾|讓使用者依據個人閱讀習慣方便分類，以便下次使用時可以快速找到。|<img src="https://github.com/Fallenleaf666/LeafNovel/blob/master/screenshot/createClassFolder.gif" width="500"/>|
-|編輯分類資料夾|更改資料夾名稱。|<img src="https://github.com/Fallenleaf666/LeafNovel/blob/master/screenshot/editClassFolder.gif" width="500"/>|
-|刪除分類資料夾|將不必要的資料夾刪除，內部的書會移至未分類。|<img src="https://github.com/Fallenleaf666/LeafNovel/blob/master/screenshot/deleteClassFolder.gif" width="500"/>|
+|編輯分類資料夾|更改分類資料夾名稱。|<img src="https://github.com/Fallenleaf666/LeafNovel/blob/master/screenshot/editClassFolder.gif" width="500"/>|
+|刪除分類資料夾|將不需要的分類資料夾刪除，內部的書本將會移至未分類資料夾中。|<img src="https://github.com/Fallenleaf666/LeafNovel/blob/master/screenshot/deleteClassFolder.gif" width="500"/>|
 |取消收藏|將小說從書櫃中移除。|<img src="https://github.com/Fallenleaf666/LeafNovel/blob/master/screenshot/cancelFavoriteBook.gif" width="500"/>|
 |小說閱讀狀態欄位|顯示目前閱讀章節名稱.閱讀進度，電池狀態，當前時間。|<img src="" width="500"/>|
 |跳至下個章節|閱讀時點擊畫面進入設定模式，點擊畫面兩側的箭頭符號，便可以進行章節的上/下回跳轉。|<img src="https://github.com/Fallenleaf666/LeafNovel/blob/master/screenshot/changeToNextChapter.gif" width="500"/>|
@@ -81,4 +81,4 @@ LeafNovel為一款提供讀者方便閱讀小說的app，期望能帶給讀者�
 |全選下載|可下載當前小說全部章節。<br>使用多執行續進行下載，大幅增加下載速度。|<img src="https://github.com/Fallenleaf666/LeafNovel/blob/master/screenshot/downloadAllChapter.gif" width="500"/>|
 |問題回報|可反應使用app時遇到的問題至開發者信箱，並自動附上手機型號以便排錯。|<img src="https://github.com/Fallenleaf666/LeafNovel/blob/master/screenshot/sendResponseMessage.gif" width="500"/>|
 |上次閱讀|自動記錄上次的閱讀進度，下次即可直接從該進度開始閱讀。|<img src="https://github.com/Fallenleaf666/LeafNovel/blob/master/screenshot/recordLastRead.gif" width="500"/>|
-|分類擴展|可擴展收縮分類收藏，隱藏部分藏書。|<img src="https://github.com/Fallenleaf666/LeafNovel/blob/master/screenshot/extendFolder.gif" width="500"/>|
+|分類擴展|可擴展收縮分類資料夾內的收藏，以顯示/隱藏部分藏書。|<img src="https://github.com/Fallenleaf666/LeafNovel/blob/master/screenshot/extendFolder.gif" width="500"/>|
